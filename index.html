@@ -430,7 +430,16 @@
       
         
           
-          在使用git进行多人协作时，一般需要先pull下来，再commit进行push来避免冲突，然而当pu
+          在使用git进行多人协作时，一般需要先pull下来，再commit进行push来避免冲突，然而当pull下来的文件与本地文件有冲突怎么办呢，这时“git stash”就派上了用场：
+
+先将本地的修改存储起来
+
+git stash
+
+pull下来远程仓库的内容
+
+git pull
+此时本地的文件已被远
           ...
           <!--noindex-->
           
@@ -610,7 +619,14 @@
       
         
           
-          Interesting FuzzingCoverage-based Greybox Fuzzing 
+          Interesting FuzzingCoverage-based Greybox Fuzzing as Markov Chain(CCS 16)
+paper
+source code
+
+
+Search Strategy
+Power Schedule
+通过改变前面两个方法来使程序更大概率地走到low-
           ...
           <!--noindex-->
           
@@ -772,8 +788,9 @@
       
         
           
-          之前一直想了解OS的流程，直到在逛github的时候看到os-tutorial，这是一个比较适合小白
-          ...
+          之前一直想了解OS的流程，直到在逛github的时候看到os-tutorial，这是一个比较适合小白了解OS，并手动构建一个OS的项目，先在此mark一下，此项目还在持续更新中~
+
+          
           <!--noindex-->
           
             <div class="post-button text-center">
@@ -934,7 +951,8 @@
       
         
           
-          Binutils BuildingDownload binutils source code1git
+          Binutils BuildingDownload binutils source code1git clone --depth 1 git://sourceware.org/git/binutils-gdb.git binutils
+Build binutils1234mkdir buildcd 
           ...
           <!--noindex-->
           
@@ -1114,7 +1132,9 @@
       
         
           
-          有的时候需要在编译器LLVM上添加自己写的sanitizer，比如自己写的sanitizer名字叫做
+          有的时候需要在编译器LLVM上添加自己写的sanitizer，比如自己写的sanitizer名字叫做Bitype，想通过指定-fsanitize=bitype来开启Bitype sanitizer，则需要如下步骤:
+
+在clang/Basic/Sanitizers.def文件中添加SANITIZER
           ...
           <!--noindex-->
           
@@ -1294,7 +1314,7 @@
       
         
           
-          前言fuzz解析数据的库函数的方法一般是找一个简单的二进制来测试库函数的功能，通过生成不同的输入来不
+          前言fuzz解析数据的库函数的方法一般是找一个简单的二进制来测试库函数的功能，通过生成不同的输入来不断地运行该二进制程序。一般是通过fork和execve来生成子进程运行目标二进制程序，fuzz程序通过waitpid()函数来等待子进程退出，如果子进程发出SIGSEGV或SIGABORT等信号，则证
           ...
           <!--noindex-->
           
@@ -1474,7 +1494,7 @@
       
         
           
-          前言AFL是使用比较广泛的fuzzing工具，ASAN(AddressSanitizer)是goog
+          前言AFL是使用比较广泛的fuzzing工具，ASAN(AddressSanitizer)是google的一个非常高效的内存错误检测工具，其能够检查出UAF,Heap/Stack buffer overflow, Use after return, Use after scope, Initiali
           ...
           <!--noindex-->
           
@@ -1654,7 +1674,9 @@
       
         
           
-          前言这两天做了一个CTF的题目，该题目的二进制链接。该题目的逻辑非常简单，就是接受输入，并将其打印，
+          前言这两天做了一个CTF的题目，该题目的二进制链接。该题目的逻辑非常简单，就是接受输入，并将其打印，在打印的时候利用了printf函数，很明显是个format string漏洞。但由于格式化的字符串并没有在栈中，所以利用起来有一点困难，在此记录一下自己利用的方法。
+格式化字符串漏洞
+格式化字符串函数
           ...
           <!--noindex-->
           
@@ -1838,7 +1860,9 @@
 sudo apt-get install qemu
 
 安装arm文件所需要的动态库
-s
+sudo apt-get install gcc-multilib-arm-linux-gnueabi
+sudo apt-get install gcc-armhf-cross
+此时在/usr/arm-
           ...
           <!--noindex-->
           
@@ -2018,7 +2042,9 @@ s
       
         
           
-          前言随着IoT(Internet of Things)设备快速增长，IoT设备的安全也逐渐引起大家的
+          前言随着IoT(Internet of Things)设备快速增长，IoT设备的安全也逐渐引起大家的注意。如论文[1]所述，IoT的安全问题主要包括如下方面:
+
+感知层安全。IoT的感知层主要包括wireless sensor networks, RFID, 802.11, BLE(Bluetoot
           ...
           <!--noindex-->
           
