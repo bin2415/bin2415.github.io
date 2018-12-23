@@ -1,0 +1,669 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2018/11/27/git%E6%9C%AC%E5%9C%B0%E5%86%B2%E7%AA%81/</loc>
+    <lastmod>2018-12-23T05:35:18.271Z</lastmod>
+    <data>
+        <display>
+        <title>git本地冲突</title>
+        <pubTime>2018-11-27T14:56:04.000Z</pubTime>
+        
+        <tag>git</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2017/05/16/xss/</loc>
+    <lastmod>2018-12-23T05:33:53.028Z</lastmod>
+    <data>
+        <display>
+        <title>SeedLab:Web XSS</title>
+        <pubTime>2017-05-16T10:18:48.000Z</pubTime>
+        
+        <tag>网络</tag>
+         
+        <tag>seed</tag>
+         
+         
+           
+             
+              <breadCrumb title="网络" url="http://bin2415.github.io/categories/%E7%BD%91%E7%BB%9C/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+    
+    
+  <url>
+    <loc>http://bin2415.github.io/2018/01/14/qemu-mips/</loc>
+    <lastmod>2018-12-23T05:33:53.027Z</lastmod>
+    <data>
+        <display>
+        <title>Qemu模拟Mips程序运行</title>
+        <pubTime>2018-01-14T12:15:22.000Z</pubTime>
+        
+        <tag>qemu</tag>
+         
+         
+           
+             
+              <breadCrumb title="qemu" url="http://bin2415.github.io/categories/qemu/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2017/05/16/seed-returnToLibc/</loc>
+    <lastmod>2018-12-23T05:33:53.027Z</lastmod>
+    <data>
+        <display>
+        <title>seedLab:returnToLibc</title>
+        <pubTime>2017-05-16T09:01:27.000Z</pubTime>
+        
+        <tag>反汇编</tag>
+         
+        <tag>exploit</tag>
+         
+        <tag>seed</tag>
+         
+         
+           
+             
+              <breadCrumb title="反汇编" url="http://bin2415.github.io/categories/%E5%8F%8D%E6%B1%87%E7%BC%96/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2017/05/16/tcp-ip-attack/</loc>
+    <lastmod>2018-12-23T05:33:53.027Z</lastmod>
+    <data>
+        <display>
+        <title>SeedLab:TCP/IP Attack</title>
+        <pubTime>2017-05-16T10:13:39.000Z</pubTime>
+        
+        <tag>网络</tag>
+         
+        <tag>seed</tag>
+         
+         
+           
+             
+              <breadCrumb title="网络" url="http://bin2415.github.io/categories/%E7%BD%91%E7%BB%9C/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2016/08/16/xposed/</loc>
+    <lastmod>2018-12-23T05:33:53.027Z</lastmod>
+    <data>
+        <display>
+        <title>XposedHook:hook敏感函数</title>
+        <pubTime>2016-08-16T09:58:59.000Z</pubTime>
+        
+        <tag>Android</tag>
+         
+        <tag>Hook</tag>
+         
+         
+           
+             
+              <breadCrumb title="Hook" url="http://bin2415.github.io/categories/Hook/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2017/05/16/remote-dns-attack/</loc>
+    <lastmod>2018-12-23T05:33:53.027Z</lastmod>
+    <data>
+        <display>
+        <title>SeedLab:Remote DNS Attack</title>
+        <pubTime>2017-05-16T10:15:25.000Z</pubTime>
+        
+        <tag>网络</tag>
+         
+        <tag>seed</tag>
+         
+         
+           
+             
+              <breadCrumb title="网络" url="http://bin2415.github.io/categories/%E7%BD%91%E7%BB%9C/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2018/07/26/qemu-arm/</loc>
+    <lastmod>2018-12-23T05:33:53.026Z</lastmod>
+    <data>
+        <display>
+        <title>Intel linux调试arm程序</title>
+        <pubTime>2018-07-26T06:43:55.000Z</pubTime>
+        
+        <tag>arm</tag>
+         
+        <tag>qemu</tag>
+         
+         
+           
+             
+              <breadCrumb title="qemu" url="http://bin2415.github.io/categories/qemu/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2018/07/01/pwnable-tw/</loc>
+    <lastmod>2018-12-23T05:33:53.023Z</lastmod>
+    <data>
+        <display>
+        <title>pwnable.tw之applestore</title>
+        <pubTime>2018-07-01T08:50:23.000Z</pubTime>
+        
+        <tag>pwnable</tag>
+         
+         
+           
+             
+              <breadCrumb title="pwnable" url="http://bin2415.github.io/categories/pwnable/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2018/09/27/os-tutorial/</loc>
+    <lastmod>2018-12-23T05:33:53.018Z</lastmod>
+    <data>
+        <display>
+        <title>os tutorial</title>
+        <pubTime>2018-09-27T13:17:19.000Z</pubTime>
+        
+        <tag>OS</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2017/09/22/ptmalloc%E5%A0%86%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</loc>
+    <lastmod>2018-12-23T05:33:53.018Z</lastmod>
+    <data>
+        <display>
+        <title>ptmalloc堆内存管理</title>
+        <pubTime>2017-09-22T12:11:38.000Z</pubTime>
+        
+        <tag>ptmalloc</tag>
+         
+         
+           
+             
+              <breadCrumb title="malloc" url="http://bin2415.github.io/categories/malloc/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2017/05/16/open-Rebort/</loc>
+    <lastmod>2018-12-23T05:33:53.018Z</lastmod>
+    <data>
+        <display>
+        <title>openGL_Rebort</title>
+        <pubTime>2017-05-16T08:57:30.000Z</pubTime>
+        
+        <tag>计算机图形学</tag>
+         
+        <tag>opengl</tag>
+         
+         
+           
+             
+              <breadCrumb title="计算机图形学" url="http://bin2415.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2%E5%AD%A6/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2017/11/18/llvm%E5%AD%98%E5%8F%96fs%E6%AE%B5%E5%86%85%E5%AE%B9/</loc>
+    <lastmod>2018-12-23T05:33:53.017Z</lastmod>
+    <data>
+        <display>
+        <title>llvm存取fs段内容</title>
+        <pubTime>2017-11-18T02:26:29.000Z</pubTime>
+        
+        <tag>llvm</tag>
+         
+         
+           
+             
+              <breadCrumb title="llvm" url="http://bin2415.github.io/categories/llvm/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2017/05/20/llvm-DFG/</loc>
+    <lastmod>2018-12-23T05:33:53.016Z</lastmod>
+    <data>
+        <display>
+        <title>llvm:Data Flow Graph</title>
+        <pubTime>2017-05-20T10:36:06.000Z</pubTime>
+        
+        <tag>llvm</tag>
+         
+         
+           
+             
+              <breadCrumb title="llvm" url="http://bin2415.github.io/categories/llvm/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2017/05/20/llvm-CGAndCFG/</loc>
+    <lastmod>2018-12-23T05:33:53.016Z</lastmod>
+    <data>
+        <display>
+        <title>llvm:Call Graph And Control Flow Graph</title>
+        <pubTime>2017-05-20T10:35:57.000Z</pubTime>
+        
+        <tag>llvm</tag>
+         
+         
+           
+             
+              <breadCrumb title="llvm" url="http://bin2415.github.io/categories/llvm/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2018/09/27/llvm-gold/</loc>
+    <lastmod>2018-12-23T05:33:53.016Z</lastmod>
+    <data>
+        <display>
+        <title>llvm gold build</title>
+        <pubTime>2018-09-27T11:30:17.000Z</pubTime>
+        
+        <tag>llvm</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2017/11/18/llvm-rdrand/</loc>
+    <lastmod>2018-12-23T05:33:53.016Z</lastmod>
+    <data>
+        <display>
+        <title>llvm生成rdrand指令</title>
+        <pubTime>2017-11-18T01:27:03.000Z</pubTime>
+        
+        <tag>llvm</tag>
+         
+         
+           
+             
+              <breadCrumb title="llvm" url="http://bin2415.github.io/categories/llvm/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2016/04/16/github-ssh/</loc>
+    <lastmod>2018-12-23T05:33:53.013Z</lastmod>
+    <data>
+        <display>
+        <title>github添加ssh秘钥</title>
+        <pubTime>2016-04-16T10:00:22.000Z</pubTime>
+        
+        <tag>ssh</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2017/09/24/linux%E5%A0%86%E5%86%85%E5%AD%98%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%E4%B9%8Bfastbin/</loc>
+    <lastmod>2018-12-23T05:33:53.013Z</lastmod>
+    <data>
+        <display>
+        <title>linux堆内存漏洞利用之fastbin</title>
+        <pubTime>2017-09-24T02:14:15.000Z</pubTime>
+        
+        <tag>exploit</tag>
+         
+        <tag>fastbin</tag>
+         
+         
+           
+             
+              <breadCrumb title="ptmalloc" url="http://bin2415.github.io/categories/ptmalloc/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2018/01/22/gdb%E6%97%A0%E6%B3%95%E5%AE%9A%E4%BD%8Dmain/</loc>
+    <lastmod>2018-12-23T05:33:53.011Z</lastmod>
+    <data>
+        <display>
+        <title>gdb无法找到main</title>
+        <pubTime>2018-01-22T11:01:10.000Z</pubTime>
+        
+        <tag>gdb</tag>
+         
+         
+           
+             
+              <breadCrumb title="gdb" url="http://bin2415.github.io/categories/gdb/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2018/10/05/fuzzing/</loc>
+    <lastmod>2018-12-23T05:33:53.008Z</lastmod>
+    <data>
+        <display>
+        <title>fuzzing related work</title>
+        <pubTime>2018-10-05T07:09:11.000Z</pubTime>
+        
+        <tag>fuzzing</tag>
+         
+         
+           
+             
+              <breadCrumb title="fuzzing" url="http://bin2415.github.io/categories/fuzzing/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2018/07/29/format-string/</loc>
+    <lastmod>2018-12-23T05:33:53.004Z</lastmod>
+    <data>
+        <display>
+        <title>记一次Format String的利用(格式化字符串不在栈上)</title>
+        <pubTime>2018-07-29T06:50:37.000Z</pubTime>
+        
+        <tag>ctf</tag>
+         
+         
+           
+             
+              <breadCrumb title="ctf" url="http://bin2415.github.io/categories/ctf/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2018/07/10/firmware-reverse/</loc>
+    <lastmod>2018-12-23T05:33:53.001Z</lastmod>
+    <data>
+        <display>
+        <title>IoT firmware逆向之入门篇</title>
+        <pubTime>2018-07-10T12:52:27.000Z</pubTime>
+        
+        <tag>iot firmware</tag>
+         
+         
+           
+             
+              <breadCrumb title="iot" url="http://bin2415.github.io/categories/iot/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2017/06/20/angr-bomb/</loc>
+    <lastmod>2018-12-23T05:33:53.001Z</lastmod>
+    <data>
+        <display>
+        <title>使用angr和Radare解决CMU的二进制炸弹</title>
+        <pubTime>2017-06-20T10:05:53.000Z</pubTime>
+        
+        <tag>翻译</tag>
+         
+        <tag>exploit</tag>
+         
+        <tag>angr</tag>
+         
+         
+           
+             
+              <breadCrumb title="angr" url="http://bin2415.github.io/categories/angr/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2018/07/31/afl-asan/</loc>
+    <lastmod>2018-12-23T05:33:53.000Z</lastmod>
+    <data>
+        <display>
+        <title>AFL Fuzzing with ASAN</title>
+        <pubTime>2018-07-31T03:05:45.000Z</pubTime>
+        
+        <tag>fuzzing</tag>
+         
+         
+           
+             
+              <breadCrumb title="fuzzing" url="http://bin2415.github.io/categories/fuzzing/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2018/08/06/afl-fork-server/</loc>
+    <lastmod>2018-12-23T05:33:53.000Z</lastmod>
+    <data>
+        <display>
+        <title>afl fork server</title>
+        <pubTime>2018-08-06T12:25:14.000Z</pubTime>
+        
+        <tag>fuzzing</tag>
+         
+        <tag>afl</tag>
+         
+         
+           
+             
+              <breadCrumb title="fuzzing" url="http://bin2415.github.io/categories/fuzzing/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2018/08/28/add-sanitizer/</loc>
+    <lastmod>2018-12-23T05:33:52.999Z</lastmod>
+    <data>
+        <display>
+        <title>LLVM添加sanitizer</title>
+        <pubTime>2018-08-28T08:24:13.000Z</pubTime>
+        
+        <tag>llvm</tag>
+         
+         
+           
+             
+              <breadCrumb title="llvm" url="http://bin2415.github.io/categories/llvm/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2016/04/13/ExploitTutorial/</loc>
+    <lastmod>2018-12-23T05:33:52.998Z</lastmod>
+    <data>
+        <display>
+        <title>ExploitTutorial</title>
+        <pubTime>2016-04-13T07:27:07.000Z</pubTime>
+        
+        <tag>Exploit</tag>
+         
+        <tag>反汇编</tag>
+         
+        <tag>翻译</tag>
+         
+         
+           
+             
+              <breadCrumb title="反汇编" url="http://bin2415.github.io/categories/%E5%8F%8D%E6%B1%87%E7%BC%96/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2016/03/16/Sniffer/</loc>
+    <lastmod>2018-12-23T05:33:52.998Z</lastmod>
+    <data>
+        <display>
+        <title>libpcap编程:Sniffer</title>
+        <pubTime>2016-03-16T09:06:25.000Z</pubTime>
+        
+        <tag>sniffer</tag>
+         
+        <tag>网络</tag>
+         
+         
+           
+             
+              <breadCrumb title="网络" url="http://bin2415.github.io/categories/%E7%BD%91%E7%BB%9C/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2017/04/13/Raytracing/</loc>
+    <lastmod>2018-12-23T05:33:52.998Z</lastmod>
+    <data>
+        <display>
+        <title>Raytracing</title>
+        <pubTime>2017-04-13T07:40:03.000Z</pubTime>
+        
+        <tag>计算机图形学</tag>
+         
+         
+           
+             
+              <breadCrumb title="计算机图形学" url="http://bin2415.github.io/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2%E5%AD%A6/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2017/05/16/Bomb/</loc>
+    <lastmod>2018-12-23T05:33:52.997Z</lastmod>
+    <data>
+        <display>
+        <title>Bomb</title>
+        <pubTime>2017-05-16T08:46:22.000Z</pubTime>
+        
+        <tag>反汇编</tag>
+         
+        <tag>体系结构</tag>
+         
+         
+           
+             
+              <breadCrumb title="反汇编" url="http://bin2415.github.io/categories/%E5%8F%8D%E6%B1%87%E7%BC%96/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://bin2415.github.io/2017/07/26/AddressSanitizer/</loc>
+    <lastmod>2018-12-23T05:33:52.990Z</lastmod>
+    <data>
+        <display>
+        <title>AddressSanitizer算法及源码解析</title>
+        <pubTime>2017-07-26T02:03:38.000Z</pubTime>
+        
+        <tag>LLVM</tag>
+         
+        <tag>Sanitizer</tag>
+         
+         
+           
+             
+              <breadCrumb title="LLVM" url="http://bin2415.github.io/categories/LLVM/"/>
+          
+        </display>
+    </data>
+    </url>
+
+</urlset>
