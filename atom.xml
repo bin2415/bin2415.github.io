@@ -306,9 +306,9 @@
       <category term="fuzzing" scheme="http://bin2415.github.io/categories/fuzzing/"/>
     
     
-      <category term="fuzzing" scheme="http://bin2415.github.io/tags/fuzzing/"/>
-    
       <category term="afl" scheme="http://bin2415.github.io/tags/afl/"/>
+    
+      <category term="fuzzing" scheme="http://bin2415.github.io/tags/fuzzing/"/>
     
   </entry>
   
