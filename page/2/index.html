@@ -451,13 +451,6 @@
           该题是模拟了apple的商店，来售卖apple的各种产品，其提供了6个功能:
 
 1: 展示商店的商品
-2: 添加商品到购物车
-3: 从购物车里面将某一商品删除
-4: 展示购物车里面的商品
-5: 结算
-6: 退出
-
-其中，购物车是用双向链表实现的，其每一项的结构如下，其在32位机器下的大小为16字节。
           ...
           <!--noindex-->
           
@@ -637,7 +630,7 @@
       
         
           
-          最近在用gdb调试一个程序的时候，由于程序经过了strip处理，没有debug信息，所以当b main的时候会出现”Function main not defined”错误信息，也就是无法定位main函数。而当b libc_start_main函数时是可以定位到的，而libc_start_main函
+          最近在用gdb调试一个程序的时候，由于程序经过了strip处理，没有debug信息，所以当b mai
           ...
           <!--noindex-->
           
@@ -819,13 +812,7 @@
           
           使用Qemu可以运行不同环境的程序，比方说在i386架构下运行arm和mips架构的程序。
 
-安装Qemu
-sudo apt-get install qemu
-sudo apt-get install qemu-user-static
-
-
-将qemu-mips-static文件拷贝到当前文件
-cp 
+安装Q
           ...
           <!--noindex-->
           
@@ -1005,7 +992,7 @@ cp
       
         
           
-          问题最近想使用llvm的pass来对每个函数进行插桩，来模拟stack guard的功能。其中碰到了一个很棘手的问题就是如何通过llvm C API实现对fs段内容的存取。要想实现该问题，我通过查看llvm如何实现stack guard,找到了具体的解决方案。下面首先看一下llvm中stackPro
+          问题最近想使用llvm的pass来对每个函数进行插桩，来模拟stack guard的功能。其中碰到了
           ...
           <!--noindex-->
           
@@ -1185,7 +1172,7 @@ cp
       
         
           
-          问题在做一个project的时候需要使用llvm的pass对函数进行插桩，在每一个函数头之前插入一条指令rdrand %rax，在寻找llvm基本指令之后发现并没有生成随机数的指令，这时就想到了llvm中intrinsic函数中是否有关于rdrand指令的函数，在对llvm整个源码进行扫描之后，发现
+          问题在做一个project的时候需要使用llvm的pass对函数进行插桩，在每一个函数头之前插入一条
           ...
           <!--noindex-->
           
@@ -1365,13 +1352,7 @@ cp
       
         
           
-          背景介绍  在前一节主要介绍了Glibc的堆内存管理的机制，在上一节的基础上，我打算介绍一下针对Glibc堆内存管理的攻击。此系列我打算按攻击面是哪一个bin来展开，主要分为:
-
-fastbin的攻击
-smallbin的攻击
-largebin的攻击
-unsorted bin的攻击
-top chunk
+          背景介绍  在前一节主要介绍了Glibc的堆内存管理的机制，在上一节的基础上，我打算介绍一下针对Gl
           ...
           <!--noindex-->
           
@@ -1551,8 +1532,7 @@ top chunk
       
         
           
-          背景介绍Linux的栈内存管理相信大家都已经很熟悉了，针对栈内存的攻击也是比较常见的。然而对于堆内存的管理机制可能不太熟悉，针对堆内存的攻击也是比较困难的，所以我通过阅读各种资料以及Glibc的相关源码，对Glibc下的堆内存管理机制有了一定的了解，故在此记录下学习心得。
-首先不同平台的堆内存管理机
+          背景介绍Linux的栈内存管理相信大家都已经很熟悉了，针对栈内存的攻击也是比较常见的。然而对于堆内存
           ...
           <!--noindex-->
           
@@ -1732,7 +1712,7 @@ top chunk
       
         
           
-          AddressSanitizer简介AddressSanitizer是Google用于检测内存各种buffer overflow(Heap buffer overflow, Stack buffer overflow, Global buffer overflow)的一个非常有用的工具。该工具是一个
+          AddressSanitizer简介AddressSanitizer是Google用于检测内存各种b
           ...
           <!--noindex-->
           
@@ -1912,8 +1892,7 @@ top chunk
       
         
           
-          前言最近在学习angr的使用，主要是如何利用angr来进行符号执行分析。发现了国外一篇比较实用的文章介绍如何使用angr和Radare(二进制分析框架)来分析CMU的二进制炸弹问题。故在此翻译一下这篇文章的工作。
-angrangr是一个使用python语言编写的二进制分析框架，它主要是进行静态和动态
+          前言最近在学习angr的使用，主要是如何利用angr来进行符号执行分析。发现了国外一篇比较实用的文章
           ...
           <!--noindex-->
           
@@ -2093,7 +2072,7 @@ angrangr是一个使用python语言编写的二进制分析框架，它主要是
       
         
           
-          Data Flow Graph基本概念Data Flow Graph又叫数据流程图，表示在一个函数中的数据流动的方向。比如一个指令1定义了一个新变量%a,而另一个指令2用到了变量%a，此时就存在从指令1到指令2的边。llvm IR的表示形式是SSA，简单的来说SSA表示形式就是一个变量只能定义一次。
+          Data Flow Graph基本概念Data Flow Graph又叫数据流程图，表示在一个函数中
           ...
           <!--noindex-->
           
