@@ -54,8 +54,8 @@
         <category>fuzzing</category>
       </categories>
       <tags>
-        <tag>fuzzing</tag>
         <tag>afl</tag>
+        <tag>fuzzing</tag>
       </tags>
   </entry>
   <entry>

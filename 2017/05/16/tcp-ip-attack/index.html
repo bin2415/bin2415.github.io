@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="default">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.6.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.6.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.6.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '6.6.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="实验环境：该实验环境是在同一个局域网下完成的，完成整个的实验需要三台机器，这三台机器的ip和mac地址如下所示： 机器1： 192.168.47.174   mac: 00:0c:29:08:4f:9c 机器2： 192.168.47.175   mac: 00:0c:29:4c:5e:ff 机器3： 192.168.47.176   mac: 00:0c:29:1c:41:17 这三台机器的默认">
+<meta name="keywords" content="网络,seed">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SeedLab:TCP&#x2F;IP Attack">
+<meta property="og:url" content="http://bin2415.github.io/2017/05/16/tcp-ip-attack/index.html">
+<meta property="og:site_name" content="PCB博客">
+<meta property="og:description" content="实验环境：该实验环境是在同一个局域网下完成的，完成整个的实验需要三台机器，这三台机器的ip和mac地址如下所示： 机器1： 192.168.47.174   mac: 00:0c:29:08:4f:9c 机器2： 192.168.47.175   mac: 00:0c:29:4c:5e:ff 机器3： 192.168.47.176   mac: 00:0c:29:1c:41:17 这三台机器的默认">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://i.imgur.com/wFgP5KG.png">
+<meta property="og:image" content="http://i.imgur.com/dJLu8Fi.png">
+<meta property="og:image" content="http://i.imgur.com/9xIEF0B.png">
+<meta property="og:image" content="http://i.imgur.com/ZQrhZDT.png">
+<meta property="og:image" content="http://i.imgur.com/u6OHT4R.png">
+<meta property="og:image" content="http://i.imgur.com/pd3O6dP.png">
+<meta property="og:image" content="http://i.imgur.com/P29eZa2.png">
+<meta property="og:image" content="http://i.imgur.com/S30DhcI.png">
+<meta property="og:image" content="http://i.imgur.com/x6Y658t.png">
+<meta property="og:image" content="http://i.imgur.com/5N2e4Iu.png">
+<meta property="og:image" content="http://i.imgur.com/ves3MaV.png">
+<meta property="og:image" content="http://i.imgur.com/1DJYECg.png">
+<meta property="og:image" content="http://i.imgur.com/Nrf34yt.png">
+<meta property="og:image" content="http://i.imgur.com/BAqpyeu.png">
+<meta property="og:image" content="http://i.imgur.com/b41fMit.png">
+<meta property="og:image" content="http://i.imgur.com/KJGEMa8.png">
+<meta property="og:image" content="http://i.imgur.com/mxXaeMw.png">
+<meta property="og:image" content="http://i.imgur.com/tia4LRQ.png">
+<meta property="og:image" content="http://i.imgur.com/EhDvjUV.png">
+<meta property="og:image" content="http://i.imgur.com/A1nvlIh.png">
+<meta property="og:image" content="http://i.imgur.com/1cjGs3C.png">
+<meta property="og:image" content="http://i.imgur.com/KO50UJE.png">
+<meta property="og:image" content="http://i.imgur.com/zFc43Dt.png">
+<meta property="og:image" content="http://i.imgur.com/WyEfqx3.png">
+<meta property="og:updated_time" content="2018-12-23T05:33:53.027Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SeedLab:TCP&#x2F;IP Attack">
+<meta name="twitter:description" content="实验环境：该实验环境是在同一个局域网下完成的，完成整个的实验需要三台机器，这三台机器的ip和mac地址如下所示： 机器1： 192.168.47.174   mac: 00:0c:29:08:4f:9c 机器2： 192.168.47.175   mac: 00:0c:29:4c:5e:ff 机器3： 192.168.47.176   mac: 00:0c:29:1c:41:17 这三台机器的默认">
+<meta name="twitter:image" content="http://i.imgur.com/wFgP5KG.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="PCB博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://bin2415.github.io/2017/05/16/tcp-ip-attack/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>SeedLab:TCP/IP Attack | PCB博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion .logo-line-before i { left: initial; }
+    .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PCB博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">快乐记录每一天</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://bin2415.github.io/2017/05/16/tcp-ip-attack/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="binpang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PCB博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SeedLab:TCP/IP Attack
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2017-05-16 18:13:39" itemprop="dateCreated datePublished" datetime="2017-05-16T18:13:39+08:00">2017-05-16</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-12-23 13:33:53" itemprop="dateModified" datetime="2018-12-23T13:33:53+08:00">2018-12-23</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/网络/" itemprop="url" rel="index"><span itemprop="name">网络</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="实验环境："><a href="#实验环境：" class="headerlink" title="实验环境："></a>实验环境：</h2><p>该实验环境是在同一个局域网下完成的，完成整个的实验需要三台机器，这三台机器的ip和mac地址如下所示：</p>
+<p>机器1： 192.168.47.174   mac: 00:0c:29:08:4f:9c</p>
+<p>机器2： 192.168.47.175   mac: 00:0c:29:4c:5e:ff</p>
+<p>机器3： 192.168.47.176   mac: 00:0c:29:1c:41:17</p>
+<p>这三台机器的默认网关：192.168.47.2</p>
+<p>操作系统：ubuntu 12.04  32位</p>
+<p>所使用的工具：netwox, hunt, wireshark</p>
+<a id="more"></a>
+<h2 id="实验操作："><a href="#实验操作：" class="headerlink" title="实验操作："></a>实验操作：</h2><h3 id="实验1：ARP缓存中毒"><a href="#实验1：ARP缓存中毒" class="headerlink" title="实验1：ARP缓存中毒"></a>实验1：ARP缓存中毒</h3><p>ARP协议的主要目的在于简化OSI模型第二层和第三层间地址的翻译。第二层(也就是数据链层)使用MAC地址，以便硬件设备可以在小范围内直接进行通信。第三层(也就是网络层)使用IP地址(最常见的形式)来创建连通世界各地用户的大规模网络。数据链层直接处理连接在一起的设备，而网络层处理那些直接以及间接连接的设备，每一层都有自己的地址形式，他们必须合作才能实现网络通信。正是由于这个原因，ARP与RFC826(以太网地址解析协议)一起被创建。<br>在该实验中，首先有一个机器1在局域网中发送arp包，包的内容为将自己的mac地址与机器2的ip地址相关联，此时，如果机器3想要发送一个包给机器2，就会发不过去。具体操作如下：<br>在机器1中执行如下指令，即向局域网广播00:0c:29:08:4f:9c的mac地址对应的ip地址为192.168.47.175</p>
+<p><img src="http://i.imgur.com/wFgP5KG.png" alt=""></p>
+<p>打开wireshark后可以看到机器1就发送arp的包意思为192.168.47.175在mac地址为00:0c:29:08:4f:9c。</p>
+<p><img src="http://i.imgur.com/dJLu8Fi.png" alt=""></p>
+<p>所以在机器3 输入arp -a，结果如下：</p>
+<p><img src="http://i.imgur.com/9xIEF0B.png" alt=""></p>
+<p>即ip地址192.168.47.175对应了机器1的mac地址00:0c:29:08:4f:9c<br>在机器3中输入telnet之后结果如下：</p>
+<p><img src="http://i.imgur.com/ZQrhZDT.png" alt=""></p>
+<h3 id="实验2：ICMP重定向攻击"><a href="#实验2：ICMP重定向攻击" class="headerlink" title="实验2：ICMP重定向攻击"></a>实验2：ICMP重定向攻击</h3><p>  ICMP重定向的攻击是一个比较有效的并且类似于ARP攻击的手段,而且是利用了另外一个正常的协议——ICMP协议，发起的攻击。黑客远程控制目标机器是有些难度的，但如果只是冒充网关，那就非常容易实现了，黑客冒充网关，对目标主机发送ICMP重定向报文，报文里的路由IP填成一个虚假的、不存在或网络不通的地址，这样，目标主机收到ICMP重定向报文后，就会对路由表进行添加、修改（前提是ICMP重定向功能是开启的），将黑客指定的目标与目标间通信的网关地址设置成那个虚假的IP地址，这样，就实现了利用ICMP重定向的攻击。</p>
+<p>攻击者：机器1</p>
+<p>受害者：机器2</p>
+<p>在机器1上运行sudo traceroute 119.75.218.70(百度的ip)</p>
+<p><img src="http://i.imgur.com/u6OHT4R.png" alt=""></p>
+<p>可知第一个route为192.168.47.2即默认网关的地址。</p>
+<p>Wireshark抓包如图所示：</p>
+<p><img src="http://i.imgur.com/pd3O6dP.png" alt=""></p>
+<p>现在机器1以默认网关的名义向机器3发送IMCP重定位信息，通知机器3，默认路由的地址已经改为Machine 1（192.168.47.174）。<br>同时为了机器1能够转发数据包，需要对机器1进行转发数据包的设置，可用下面的命令实现：   </p>
+<pre><code>sysctl net.ipv4.ip_forward=1
+</code></pre><p>进行攻击的命令:</p>
+<pre><code>netwox 86 -d &quot;Eth0&quot; --gw &quot;192.168.47.174&quot; -i &quot;192.168.47.2&quot;
+</code></pre><p>结果如下图所示：</p>
+<p><img src="http://i.imgur.com/P29eZa2.png" alt=""></p>
+<p>则机器3在traceroute 百度的时候，会首先经过机器1</p>
+<p>用WireShark抓包的结果如下：</p>
+<p><img src="http://i.imgur.com/S30DhcI.png" alt=""></p>
+<h3 id="实验3：SYN-泛洪攻击"><a href="#实验3：SYN-泛洪攻击" class="headerlink" title="实验3：SYN 泛洪攻击"></a>实验3：SYN 泛洪攻击</h3><p>通常一次TCP连接建立需要三个步骤，第一客户端发送SYN包给服务端，第二服务器分配一定资源给这个连接并返回SYN/ACK包，然后等待连接就建立的最后的ACK包，第三最后客户端发送ACK报文。这样两者之间的连接就建立起来了，可以通过连接传输数据。攻击的过程就是疯狂 发送SYN报文，而不返回ACK报文。服务器占用过多资源，导致系统资源占用过多，没有能力响应别的操作或正常的网络请求。用自己很少的资源占用对方大量的资源，以小博大。</p>
+<p>将机器3作为telnet服务器，机器1通过telnet来登陆机器3：</p>
+<p><img src="http://i.imgur.com/x6Y658t.png" alt=""></p>
+<p>在机器3中输入sysctl -a | grep cookie输出如下图：</p>
+<p><img src="http://i.imgur.com/5N2e4Iu.png" alt=""></p>
+<p>可以知道该机器打开了syn cookie，现将其关闭：sysctl -w net.ipv4.tcp_syncookies=0<br>现在对Machine 3的端口23(telnet端口)进行洪泛攻击：</p>
+<pre><code>netwox 76 -i &quot;192.168.47.176&quot; -p &quot;23&quot;
+</code></pre><p>此时查看机器3的端口23的待处理队列如下：</p>
+<p><img src="http://i.imgur.com/ves3MaV.png" alt=""></p>
+<p>由上图可知tcp的23端口被泛洪攻击了。<br>机器2 telnet连接机器3，由下图可知连接不上。</p>
+<p><img src="http://i.imgur.com/1DJYECg.png" alt=""></p>
+<p>如果打开了syn cookie，则机器2可以telnet连接机器3，如图所示：</p>
+<p><img src="http://i.imgur.com/Nrf34yt.png" alt=""></p>
+<p>Syn cookie的原理就是如果短时间内连续收到某个IP的重复SYN请求，则认为受到了该IP的攻击，丢弃来自该IP的后续请求报文。此外合理地采用防火墙等外部网络安全设施也可缓解SYN泛洪攻击。</p>
+<h3 id="实验4：对Telnet的TCP-RST攻击"><a href="#实验4：对Telnet的TCP-RST攻击" class="headerlink" title="实验4：对Telnet的TCP RST攻击"></a>实验4：对Telnet的TCP RST攻击</h3><p>RST表示复位，用来异常的关闭连接，在TCP的设计中它是不可或缺的。发送RST包关闭连接时，不必等缓冲区的包都发出去（不像上面的FIN包），直接就丢弃缓存区的包发送RST包。而接收端收到RST包后，也不必发送ACK包来确认。<br>A和服务器B之间建立了TCP连接，此时C伪造了一个TCP包发给B，使B异常的断开了与A之间的TCP连接，就是RST攻击了。</p>
+<p>机器1连接上了机器3的telnet服务器，如图所示：</p>
+<p><img src="http://i.imgur.com/BAqpyeu.png" alt=""></p>
+<p>可知机器1已经telnet上了机器3。</p>
+<p>现在在机器2上构造一个 TCP TST包发送给机器3，这样Telnet 客户端就会断开连接：</p>
+<p><img src="http://i.imgur.com/b41fMit.png" alt=""></p>
+<p>再次连接也连接不上。</p>
+<h3 id="实验5：对视频流应用程序的TCP-RST攻击"><a href="#实验5：对视频流应用程序的TCP-RST攻击" class="headerlink" title="实验5：对视频流应用程序的TCP RST攻击"></a>实验5：对视频流应用程序的TCP RST攻击</h3><p>该实验与实验4的原理一致，所以直接展示一下实验结果。</p>
+<p>该实验有两个机器，victim的 ip为192.168.47.177<br>Attacker的ip为192.168.47.178</p>
+<p>首先victim机器在优酷上看视频：</p>
+<p><img src="http://i.imgur.com/KJGEMa8.png" alt=""></p>
+<p>然后在attacker的机器上发送RST包：</p>
+<p><img src="http://i.imgur.com/mxXaeMw.png" alt=""></p>
+<p>在victim机器上，</p>
+<p><img src="http://i.imgur.com/tia4LRQ.png" alt=""></p>
+<p>可以看出，加载失败，攻击成功。</p>
+<p>然后再attacker的机器上停止发送RST包，再刷新victim机器的视频，可以再次播放。</p>
+<p><img src="http://i.imgur.com/EhDvjUV.png" alt=""></p>
+<h3 id="实验6：TCP报文劫持"><a href="#实验6：TCP报文劫持" class="headerlink" title="实验6：TCP报文劫持"></a>实验6：TCP报文劫持</h3><p>机器 2 (192.168.47.175) Telnet到机器 3(192.168.47.176);<br>在机器 1(192.168.47.174)上劫持机器 2 到机器 3上的Telnet报文。</p>
+<p>在机器1上开启hunt工具来嗅探当前网络上的TCP连接</p>
+<p><img src="http://i.imgur.com/A1nvlIh.png" alt=""></p>
+<p>在机器2上通过telnet连接上机器3：</p>
+<p><img src="http://i.imgur.com/1cjGs3C.png" alt=""></p>
+<p>劫持TCP报文，在Machine 1上显示 Machine3上的passwd文件。</p>
+<p><img src="http://i.imgur.com/KO50UJE.png" alt=""></p>
+<p>选择第0行，然后在向劫持的Telnet报文中注入cat /etc/passwd命令，实现机器 3上的passwd文件。</p>
+<p><img src="http://i.imgur.com/zFc43Dt.png" alt=""></p>
+<p>结果在机器3上显示如下：</p>
+<p><img src="http://i.imgur.com/WyEfqx3.png" alt=""></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/网络/" rel="tag"># 网络</a>
+          
+            <a href="/tags/seed/" rel="tag"># seed</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/05/16/seed-returnToLibc/" rel="next" title="seedLab:returnToLibc">
+                <i class="fa fa-chevron-left"></i> seedLab:returnToLibc
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/05/16/remote-dns-attack/" rel="prev" title="SeedLab:Remote DNS Attack">
+                SeedLab:Remote DNS Attack <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">binpang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">32</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">15</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">29</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#实验环境："><span class="nav-number">1.</span> <span class="nav-text">实验环境：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实验操作："><span class="nav-number">2.</span> <span class="nav-text">实验操作：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#实验1：ARP缓存中毒"><span class="nav-number">2.1.</span> <span class="nav-text">实验1：ARP缓存中毒</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实验2：ICMP重定向攻击"><span class="nav-number">2.2.</span> <span class="nav-text">实验2：ICMP重定向攻击</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实验3：SYN-泛洪攻击"><span class="nav-number">2.3.</span> <span class="nav-text">实验3：SYN 泛洪攻击</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实验4：对Telnet的TCP-RST攻击"><span class="nav-number">2.4.</span> <span class="nav-text">实验4：对Telnet的TCP RST攻击</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实验5：对视频流应用程序的TCP-RST攻击"><span class="nav-number">2.5.</span> <span class="nav-text">实验5：对视频流应用程序的TCP RST攻击</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实验6：TCP报文劫持"><span class="nav-number">2.6.</span> <span class="nav-text">实验6：TCP报文劫持</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">binpang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v6.6.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.6.0"></script>
+
+  <script src="/js/src/motion.js?v=6.6.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/js/src/scrollspy.js?v=6.6.0"></script>
+<script src="/js/src/post-details.js?v=6.6.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.6.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

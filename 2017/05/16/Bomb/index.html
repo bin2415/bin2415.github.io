@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="default">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.6.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.6.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.6.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '6.6.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="x86上的二进制炸弹对于反汇编的练习来说还是比较经典的，由于网上有很多该程序的讲解，所以在此我打算写一下arm平台上的二进制拆炸弹这个游戏。 环境的搭建 由于是arm平台的环境，所以需要在linux环境下安装一个模拟器，在此我选择了qemu该模拟器，具体操作如下(该操作对Ubuntu环境有效，其他linux版本可自行查找方法)   sudo apt-get install qemu-user  运">
+<meta name="keywords" content="反汇编,体系结构">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Bomb">
+<meta property="og:url" content="http://bin2415.github.io/2017/05/16/Bomb/index.html">
+<meta property="og:site_name" content="PCB博客">
+<meta property="og:description" content="x86上的二进制炸弹对于反汇编的练习来说还是比较经典的，由于网上有很多该程序的讲解，所以在此我打算写一下arm平台上的二进制拆炸弹这个游戏。 环境的搭建 由于是arm平台的环境，所以需要在linux环境下安装一个模拟器，在此我选择了qemu该模拟器，具体操作如下(该操作对Ubuntu环境有效，其他linux版本可自行查找方法)   sudo apt-get install qemu-user  运">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://i.imgur.com/BBdX0Ys.png">
+<meta property="og:image" content="http://i.imgur.com/YQ9jB6j.png">
+<meta property="og:image" content="http://i.imgur.com/w0lczaO.png">
+<meta property="og:image" content="http://i.imgur.com/fQNXmbv.png">
+<meta property="og:image" content="http://i.imgur.com/U4XskLn.png">
+<meta property="og:image" content="http://i.imgur.com/UBtpSiS.png">
+<meta property="og:updated_time" content="2018-12-23T05:33:52.997Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Bomb">
+<meta name="twitter:description" content="x86上的二进制炸弹对于反汇编的练习来说还是比较经典的，由于网上有很多该程序的讲解，所以在此我打算写一下arm平台上的二进制拆炸弹这个游戏。 环境的搭建 由于是arm平台的环境，所以需要在linux环境下安装一个模拟器，在此我选择了qemu该模拟器，具体操作如下(该操作对Ubuntu环境有效，其他linux版本可自行查找方法)   sudo apt-get install qemu-user  运">
+<meta name="twitter:image" content="http://i.imgur.com/BBdX0Ys.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="PCB博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://bin2415.github.io/2017/05/16/Bomb/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Bomb | PCB博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion .logo-line-before i { left: initial; }
+    .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PCB博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">快乐记录每一天</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://bin2415.github.io/2017/05/16/Bomb/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="binpang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PCB博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Bomb
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2017-05-16 16:46:22" itemprop="dateCreated datePublished" datetime="2017-05-16T16:46:22+08:00">2017-05-16</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-12-23 13:33:52" itemprop="dateModified" datetime="2018-12-23T13:33:52+08:00">2018-12-23</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/反汇编/" itemprop="url" rel="index"><span itemprop="name">反汇编</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>x86上的二进制炸弹对于反汇编的练习来说还是比较经典的，由于网上有很多该程序的讲解，所以在此我打算写一下arm平台上的二进制拆炸弹这个游戏。</p>
+<h2 id="环境的搭建"><a href="#环境的搭建" class="headerlink" title="环境的搭建"></a>环境的搭建</h2><ul>
+<li><p>由于是arm平台的环境，所以需要在linux环境下安装一个模拟器，在此我选择了qemu该模拟器，具体操作如下(该操作对Ubuntu环境有效，其他linux版本可自行查找方法)</p>
+<p>  sudo apt-get install qemu-user</p>
+</li>
+<li><p>运行ARM指令集模拟器并运行开启gdbserver和运行bomb_1程序</p>
+<p>  qemu-arm -g 8009 bomb_1</p>
+</li>
+</ul>
+<p>其中，-g参数是为了添加调试信息，为了使远程gdb调试能够起作用，8009为自定义的端口号。</p>
+<ul>
+<li><p>另外启动一个终端，通过命令远程开启gdb调试器并加载待调试程序。</p>
+<p>  arm-linux-gdb bomb_1</p>
+</li>
+<li><p>输命令来连接模拟器中的gdbserver</p>
+<p>  target  remote  localhost:8009</p>
+</li>
+<li><p>辅助工具IDA pro。IDA pro是一款静态分析的反汇编工具，利用它可以查看数据段的具体数据，用起来十分方便。</p>
+</li>
+</ul>
+<a id="more"></a>
+<hr>
+<h2 id="具体分析"><a href="#具体分析" class="headerlink" title="具体分析"></a>具体分析</h2><h3 id="Phase-1"><a href="#Phase-1" class="headerlink" title="Phase 1"></a>Phase 1</h3><h4 id="Arm指令"><a href="#Arm指令" class="headerlink" title="Arm指令"></a>Arm指令</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0000844</span>c &lt;phase_1&gt;:</span><br><span class="line"><span class="number">844</span>c:	e92d4800 	push	&#123;fp, lr&#125;</span><br><span class="line"><span class="number">8450</span>:	e28db004 	add	fp, sp, #<span class="number">4</span></span><br><span class="line"><span class="number">8454</span>:	e24dd008 	sub	sp, sp, #<span class="number">8</span></span><br><span class="line"><span class="number">8458</span>:	e50b0008 	str	r0, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">845</span>c:	e51b0008 	ldr	r0, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">8460</span>:	e59f101c 	ldr	r1, [pc, #<span class="number">28</span>]	; <span class="number">8484</span> &lt;phase_1+<span class="number">0x38</span>&gt;</span><br><span class="line"><span class="number">8464</span>:	eb000241 	bl	<span class="number">8</span>d70 &lt;strings_not_equal&gt;</span><br><span class="line"><span class="number">8468</span>:	e1a03000 	mov	r3, r0</span><br><span class="line"><span class="number">846</span>c:	e3530000 	cmp	r3, #<span class="number">0</span></span><br><span class="line"><span class="number">8470</span>:	<span class="number">0</span>a000000 	beq	<span class="number">8478</span> &lt;phase_1+<span class="number">0x2c</span>&gt;</span><br><span class="line"><span class="number">8474</span>:	eb000321 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="number">8478</span>:	e24bd004 	sub	sp, fp, #<span class="number">4</span></span><br><span class="line"><span class="number">847</span>c:	e8bd4800 	pop	&#123;fp, lr&#125;</span><br><span class="line"><span class="number">8480</span>:	e12fff1e 	bx	lr</span><br><span class="line"><span class="number">8484</span>:	<span class="number">0006483</span>c 	.word	<span class="number">0x0006483c</span></span><br></pre></td></tr></table></figure>
+<h4 id="反汇编分析"><a href="#反汇编分析" class="headerlink" title="反汇编分析"></a>反汇编分析</h4><p>从标重点的三行汇编可以看出，该代码从把输入的字符串为参数1，把8484里存的字符串作为参数2，然后再调用函数strings_not_equal,判断两个函数是否相等。所以关键是找8484处的地址存的字符串。有IDA pro可以看出8484处存的是数据段6483c处存的字符串，所以用ida可以找出该处的字符串。</p>
+<h4 id="密码"><a href="#密码" class="headerlink" title="密码"></a>密码</h4><p><img src="http://i.imgur.com/BBdX0Ys.png" alt=""></p>
+<p>密码为Let’s begin now!</p>
+<p>利用gdb及arm服务器验证该答案正确。</p>
+<hr>
+<h3 id="Phase-2"><a href="#Phase-2" class="headerlink" title="Phase 2"></a>Phase 2</h3><h4 id="Arm指令-1"><a href="#Arm指令-1" class="headerlink" title="Arm指令"></a>Arm指令</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">00008488</span> &lt;phase_2&gt;:</span><br><span class="line"><span class="number">8488</span>:	e92d4800 	push	&#123;fp, lr&#125;</span><br><span class="line"><span class="number">848</span>c:	e28db004 	add	fp, sp, #<span class="number">4</span></span><br><span class="line"><span class="number">8490</span>:	e24dd028 	sub	sp, sp, #<span class="number">40</span>	; <span class="number">0x28</span></span><br><span class="line"><span class="number">8494</span>:	e50b0028 	str	r0, [fp, #<span class="number">-40</span>]	; <span class="number">0xffffffd8</span></span><br><span class="line"><span class="number">8498</span>:	e24b3020 	sub	r3, fp, #<span class="number">32</span></span><br><span class="line"><span class="number">849</span>c:	e51b0028 	ldr	r0, [fp, #<span class="number">-40</span>]	; <span class="number">0xffffffd8</span></span><br><span class="line"><span class="number">84</span>a0:	e1a01003 	mov	r1, r3</span><br><span class="line"><span class="number">84</span>a4:	eb0001f4 	bl	<span class="number">8</span>c7c &lt;read_six_numbers&gt;			   ○<span class="number">1</span></span><br><span class="line"><span class="comment">////////////////////////////////////////////////</span></span><br><span class="line"><span class="number">84</span>a8:	e51b3020 	ldr	r3, [fp, #<span class="number">-32</span>]	; <span class="number">0xffffffe0</span> </span><br><span class="line"><span class="number">84</span>ac:	e3530001 	cmp	r3, #<span class="number">1</span></span><br><span class="line"><span class="number">84b</span>0:	<span class="number">0</span>a000000 	beq	<span class="number">84b</span>8 &lt;phase_2+<span class="number">0x30</span>&gt; ○<span class="number">2</span></span><br><span class="line"><span class="number">84b</span>4:	eb000311 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="number">84b</span>8:	e3a03001 	mov	r3, #<span class="number">1</span></span><br><span class="line"><span class="number">84b</span>c:	e50b3008 	str	r3, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">84</span>c0:	e51b3008 	ldr	r3, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">84</span>c4:	e2432001 	sub	r2, r3, #<span class="number">1</span></span><br><span class="line"><span class="number">84</span>c8:	e3e0301b 	mvn	r3, #<span class="number">27</span></span><br><span class="line"><span class="number">84</span>cc:	e1a02102 	lsl	r2, r2, #<span class="number">2</span></span><br><span class="line"><span class="number">84</span>d0:	e24b0004 	sub	r0, fp, #<span class="number">4</span></span><br><span class="line"><span class="number">84</span>d4:	e0802002 	add	r2, r0, r2</span><br><span class="line"><span class="number">84</span>d8:	e0823003 	add	r3, r2, r3</span><br><span class="line"><span class="number">84</span>dc:	e5933000 	ldr	r3, [r3]</span><br><span class="line"><span class="number">84e0</span>:	e51b2008 	ldr	r2, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">84e4</span>:	e2421001 	sub	r1, r2, #<span class="number">1</span> ○<span class="number">3</span></span><br><span class="line"><span class="number">84e8</span>:	e0020391 	mul	r2, r1, r3</span><br><span class="line"><span class="number">84</span>ec:	e51b1008 	ldr	r1, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">84f</span>0:	e3e0301b 	mvn	r3, #<span class="number">27</span></span><br><span class="line"><span class="number">84f</span>4:	e1a01101 	lsl	r1, r1, #<span class="number">2</span></span><br><span class="line"><span class="number">84f</span>8:	e24b0004 	sub	r0, fp, #<span class="number">4</span></span><br><span class="line"><span class="number">84f</span>c:	e0801001 	add	r1, r0, r1</span><br><span class="line"><span class="number">8500</span>:	e0813003 	add	r3, r1, r3  ○<span class="number">4</span></span><br><span class="line"><span class="number">8504</span>:	e5933000 	ldr	r3, [r3]</span><br><span class="line"><span class="comment">//////////////////////////////////////////////</span></span><br><span class="line"></span><br><span class="line"><span class="number">8508</span>:	e1520003 	cmp	r2, r3</span><br><span class="line"><span class="number">850</span>c:	<span class="number">0</span>a000000 	beq	<span class="number">8514</span> &lt;phase_2+<span class="number">0x8c</span>&gt;   ○<span class="number">5</span></span><br><span class="line"><span class="number">8510</span>:	eb0002fa 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="comment">//////////////////////////////////////////////</span></span><br><span class="line"><span class="number">8514</span>:	e51b3008 	ldr	r3, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">8518</span>:	e2833001 	add	r3, r3, #<span class="number">1</span></span><br><span class="line"><span class="number">851</span>c:	e50b3008 	str	r3, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">8520</span>:	e51b3008 	ldr	r3, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">8524</span>:	e3530005 	cmp	r3, #<span class="number">5</span></span><br><span class="line"><span class="number">8528</span>:	daffffe4 	ble	<span class="number">84</span>c0 &lt;phase_2+<span class="number">0x38</span>&gt;</span><br><span class="line"><span class="number">852</span>c:	e24bd004 	sub	sp, fp, #<span class="number">4</span></span><br><span class="line"><span class="number">8530</span>:	e8bd4800 	pop	&#123;fp, lr&#125;</span><br><span class="line"><span class="number">8534</span>:	e12fff1e 	bx	lr</span><br></pre></td></tr></table></figure>
+<h4 id="反汇编分析-1"><a href="#反汇编分析-1" class="headerlink" title="反汇编分析"></a>反汇编分析</h4><p>该炸弹的逻辑是for循环。<br>○1处那两行由函数名可以看出为从终端读取六个数，并将其存入一个数组中，且地址从fp-32开始。○2处那四行是读取数组第一个数判断是否为1，如果是1继续判断，如果不是就会explode_bomb。如果是1 的话就会使i = 1到5，然后判断每一个数值。○3那四行及以上几行的逻辑是取出a[i-1]的值，并将a[i-1]*(i-1),然后存入r2中。○4那两行及以上几行的逻辑是取出a[i]的数据，并将其存入r3中。○5处的逻辑是判断r2和r3的值，如果相等则i+1，继续判断，如果不行等则explode_bomb。<br>其大致的c语言逻辑如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(a[<span class="number">0</span>] != <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">	explode_bomb();</span><br><span class="line"><span class="keyword">for</span>(i = <span class="number">1</span>;i &lt;= <span class="number">5</span>;i++)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">if</span>(a[i] != a[i<span class="number">-1</span>]*(i<span class="number">-1</span>))</span><br><span class="line">		explode_bomb();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以a[0] = 1;a[1] = a[2] = a[3] = a[4] = a[5] = 0;</p>
+<h4 id="密码-1"><a href="#密码-1" class="headerlink" title="密码"></a>密码</h4><p>1 0 0 0 0 0</p>
+<hr>
+<h3 id="Phase-3"><a href="#Phase-3" class="headerlink" title="Phase 3"></a>Phase 3</h3><h4 id="arm指令"><a href="#arm指令" class="headerlink" title="arm指令"></a>arm指令</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">00008538</span> &lt;phase_3&gt;:</span><br><span class="line"><span class="number">8538</span>:	e92d4800 	push	&#123;fp, lr&#125;</span><br><span class="line"><span class="number">853</span>c:	e28db004 	add	fp, sp, #<span class="number">4</span></span><br><span class="line"><span class="number">8540</span>:	e24dd020 	sub	sp, sp, #<span class="number">32</span></span><br><span class="line"><span class="number">8544</span>:	e50b0018 	str	r0, [fp, #<span class="number">-24</span>]	; <span class="number">0xffffffe8</span></span><br><span class="line"><span class="number">8548</span>:	e51b0018 	ldr	r0, [fp, #<span class="number">-24</span>]	; <span class="number">0xffffffe8</span></span><br><span class="line"><span class="number">854</span>c:	e59f119c 	ldr	r1, [pc, #<span class="number">412</span>]	; <span class="number">86f</span>0 &lt;phase_3+<span class="number">0x1b8</span>&gt;○<span class="number">1</span></span><br><span class="line"><span class="number">8550</span>:	e24b2014 	sub	r2, fp, #<span class="number">20</span></span><br><span class="line"><span class="number">8554</span>:	e24b300d 	sub	r3, fp, #<span class="number">13</span></span><br><span class="line"><span class="number">8558</span>:	e24bc00c 	sub	ip, fp, #<span class="number">12</span></span><br><span class="line"><span class="number">855</span>c:	e58dc000 	str	ip, [sp]</span><br><span class="line"><span class="number">8560</span>:	eb000976 	bl	ab40 &lt;_IO_sscanf&gt;</span><br><span class="line"><span class="number">8564</span>:	e1a03000 	mov	r3, r0</span><br><span class="line"><span class="number">8568</span>:	e3530002 	cmp	r3, #<span class="number">2</span></span><br><span class="line"><span class="number">856</span>c:	ca000000 	bgt	<span class="number">8574</span> &lt;phase_3+<span class="number">0x3c</span>&gt; ○<span class="number">2</span>  </span><br><span class="line"><span class="number">8570</span>:	eb0002e2 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="comment">///////////////////////////////////////////////////</span></span><br><span class="line"><span class="number">8574</span>:	e51b3014 	ldr	r3, [fp, #<span class="number">-20</span>]	; <span class="number">0xffffffec</span></span><br><span class="line"><span class="number">8578</span>:	e3530007 	cmp	r3, #<span class="number">7</span></span><br><span class="line"><span class="number">857</span>c:	<span class="number">979f</span>f103 	ldrls	pc, [pc, r3, lsl #<span class="number">2</span>]</span><br><span class="line"><span class="number">8580</span>:	ea000041 	b	<span class="number">868</span>c &lt;phase_3+<span class="number">0x154</span>&gt;</span><br><span class="line"><span class="number">8584</span>:	<span class="number">000085</span>a4 	.word	<span class="number">0x000085a4</span></span><br><span class="line"><span class="number">8588</span>:	<span class="number">000085</span>c4 	.word	<span class="number">0x000085c4</span></span><br><span class="line"><span class="number">858</span>c:	<span class="number">000085e0</span> 	.word	<span class="number">0x000085e0</span>   ○<span class="number">3</span></span><br><span class="line"><span class="number">8590</span>:	<span class="number">00008600</span> 	.word	<span class="number">0x00008600</span>  </span><br><span class="line"><span class="number">8594</span>:	<span class="number">0000861</span>c 	.word	<span class="number">0x0000861c</span> </span><br><span class="line"><span class="number">8598</span>:	<span class="number">00008638</span> 	.word	<span class="number">0x00008638</span></span><br><span class="line"><span class="number">859</span>c:	<span class="number">00008658</span> 	.word	<span class="number">0x00008658</span></span><br><span class="line"><span class="number">85</span>a0:	<span class="number">00008670</span> 	.word	<span class="number">0x00008670</span></span><br><span class="line"><span class="comment">/////////////////////////////////////////////////</span></span><br><span class="line"><span class="number">85</span>a4:	e3a03071 	mov	r3, #<span class="number">113</span>	; <span class="number">0x71</span>   ○<span class="number">4</span></span><br><span class="line"><span class="number">85</span>a8:	e54b3005 	strb	r3, [fp, #<span class="number">-5</span>]</span><br><span class="line"><span class="number">85</span>ac:	e51b200c 	ldr	r2, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">85b</span>0:	e59f313c 	ldr	r3, [pc, #<span class="number">316</span>]	; <span class="number">86f</span>4 &lt;phase_3+<span class="number">0x1bc</span>&gt;</span><br><span class="line"><span class="number">85b</span>4:	e1520003 	cmp	r2, r3</span><br><span class="line"><span class="number">85b</span>8:	<span class="number">0</span>a000037 	beq	<span class="number">869</span>c &lt;phase_3+<span class="number">0x164</span>&gt;</span><br><span class="line"><span class="number">85b</span>c:	eb0002cf 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="number">85</span>c0:	ea000042 	b	<span class="number">86</span>d0 &lt;phase_3+<span class="number">0x198</span>&gt;</span><br><span class="line"><span class="number">85</span>c4:	e3a03062 	mov	r3, #<span class="number">98</span>	; <span class="number">0x62</span>○<span class="number">5</span></span><br><span class="line"><span class="number">85</span>c8:	e54b3005 	strb	r3, [fp, #<span class="number">-5</span>]</span><br><span class="line"><span class="number">85</span>cc:	e51b300c 	ldr	r3, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">85</span>d0:	e35300d6 	cmp	r3, #<span class="number">214</span>	; <span class="number">0xd6</span></span><br><span class="line"><span class="number">85</span>d4:	<span class="number">0</span>a000032 	beq	<span class="number">86</span>a4 &lt;phase_3+<span class="number">0x16c</span>&gt;</span><br><span class="line"><span class="number">85</span>d8:	eb0002c8 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="number">85</span>dc:	ea00003b 	b	<span class="number">86</span>d0 &lt;phase_3+<span class="number">0x198</span>&gt;</span><br><span class="line"><span class="number">85e0</span>:	e3a03062 	mov	r3, #<span class="number">98</span>	; <span class="number">0x62</span>○<span class="number">6</span></span><br><span class="line"><span class="number">85e4</span>:	e54b3005 	strb	r3, [fp, #<span class="number">-5</span>]</span><br><span class="line"><span class="number">85e8</span>:	e51b200c 	ldr	r2, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">85</span>ec:	e59f3104 	ldr	r3, [pc, #<span class="number">260</span>]	; <span class="number">86f</span>8 &lt;phase_3+<span class="number">0x1c0</span>&gt;</span><br><span class="line"><span class="number">85f</span>0:	e1520003 	cmp	r2, r3</span><br><span class="line"><span class="number">85f</span>4:	<span class="number">0</span>a00002c 	beq	<span class="number">86</span>ac &lt;phase_3+<span class="number">0x174</span>&gt;</span><br><span class="line"><span class="number">85f</span>8:	eb0002c0 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="number">85f</span>c:	ea000033 	b	<span class="number">86</span>d0 &lt;phase_3+<span class="number">0x198</span>&gt;</span><br><span class="line"><span class="number">8600</span>:	e3a0306b 	mov	r3, #<span class="number">107</span>	; <span class="number">0x6b</span>   ○<span class="number">7</span></span><br><span class="line"><span class="number">8604</span>:	e54b3005 	strb	r3, [fp, #<span class="number">-5</span>]</span><br><span class="line"><span class="number">8608</span>:	e51b300c 	ldr	r3, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">860</span>c:	e35300fb 	cmp	r3, #<span class="number">251</span>	; <span class="number">0xfb</span></span><br><span class="line"><span class="number">8610</span>:	<span class="number">0</span>a000027 	beq	<span class="number">86b</span>4 &lt;phase_3+<span class="number">0x17c</span>&gt;</span><br><span class="line"><span class="number">8614</span>:	eb0002b9 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="number">8618</span>:	ea00002c 	b	<span class="number">86</span>d0 &lt;phase_3+<span class="number">0x198</span>&gt;</span><br><span class="line"><span class="number">861</span>c:	e3a0306f 	mov	r3, #<span class="number">111</span>	; <span class="number">0x6f</span>○<span class="number">8</span></span><br><span class="line"><span class="number">8620</span>:	e54b3005 	strb	r3, [fp, #<span class="number">-5</span>]</span><br><span class="line"><span class="number">8624</span>:	e51b300c 	ldr	r3, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">8628</span>:	e35300a0 	cmp	r3, #<span class="number">160</span>	; <span class="number">0xa0</span></span><br><span class="line"><span class="number">862</span>c:	<span class="number">0</span>a000022 	beq	<span class="number">86b</span>c &lt;phase_3+<span class="number">0x184</span>&gt;</span><br><span class="line"><span class="number">8630</span>:	eb0002b2 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="number">8634</span>:	ea000025 	b	<span class="number">86</span>d0 &lt;phase_3+<span class="number">0x198</span>&gt;</span><br><span class="line"><span class="number">8638</span>:	e3a03074 	mov	r3, #<span class="number">116</span>	; <span class="number">0x74</span>○<span class="number">9</span></span><br><span class="line"><span class="number">863</span>c:	e54b3005 	strb	r3, [fp, #<span class="number">-5</span>]</span><br><span class="line"><span class="number">8640</span>:	e51b200c 	ldr	r2, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">8644</span>:	e59f30b0 	ldr	r3, [pc, #<span class="number">176</span>]	; <span class="number">86f</span>c &lt;phase_3+<span class="number">0x1c4</span>&gt;</span><br><span class="line"><span class="number">8648</span>:	e1520003 	cmp	r2, r3</span><br><span class="line"><span class="number">864</span>c:	<span class="number">0</span>a00001c 	beq	<span class="number">86</span>c4 &lt;phase_3+<span class="number">0x18c</span>&gt;</span><br><span class="line"><span class="number">8650</span>:	eb0002aa 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="number">8654</span>:	ea00001d 	b	<span class="number">86</span>d0 &lt;phase_3+<span class="number">0x198</span>&gt;</span><br><span class="line"><span class="number">8658</span>:	e3a03076 	mov	r3, #<span class="number">118</span>	; <span class="number">0x76</span>○<span class="number">10</span></span><br><span class="line"><span class="number">865</span>c:	e54b3005 	strb	r3, [fp, #<span class="number">-5</span>]</span><br><span class="line"><span class="number">8660</span>:	e51b300c 	ldr	r3, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">8664</span>:	e3530fc3 	cmp	r3, #<span class="number">780</span>	; <span class="number">0x30c</span></span><br><span class="line"><span class="number">8668</span>:	<span class="number">0</span>a000000 	beq	<span class="number">8670</span> &lt;phase_3+<span class="number">0x138</span>&gt;</span><br><span class="line"><span class="number">866</span>c:	eb0002a3 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="number">8670</span>:	e3a03062 	mov	r3, #<span class="number">98</span>	; <span class="number">0x62</span>○<span class="number">11</span></span><br><span class="line"><span class="number">8674</span>:	e54b3005 	strb	r3, [fp, #<span class="number">-5</span>]</span><br><span class="line"><span class="number">8678</span>:	e51b300c 	ldr	r3, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">867</span>c:	e3530f83 	cmp	r3, #<span class="number">524</span>	; <span class="number">0x20c</span></span><br><span class="line"><span class="number">8680</span>:	<span class="number">0</span>a000011 	beq	<span class="number">86</span>cc &lt;phase_3+<span class="number">0x194</span>&gt;</span><br><span class="line"><span class="number">8684</span>:	eb00029d 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="number">8688</span>:	ea000010 	b	<span class="number">86</span>d0 &lt;phase_3+<span class="number">0x198</span>&gt;</span><br><span class="line"><span class="number">868</span>c:	e3a03078 	mov	r3, #<span class="number">120</span>	;<span class="number">0x78</span> ○<span class="number">12</span></span><br><span class="line"><span class="number">8690</span>:	e54b3005 	strb	r3, [fp, #<span class="number">-5</span>]</span><br><span class="line"><span class="number">8694</span>:	eb000299 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="number">8698</span>:	ea00000c 	b	<span class="number">86</span>d0 &lt;phase_3+<span class="number">0x198</span>&gt;</span><br><span class="line"><span class="number">869</span>c:	e1a00000 	nop			; (mov r0, r0)</span><br><span class="line"><span class="number">86</span>a0:	ea00000a 	b	<span class="number">86</span>d0 &lt;phase_3+<span class="number">0x198</span>&gt;</span><br><span class="line"><span class="number">86</span>a4:	e1a00000 	nop			; (mov r0, r0)</span><br><span class="line"><span class="number">86</span>a8:	ea000008 	b	<span class="number">86</span>d0 &lt;phase_3+<span class="number">0x198</span>&gt;</span><br><span class="line"><span class="number">86</span>ac:	e1a00000 	nop			; (mov r0, r0)</span><br><span class="line"><span class="number">86b</span>0:	ea000006 	b	<span class="number">86</span>d0 &lt;phase_3+<span class="number">0x198</span>&gt;</span><br><span class="line"><span class="number">86b</span>4:	e1a00000 	nop			; (mov r0, r0)</span><br><span class="line"><span class="number">86b</span>8:	ea000004 	b	<span class="number">86</span>d0 &lt;phase_3+<span class="number">0x198</span>&gt;</span><br><span class="line"><span class="number">86b</span>c:	e1a00000 	nop			; (mov r0, r0)</span><br><span class="line"><span class="number">86</span>c0:	ea000002 	b	<span class="number">86</span>d0 &lt;phase_3+<span class="number">0x198</span>&gt;</span><br><span class="line"><span class="number">86</span>c4:	e1a00000 	nop			; (mov r0, r0)</span><br><span class="line"><span class="number">86</span>c8:	ea000000 	b	<span class="number">86</span>d0 &lt;phase_3+<span class="number">0x198</span>&gt;</span><br><span class="line"><span class="number">86</span>cc:	e1a00000 	nop			; (mov r0, r0)</span><br><span class="line"><span class="number">86</span>d0:	e55b300d 	ldrb	r3, [fp, #<span class="number">-13</span>]</span><br><span class="line"><span class="number">86</span>d4:	e55b2005 	ldrb	r2, [fp, #<span class="number">-5</span>]</span><br><span class="line"><span class="number">86</span>d8:	e1520003 	cmp	r2,r3○<span class="number">13</span></span><br><span class="line"><span class="number">86</span>dc:	<span class="number">0</span>a000000 	beq	<span class="number">86e4</span> &lt;phase_3+<span class="number">0x1ac</span>&gt;</span><br><span class="line"><span class="number">86e0</span>:	eb000286 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="number">86e4</span>:	e24bd004 	sub	sp, fp, #<span class="number">4</span></span><br><span class="line"><span class="number">86e8</span>:	e8bd4800 	pop	&#123;fp, lr&#125;</span><br><span class="line"><span class="number">86</span>ec:	e12fff1e 	bx	lr</span><br><span class="line"><span class="number">86f</span>0:	<span class="number">00064850</span> 	.word	<span class="number">0x00064850</span></span><br><span class="line"><span class="number">86f</span>4:	<span class="number">00000309</span> 	.word	<span class="number">0x00000309</span></span><br><span class="line"><span class="number">86f</span>8:	<span class="number">000002f</span>3 	.word	<span class="number">0x000002f3</span></span><br><span class="line"><span class="number">86f</span>c:	<span class="number">000001</span>ca 	.word	<span class="number">0x000001ca</span></span><br></pre></td></tr></table></figure>
+<h4 id="反汇编分析-2"><a href="#反汇编分析-2" class="headerlink" title="反汇编分析"></a>反汇编分析</h4><p>○1处将pc+412的数据传入r1，借助IDA pro可以查看pc+412引用的是<br>00064850处的数据，如图：</p>
+<p><img src="http://i.imgur.com/YQ9jB6j.png" alt=""></p>
+<p>所以该处的数据为”%d %c %d”,由此可知输入的数据的形式为int，char，int。<br>○2处判断第一个参数int是否大于2，如果大于2则进行switch操作，如果不是则explode_bomb。○3处是对输入的第一个int进行switch判断，其伪代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span>(<span class="keyword">int</span> c)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">case</span> <span class="number">0</span>:</span><br><span class="line">		jmp <span class="number">85</span>a4;</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	<span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">		jmp <span class="number">85</span>c4;</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	<span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">		jmp <span class="number">85e0</span>;</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	<span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">		jmp <span class="number">8600</span>;</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	<span class="keyword">case</span> <span class="number">4</span>:</span><br><span class="line">		jmp <span class="number">861</span>c;</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	<span class="keyword">case</span> <span class="number">5</span>:</span><br><span class="line">		jmp <span class="number">8638</span>;</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	<span class="keyword">case</span> <span class="number">6</span>:</span><br><span class="line">		jmp <span class="number">8658</span>;</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	<span class="keyword">case</span> <span class="number">7</span>:</span><br><span class="line">		jmp <span class="number">8670</span>;</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	<span class="keyword">default</span>:</span><br><span class="line">	jmp <span class="number">868</span>c;</span><br><span class="line">		<span class="keyword">break</span>;	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>○4-○11是对case 0 –case 7这八种情况的具体判断，其逻辑都是一样的，所以在此只分析一种情况（由于必须要求第一个int大于2，所以分析为3,4,5,6,7这五种情况）。现分析○7，首先将0x6b放入fp-5,然后将fp-12的值(即第三个传入的int的值)与0xfb(十进制为251)进行比较，如果相等则跳转86b4,如果不是的话就会explode_bomb;然后相等的话跳转86b4，我们发现从869c到86cc的逻辑都是先nop，什么都不做，然后再b    86d0 <phase_3+0x198>，所以现在就到了86d0的代码块○13，其逻辑为先取fp-13(输入的第二个参数char)放到r3，然后再去fp-5的值放到r2，其中fp-5的值为刚才放的0x6b，查ascii表为k，所以结果就为3 k 0xfb,其余的case 为4,5,6,7的情况和case 3的情况类似。代码○12为default情况，其逻辑是先把0x78存入fp-5,然后就explode_bomb;所以总之就是default情况就会碰到炸弹。</phase_3+0x198></p>
+<h4 id="密码-2"><a href="#密码-2" class="headerlink" title="密码"></a>密码</h4><p>3 k 0xfb</p>
+<hr>
+<h3 id="Phase-4"><a href="#Phase-4" class="headerlink" title="Phase 4"></a>Phase 4</h3><h4 id="Arm指令-2"><a href="#Arm指令-2" class="headerlink" title="Arm指令"></a>Arm指令</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">00008760</span> &lt;phase_4&gt;:</span><br><span class="line"><span class="number">8760</span>:	e92d4800 	push	&#123;fp, lr&#125;</span><br><span class="line"><span class="number">8764</span>:	e28db004 	add	fp, sp, #<span class="number">4</span></span><br><span class="line"><span class="number">8768</span>:	e24dd010 	sub	sp, sp, #<span class="number">16</span></span><br><span class="line"><span class="number">876</span>c:	e50b0010 	str	r0, [fp, #<span class="number">-16</span>]</span><br><span class="line"><span class="number">8770</span>:	e51b1010 	ldr	r1, [fp, #<span class="number">-16</span>]</span><br><span class="line"><span class="number">8774</span>:	e59f2054 	ldr	r2, [pc, #<span class="number">84</span>]	; <span class="number">87</span>d0 &lt;phase_4+<span class="number">0x70</span>&gt;  ○<span class="number">1</span></span><br><span class="line"><span class="number">8778</span>:	e24b3008 	sub	r3, fp, #<span class="number">8</span></span><br><span class="line"><span class="number">877</span>c:	e1a00001 	mov	r0, r1</span><br><span class="line"><span class="number">8780</span>:	e1a01002 	mov	r1, r2</span><br><span class="line"><span class="number">8784</span>:	e1a02003 	mov	r2, r3</span><br><span class="line"><span class="number">8788</span>:	eb0008ec 	bl	ab40 &lt;_IO_sscanf&gt;</span><br><span class="line"><span class="number">878</span>c:	e1a03000 	mov	r3, r0</span><br><span class="line"><span class="number">8790</span>:	e3530001 	cmp	r3, #<span class="number">1</span></span><br><span class="line"><span class="number">8794</span>:	<span class="number">1</span>a000002 	bne	<span class="number">87</span>a4 &lt;phase_4+<span class="number">0x44</span>&gt;</span><br><span class="line"><span class="number">8798</span>:	e51b3008 	ldr	r3, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">879</span>c:	e3530000 	cmp	r3, #<span class="number">0</span></span><br><span class="line"><span class="number">87</span>a0:	ca000000 	bgt	<span class="number">87</span>a8 &lt;phase_4+<span class="number">0x48</span>&gt;  ○<span class="number">2</span> </span><br><span class="line"><span class="number">87</span>a4:	eb000255 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="comment">////////////////////////////////////</span></span><br><span class="line"><span class="number">87</span>a8:	e51b3008 	ldr	r3, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">87</span>ac:	e1a00003 	mov	r0, r3 ○<span class="number">3</span> </span><br><span class="line"><span class="number">87b</span>0:	ebffffd2 	bl	<span class="number">8700</span> &lt;func4&gt;</span><br><span class="line"><span class="comment">///////////////////////////////////</span></span><br><span class="line"><span class="number">87b</span>4:	e1a03000 	mov	r3, r0</span><br><span class="line"><span class="number">87b</span>8:	e3530008 	cmp	r3, #<span class="number">8</span></span><br><span class="line"><span class="number">87b</span>c:	<span class="number">0</span>a000000 	beq	<span class="number">87</span>c4 &lt;phase_4+<span class="number">0x64</span>&gt; ○<span class="number">8</span></span><br><span class="line"><span class="number">87</span>c0:	eb00024e 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="number">87</span>c4:	e24bd004 	sub	sp, fp, #<span class="number">4</span></span><br><span class="line"><span class="number">87</span>c8:	e8bd4800 	pop	&#123;fp, lr&#125;</span><br><span class="line"><span class="number">87</span>cc:	e12fff1e 	bx	lr</span><br><span class="line"><span class="number">87</span>d0:	<span class="number">0006485</span>c 	.word	<span class="number">0x0006485c</span></span><br><span class="line"></span><br><span class="line"><span class="number">00008700</span> &lt;func4&gt;:</span><br><span class="line"><span class="number">8700</span>:	e92d4810 	push	&#123;r4, fp, lr&#125;</span><br><span class="line"><span class="number">8704</span>:	e28db008 	add	fp, sp, #<span class="number">8</span></span><br><span class="line"><span class="number">8708</span>:	e24dd00c 	sub	sp, sp, #<span class="number">12</span></span><br><span class="line"><span class="number">870</span>c:	e50b0010 	str	r0, [fp, #<span class="number">-16</span>]</span><br><span class="line"><span class="number">8710</span>:	e51b3010 	ldr	r3, [fp, #<span class="number">-16</span>]</span><br><span class="line"><span class="number">8714</span>:	e3530001 	cmp	r3, #<span class="number">1</span>  ○<span class="number">4</span></span><br><span class="line"><span class="number">8718</span>:	da00000b 	ble	<span class="number">874</span>c &lt;func4+<span class="number">0x4c</span>&gt;</span><br><span class="line"><span class="comment">////////////////////////////////////////////</span></span><br><span class="line"><span class="number">871</span>c:	e51b3010 	ldr	r3, [fp, #<span class="number">-16</span>]</span><br><span class="line"><span class="number">8720</span>:	e2433001 	sub	r3, r3, #<span class="number">1</span></span><br><span class="line"><span class="number">8724</span>:	e1a00003 	mov	r0, r3   ○<span class="number">5</span></span><br><span class="line"><span class="number">8728</span>:	ebfffff4 	bl	<span class="number">8700</span> &lt;func4&gt;</span><br><span class="line"><span class="comment">/////////////////////////////////////////////</span></span><br><span class="line"><span class="number">872</span>c:	e1a04000 	mov	r4, r0</span><br><span class="line"><span class="number">8730</span>:	e51b3010 	ldr	r3, [fp, #<span class="number">-16</span>]</span><br><span class="line"><span class="number">8734</span>:	e2433002 	sub	r3, r3, #<span class="number">2</span>   ○<span class="number">6</span></span><br><span class="line"><span class="number">8738</span>:	e1a00003 	mov	r0, r3</span><br><span class="line"><span class="number">873</span>c:	ebffffef 	bl	<span class="number">8700</span> &lt;func4&gt;</span><br><span class="line"><span class="number">8740</span>:	e1a03000 	mov	r3, r0</span><br><span class="line"><span class="number">8744</span>:	e0843003 	add	r3, r4, r3</span><br><span class="line"><span class="number">8748</span>:	ea000000 	b	<span class="number">8750</span> &lt;func4+<span class="number">0x50</span>&gt;</span><br><span class="line"><span class="number">874</span>c:	e3a03001 	mov	r3, #<span class="number">1</span></span><br><span class="line"><span class="number">8750</span>:	e1a00003 	mov	r0, r3  </span><br><span class="line"><span class="number">8754</span>:	e24bd008 	sub	sp, fp, #<span class="number">8</span>   ○<span class="number">7</span></span><br><span class="line"><span class="number">8758</span>:	e8bd4810 	pop	&#123;r4, fp, lr&#125;</span><br><span class="line"><span class="number">875</span>c:	e12fff1e 	bx	lr</span><br></pre></td></tr></table></figure>
+<h4 id="反汇编分析-3"><a href="#反汇编分析-3" class="headerlink" title="反汇编分析"></a>反汇编分析</h4><p>○1处是输入的参数的形式，位于87d0处，利用IDA pro找到了87d0引用了0006485C数据段的数据，为</p>
+<p><img src="http://i.imgur.com/w0lczaO.png" alt=""></p>
+<p>即要求输入一个数字。○2处判断是否是输入的参数是否大于0，如果大于0则继续判断，如果不是则explode_bomb。○3处将输入的数传入r0中作为参数然后调用func4()。○4首先将传入的参数存入fp-16中，然后判断参数是否小于等于1，如果小于等于1的话就跳到○7处，○7处将返回值赋值为1，然后pop返回值和参数；如果大于1的话就到○5，○5和○6的逻辑就是分别让参数-1和-2，然后再分别调用func4，由此可以看出该bomb的逻辑是一个递归的调用。其c语言的伪代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">func4(<span class="keyword">int</span> i)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">if</span>(i &lt; = <span class="number">1</span>)</span><br><span class="line">		<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		<span class="keyword">return</span> func4(i<span class="number">-1</span>) + func4(i<span class="number">-2</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后看代码块○8，其将func4函数的返回值与8进行比较，如果等于8就通过，否则explode_bomb。所以通过计算可以得出输入的值为5。</p>
+<h4 id="密码-3"><a href="#密码-3" class="headerlink" title="密码"></a>密码</h4><p>5</p>
+<h3 id="Phase-5"><a href="#Phase-5" class="headerlink" title="Phase 5"></a>Phase 5</h3><h4 id="Arm指令-3"><a href="#Arm指令-3" class="headerlink" title="Arm指令"></a>Arm指令</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">000087</span>d4 &lt;phase_5&gt;:</span><br><span class="line"><span class="number">87</span>d4:	e92d4800 	push	&#123;fp, lr&#125;</span><br><span class="line"><span class="number">87</span>d8:	e28db004 	add	fp, sp, #<span class="number">4</span></span><br><span class="line"><span class="number">87</span>dc:	e24dd018 	sub	sp, sp, #<span class="number">24</span></span><br><span class="line"><span class="number">87e0</span>:	e50b0018 	str	r0, [fp, #<span class="number">-24</span>]	; <span class="number">0xffffffe8</span></span><br><span class="line"><span class="number">87e4</span>:	e51b0018 	ldr	r0, [fp, #<span class="number">-24</span>]	; <span class="number">0xffffffe8</span></span><br><span class="line"><span class="number">87e8</span>:	eb000144 	bl	<span class="number">8</span>d00 &lt;string_length&gt;</span><br><span class="line"><span class="number">87</span>ec:	e1a03000 	mov	r3, r0</span><br><span class="line"><span class="number">87f</span>0:	e3530006 	cmp	r3, #<span class="number">6</span>  ○<span class="number">1</span></span><br><span class="line"><span class="number">87f</span>4:	<span class="number">0</span>a000000 	beq	<span class="number">87f</span>c &lt;phase_5+<span class="number">0x28</span>&gt;</span><br><span class="line"><span class="number">87f</span>8:	eb000240 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="comment">////////////////////////////////////////</span></span><br><span class="line"><span class="number">87f</span>c:	e3a03000 	mov	r3, #<span class="number">0</span></span><br><span class="line"><span class="number">8800</span>:	e50b3008 	str	r3, [fp, #<span class="number">-8</span>]○<span class="number">2</span></span><br><span class="line"><span class="number">8804</span>:	ea00000f 	b	<span class="number">8848</span> &lt;phase_5+<span class="number">0x74</span>&gt;</span><br><span class="line"><span class="comment">////////////////////////////////////////</span></span><br><span class="line"><span class="number">8808</span>:	e51b1008 	ldr	r1, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">880</span>c:	e51b3008 	ldr	r3, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">8810</span>:	e51b2018 	ldr	r2, [fp, #<span class="number">-24</span>]	; <span class="number">0xffffffe8</span></span><br><span class="line"><span class="number">8814</span>:	e0823003 	add	r3, r2, r3○<span class="number">4</span></span><br><span class="line"><span class="number">8818</span>:	e5d33000 	ldrb	r3, [r3]</span><br><span class="line"><span class="number">881</span>c:	e203300f 	<span class="keyword">and</span>	r3, r3, #<span class="number">15</span></span><br><span class="line"><span class="comment">///////////////////////////////////////</span></span><br><span class="line"><span class="number">8820</span>:	e59f2060 	ldr	r2, [pc, #<span class="number">96</span>]	; <span class="number">8888</span> &lt;phase_5+<span class="number">0xb4</span>&gt;</span><br><span class="line"><span class="number">8824</span>:	e7d22003 	ldrb	r2, [r2, r3]   ○<span class="number">5</span></span><br><span class="line"><span class="comment">///////////////////////////////////////</span></span><br><span class="line"><span class="number">8828</span>:	e3e0300b 	mvn	r3, #<span class="number">11</span></span><br><span class="line"><span class="number">882</span>c:	e24b0004 	sub	r0, fp, #<span class="number">4</span></span><br><span class="line"><span class="number">8830</span>:	e0801001 	add	r1, r0, r1 ○<span class="number">6</span></span><br><span class="line"><span class="number">8834</span>:	e0813003 	add	r3, r1, r3</span><br><span class="line"><span class="number">8838</span>:	e5c32000 	strb	r2, [r3]</span><br><span class="line"><span class="comment">////////////////////////////////////</span></span><br><span class="line"><span class="number">883</span>c:	e51b3008 	ldr	r3, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">8840</span>:	e2833001 	add	r3, r3, #<span class="number">1</span>   ○<span class="number">7</span></span><br><span class="line"><span class="number">8844</span>:	e50b3008 	str	r3, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="comment">////////////////////////////////////</span></span><br><span class="line"><span class="number">8848</span>:	e51b3008 	ldr	r3, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">884</span>c:	e3530005 	cmp	r3, #<span class="number">5</span>  ○<span class="number">3</span></span><br><span class="line"><span class="number">8850</span>:	daffffec 	ble	<span class="number">8808</span> &lt;phase_5+<span class="number">0x34</span>&gt;</span><br><span class="line"><span class="comment">///////////////////////////////////</span></span><br><span class="line"><span class="number">8854</span>:	e3a03000 	mov	r3, #<span class="number">0</span></span><br><span class="line"><span class="number">8858</span>:	e54b300a 	strb	r3, [fp, #<span class="number">-10</span>]</span><br><span class="line"><span class="number">885</span>c:	e24b3010 	sub	r3, fp, #<span class="number">16</span> </span><br><span class="line"><span class="number">8860</span>:	e1a00003 	mov	r0, r3  ○<span class="number">8</span></span><br><span class="line"><span class="number">8864</span>:	e59f1020 	ldr	r1, [pc, #<span class="number">32</span>]	; <span class="number">888</span>c &lt;phase_5+<span class="number">0xb8</span>&gt;</span><br><span class="line"><span class="number">8868</span>:	eb000140 	bl	<span class="number">8</span>d70 &lt;strings_not_equal&gt;</span><br><span class="line"><span class="number">886</span>c:	e1a03000 	mov	r3, r0</span><br><span class="line"><span class="number">8870</span>:	e3530000 	cmp	r3, #<span class="number">0</span></span><br><span class="line"><span class="number">8874</span>:	<span class="number">0</span>a000000 	beq	<span class="number">887</span>c &lt;phase_5+<span class="number">0xa8</span>&gt;</span><br><span class="line"><span class="number">8878</span>:	eb000220 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="number">887</span>c:	e24bd004 	sub	sp, fp, #<span class="number">4</span></span><br><span class="line"><span class="number">8880</span>:	e8bd4800 	pop	&#123;fp, lr&#125;</span><br><span class="line"><span class="number">8884</span>:	e12fff1e 	bx	lr</span><br><span class="line"><span class="number">8888</span>:	<span class="number">0008216</span>c 	.word	<span class="number">0x0008216c</span></span><br><span class="line"><span class="number">888</span>c:	<span class="number">00064860</span> 	.word	<span class="number">0x00064860</span></span><br></pre></td></tr></table></figure>
+<h4 id="反汇编分析-4"><a href="#反汇编分析-4" class="headerlink" title="反汇编分析"></a>反汇编分析</h4><p>○1中代码首先判断读入的字符串的长度，如果长度等于6则跳到代码块○2中去，如果不等于6则explode_bomb。在代码块○2中，首先将计数变量i置为0，然后跳到代码块○3中去，在代码块○3中先判断i是否小于等于5，如果小于等于5的话就跳入○4中，其中○4○5○6○7为for循环的主体，我将其化成了这4部分。其中在○4的逻辑如下：取出字符串的第i个字符s[i],<br>然后将s[i]与0xF相与，其中一个char为一个字节，由两个16进制数组成，做相与运算后就只取出char的后4个b，将数值存入r3中。然后到代码块○5中，找到数据pc+96（8888）处的数据，根据IDA pro得出其引用的是0008216C处的数据，数据如图：</p>
+<p><img src="http://i.imgur.com/fQNXmbv.png" alt=""></p>
+<p>，然后根据r3中的数值作为索引取得相应的字符，将得到的字符存入r2中，然后到代码块○6中，其将r2的数据存入(fp-4-11)+i的地址处。代码○7是将i++。所以该段代码的伪代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(i = <span class="number">0</span>;i &lt;= <span class="number">5</span>;i++)</span><br><span class="line">&#123;</span><br><span class="line">	<span class="keyword">int</span> a = (<span class="keyword">int</span>)(s[i]&amp;<span class="number">0xF</span>);</span><br><span class="line">	s1[i] = <span class="number">0x0008216c</span>+a;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中s为输入的字符串，s1为找到的字符串。<br>for循环结束了之后，得到长度为6的s1字符串，到了代码块○8中，该逻辑是将s1与（pc-32）即888c处的字符串进行比较，根据IDA pro得到引用了数据段00064860处的数据为：</p>
+<p>所以只有当s1为”giants”时，才能通过，即索引顺序为0xF,0x0,0x5,0xB,0xD,0x1，查ascii表得到后4个b分别为这些的十六进制的数的字符分别为opeka（可能有多重情况，只要后4个b分别对应那五个十六进制数的字符即可）。</p>
+<h4 id="密码-4"><a href="#密码-4" class="headerlink" title="密码"></a>密码</h4><p>opeka</p>
+<h3 id="Phase-6"><a href="#Phase-6" class="headerlink" title="Phase 6"></a>Phase 6</h3><p>指令及逻辑分析：<br>由于该炸弹的指令及逻辑较长，所以指令分开了几份分别进行分析。</p>
+<p>00008890 <phase_6>:</phase_6></p>
+<h4 id="读入六个数"><a href="#读入六个数" class="headerlink" title="读入六个数"></a>读入六个数</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"> <span class="number">8890</span>:	e92d4800 	push	&#123;fp, lr&#125;</span><br><span class="line"><span class="number">8894</span>:	e28db004 	add	fp, sp, #<span class="number">4</span></span><br><span class="line"><span class="number">8898</span>:	e24dd048 	sub	sp, sp, #<span class="number">72</span>	; <span class="number">0x48</span></span><br><span class="line"><span class="number">889</span>c:	e50b0048 	str	r0, [fp, #<span class="number">-72</span>]	; <span class="number">0xffffffb8</span></span><br><span class="line"><span class="number">88</span>a0:	e59f3234 	ldr	r3, [pc, #<span class="number">564</span>]	; <span class="number">8</span>adc &lt;phase_6+<span class="number">0x24c</span>&gt;</span><br><span class="line"><span class="number">88</span>a4:	e50b3010 	str	r3, [fp, #<span class="number">-16</span>]</span><br><span class="line"><span class="number">88</span>a8:	e24b3028 	sub	r3, fp, #<span class="number">40</span>	; <span class="number">0x28</span></span><br><span class="line"><span class="number">88</span>ac:	e51b0048 	ldr	r0, [fp, #<span class="number">-72</span>]	; <span class="number">0xffffffb8</span></span><br><span class="line"><span class="number">88b</span>0:	e1a01003 	mov	r1, r3</span><br><span class="line"><span class="number">88b</span>4:	eb0000f0 	bl	<span class="number">8</span>c7c &lt;read_six_numbers&gt;</span><br></pre></td></tr></table></figure>
+<p>以上的指令的逻辑比较简单，是首先读入六个数字，并将其放入数组中，假设数组为a。</p>
+<h4 id="对这六个数的值进行判定"><a href="#对这六个数的值进行判定" class="headerlink" title="对这六个数的值进行判定"></a>对这六个数的值进行判定</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">    <span class="number">88b</span>8:	e3a03000 	mov	r3, #<span class="number">0</span></span><br><span class="line"><span class="number">88b</span>c:	e50b300c 	str	r3, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">88</span>c0:	e51b200c 	ldr	r2, [fp, #<span class="number">-12</span>]  ○<span class="number">1</span></span><br><span class="line"><span class="comment">////////////////////////////////////</span></span><br><span class="line"><span class="number">88</span>c4:	e3e03023 	mvn	r3, #<span class="number">35</span>	; <span class="number">0x23</span></span><br><span class="line"><span class="number">88</span>c8:	e1a02102 	lsl	r2, r2, #<span class="number">2</span></span><br><span class="line"><span class="number">88</span>cc:	e24b0004 	sub	r0, fp, #<span class="number">4</span></span><br><span class="line"><span class="number">88</span>d0:	e0802002 	add	r2, r0, r2   ○<span class="number">2</span></span><br><span class="line"><span class="number">88</span>d4:	e0823003 	add	r3, r2, r3</span><br><span class="line"><span class="number">88</span>d8:	e5933000 	ldr	r3, [r3]</span><br><span class="line"><span class="comment">///////////////////////////////////</span></span><br><span class="line"><span class="number">88</span>dc:	e2433001 	sub	r3, r3, #<span class="number">1</span></span><br><span class="line"><span class="number">88e0</span>:	e3530005 	cmp	r3, #<span class="number">5</span>   ○<span class="number">3</span></span><br><span class="line"><span class="number">88e4</span>:	<span class="number">9</span>a000000 	bls	<span class="number">88</span>ec &lt;phase_6+<span class="number">0x5c</span>&gt;</span><br><span class="line"><span class="number">88e8</span>:	eb000204 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="comment">//////////////////////////////////</span></span><br><span class="line"><span class="number">88</span>ec:	e51b300c 	ldr	r3, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">88f</span>0:	e2833001 	add	r3, r3, #<span class="number">1</span>   ○<span class="number">4</span></span><br><span class="line"><span class="number">88f</span>4:	e50b3008 	str	r3, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">88f</span>8:	ea000013 	b	<span class="number">894</span>c &lt;phase_6+<span class="number">0xbc</span>&gt;</span><br><span class="line"><span class="comment">//////////////////////////////////</span></span><br><span class="line"><span class="number">88f</span>c:	e51b200c 	ldr	r2, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">8900</span>:	e3e03023 	mvn	r3, #<span class="number">35</span>	; <span class="number">0x23</span></span><br><span class="line"><span class="number">8904</span>:	e1a02102 	lsl	r2, r2, #<span class="number">2</span></span><br><span class="line"><span class="number">8908</span>:	e24b1004 	sub	r1, fp, #<span class="number">4</span>  ○<span class="number">6</span></span><br><span class="line"><span class="number">890</span>c:	e0812002 	add	r2, r1, r2 </span><br><span class="line"><span class="number">8910</span>:	e0823003 	add	r3, r2, r3</span><br><span class="line"><span class="number">8914</span>:	e5932000 	ldr	r2, [r3]</span><br><span class="line"><span class="comment">//////////////////////////////////</span></span><br><span class="line"><span class="number">8918</span>:	e51b1008 	ldr	r1, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">891</span>c:	e3e03023 	mvn	r3, #<span class="number">35</span>	; <span class="number">0x23</span></span><br><span class="line"><span class="number">8920</span>:	e1a01101 	lsl	r1, r1, #<span class="number">2</span></span><br><span class="line"><span class="number">8924</span>:	e24b0004 	sub	r0, fp, #<span class="number">4</span>   ○<span class="number">7</span></span><br><span class="line"><span class="number">8928</span>:	e0801001 	add	r1, r0, r1</span><br><span class="line"><span class="number">892</span>c:	e0813003 	add	r3, r1, r3</span><br><span class="line"><span class="number">8930</span>:	e5933000 	ldr	r3, [r3]</span><br><span class="line"><span class="comment">/////////////////////////////////</span></span><br><span class="line"><span class="number">8934</span>:	e1520003 	cmp	r2, r3</span><br><span class="line"><span class="number">8938</span>:	<span class="number">1</span>a000000 	bne	<span class="number">8940</span> &lt;phase_6+<span class="number">0xb0</span>&gt; </span><br><span class="line"><span class="number">893</span>c:	eb0001ef 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="number">8940</span>:	e51b3008 	ldr	r3, [fp, #<span class="number">-8</span>]○<span class="number">8</span></span><br><span class="line"><span class="number">8944</span>:	e2833001 	add	r3, r3, #<span class="number">1</span></span><br><span class="line"><span class="number">8948</span>:	e50b3008 	str	r3, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="comment">///////////////////////////////////</span></span><br><span class="line"><span class="number">894</span>c:	e51b3008 	ldr	r3, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">8950</span>:	e3530005 	cmp	r3, #<span class="number">5</span>   ○<span class="number">5</span></span><br><span class="line"><span class="number">8954</span>:	daffffe8 	ble	<span class="number">88f</span>c &lt;phase_6+<span class="number">0x6c</span>&gt;</span><br><span class="line"><span class="comment">//////////////////////////////////</span></span><br><span class="line"><span class="number">8958</span>:	e51b300c 	ldr	r3, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">895</span>c:	e2833001 	add	r3, r3, #<span class="number">1</span></span><br><span class="line"><span class="number">8960</span>:	e50b300c 	str	r3, [fp, #<span class="number">-12</span>]   ○<span class="number">9</span></span><br><span class="line"><span class="number">8964</span>:	e51b300c 	ldr	r3, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">8968</span>:	e3530005 	cmp	r3, #<span class="number">5</span></span><br><span class="line"><span class="number">896</span>c:	daffffd3 	ble	<span class="number">88</span>c0 &lt;phase_6+<span class="number">0x30</span>&gt;</span><br><span class="line"><span class="number">8970</span>:	e3a03000 	mov	r3, #<span class="number">0</span></span><br><span class="line"><span class="number">8974</span>:	e50b300c 	str	r3, [fp, #<span class="number">-12</span>]</span><br></pre></td></tr></table></figure>
+<p>以上的指令为两个for循环的嵌套。<br>其中○1为(fp-12)处存的变量假设为i，把变量i的值存入r2，然后代码段○2处为取出a[i]的值并将其存入r3中，紧接着代码段○3处判断r3的值是否大于6，如果大于6就explode_bomb。然后进入代码块○4中，在此就进入了第二个for循环，首先初始化(fp-8)处的变量，设为j，j = i+1;然后进入代码段○5处对j的值进行判断，如果大于5就进入代码段○9，其中代码○9是将i增1并进行判断，如果i大于5就跳出for循环，如果小于5则跳至○1再进行一次for循环，对于代码○5处的判断如果j小于等于5的话，则跳入代码○6处，其中逻辑为取出a[i]的值将其放入r2中，然后进入○7中，取出a[j]的值将其放入r3中，然后进入○8，将r2和r3进行比较，如果相等的话就explode_bomb,不行等就进入○5，又进行了一次循环。其伪代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt;= <span class="number">5</span>;i++)</span><br><span class="line">	&#123;<span class="keyword">if</span>(a[i]&gt;<span class="number">6</span>)</span><br><span class="line">		explode_bomb();</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">int</span> j = i+<span class="number">1</span>;j&lt;=<span class="number">5</span>;j++)</span><br><span class="line">		&#123;<span class="keyword">if</span>(a[j] == a[i])</span><br><span class="line">			explode_bomb();</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="根据输入的6个数把链表的6个node进行索引排序"><a href="#根据输入的6个数把链表的6个node进行索引排序" class="headerlink" title="根据输入的6个数把链表的6个node进行索引排序"></a>根据输入的6个数把链表的6个node进行索引排序</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">    <span class="number">8978</span>:	e59f315c 	ldr	r3, [pc, #<span class="number">348</span>]	; <span class="number">8</span>adc &lt;phase_6+<span class="number">0x24c</span>&gt;   </span><br><span class="line"><span class="number">897</span>c:	e50b3010 	str	r3, [fp, #<span class="number">-16</span>]</span><br><span class="line"><span class="number">8980</span>:	e3a03001 	mov	r3, #<span class="number">1</span> ○<span class="number">1</span></span><br><span class="line"><span class="number">8984</span>:	e50b3008 	str	r3, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">8988</span>:	ea000005 	b	<span class="number">89</span>a4 &lt;phase_6+<span class="number">0x114</span>&gt;</span><br><span class="line"><span class="comment">/////////////////////////////////////////////</span></span><br><span class="line"><span class="number">898</span>c:	e51b3010 	ldr	r3, [fp, #<span class="number">-16</span>]</span><br><span class="line"><span class="number">8990</span>:	e5933008 	ldr	r3, [r3, #<span class="number">8</span>]</span><br><span class="line"><span class="number">8994</span>:	e50b3010 	str	r3, [fp, #<span class="number">-16</span>]  ○<span class="number">3</span></span><br><span class="line"><span class="number">8998</span>:	e51b3008 	ldr	r3, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">899</span>c:	e2833001 	add	r3, r3, #<span class="number">1</span></span><br><span class="line"><span class="number">89</span>a0:	e50b3008 	str	r3, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="comment">////////////////////////////////////////</span></span><br><span class="line"><span class="number">89</span>a4:	e51b200c 	ldr	r2, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">89</span>a8:	e3e03023 	mvn	r3, #<span class="number">35</span>	; <span class="number">0x23</span></span><br><span class="line"><span class="number">89</span>ac:	e1a02102 	lsl	r2, r2, #<span class="number">2</span></span><br><span class="line"><span class="number">89b</span>0:	e24b1004 	sub	r1, fp, #<span class="number">4</span></span><br><span class="line"><span class="number">89b</span>4:	e0812002 	add	r2, r1, r2  ○<span class="number">2</span></span><br><span class="line"><span class="number">89b</span>8:	e0823003 	add	r3, r2, r3</span><br><span class="line"><span class="number">89b</span>c:	e5932000 	ldr	r2, [r3]</span><br><span class="line"><span class="number">89</span>c0:	e51b3008 	ldr	r3, [fp, #<span class="number">-8</span>]</span><br><span class="line"><span class="number">89</span>c4:	e1520003 	cmp	r2, r3</span><br><span class="line"><span class="number">89</span>c8:	caffffef 	bgt	<span class="number">898</span>c &lt;phase_6+<span class="number">0xfc</span>&gt;</span><br><span class="line"><span class="comment">////////////////////////////////////////////</span></span><br><span class="line"><span class="number">89</span>cc:	e51b200c 	ldr	r2, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">89</span>d0:	e3e0303b 	mvn	r3, #<span class="number">59</span>	; <span class="number">0x3b</span></span><br><span class="line"><span class="number">89</span>d4:	e1a02102 	lsl	r2, r2, #<span class="number">2</span></span><br><span class="line"><span class="number">89</span>d8:	e24b0004 	sub	r0, fp, #<span class="number">4</span>  ○<span class="number">4</span></span><br><span class="line"><span class="number">89</span>dc:	e0802002 	add	r2, r0, r2</span><br><span class="line"><span class="number">89e0</span>:	e0823003 	add	r3, r2, r3</span><br><span class="line"><span class="number">89e4</span>:	e51b2010 	ldr	r2, [fp, #<span class="number">-16</span>]</span><br><span class="line"><span class="number">89e8</span>:	e5832000 	str	r2, [r3]</span><br><span class="line"><span class="comment">///////////////////////////////////////////</span></span><br><span class="line"><span class="number">89</span>ec:	e51b300c 	ldr	r3, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">89f</span>0:	e2833001 	add	r3, r3, #<span class="number">1</span></span><br><span class="line"><span class="number">89f</span>4:	e50b300c 	str	r3, [fp, #<span class="number">-12</span>]   ○<span class="number">5</span></span><br><span class="line"><span class="number">89f</span>8:	e51b300c 	ldr	r3, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">89f</span>c:	e3530005 	cmp	r3, #<span class="number">5</span></span><br><span class="line"><span class="number">8</span>a00:	daffffdc 	ble	<span class="number">8978</span> &lt;phase_6+<span class="number">0xe8</span>&gt;</span><br><span class="line"><span class="comment">///////////////////////////////////////////</span></span><br><span class="line"><span class="number">8</span>a04:	e51b3040 	ldr	r3, [fp, #<span class="number">-64</span>]	; <span class="number">0xffffffc0</span></span><br><span class="line"><span class="number">8</span>a08:	e50b3010 	str	r3, [fp, #<span class="number">-16</span>]○<span class="number">9</span></span><br><span class="line"><span class="number">8</span>a0c:	e3a03001 	mov	r3, #<span class="number">1</span></span><br><span class="line"><span class="number">8</span>a10:	e50b300c 	str	r3, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="comment">/////////////////////////////////////////</span></span><br><span class="line"><span class="number">8</span>a14:	e51b200c 	ldr	r2, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">8</span>a18:	e3e0303b 	mvn	r3, #<span class="number">59</span>	; <span class="number">0x3b</span></span><br><span class="line"><span class="number">8</span>a1c:	e1a02102 	lsl	r2, r2, #<span class="number">2</span></span><br><span class="line"><span class="number">8</span>a20:	e24b1004 	sub	r1, fp, #<span class="number">4</span>  </span><br><span class="line"><span class="number">8</span>a24:	e0812002 	add	r2, r1, r2○<span class="number">6</span></span><br><span class="line"><span class="number">8</span>a28:	e0823003 	add	r3, r2, r3</span><br><span class="line"><span class="number">8</span>a2c:	e5932000 	ldr	r2, [r3]</span><br><span class="line"><span class="number">8</span>a30:	e51b3010 	ldr	r3, [fp, #<span class="number">-16</span>]</span><br><span class="line"><span class="number">8</span>a34:	e5832008 	str	r2, [r3, #<span class="number">8</span>]</span><br><span class="line"><span class="comment">///////////////////////////////////////</span></span><br><span class="line"><span class="number">8</span>a38:	e51b200c 	ldr	r2, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">8</span>a3c:	e3e0303b 	mvn	r3, #<span class="number">59</span>	; <span class="number">0x3b</span></span><br><span class="line"><span class="number">8</span>a40:	e1a02102 	lsl	r2, r2, #<span class="number">2</span>○<span class="number">7</span></span><br><span class="line"><span class="number">8</span>a44:	e24b0004 	sub	r0, fp, #<span class="number">4</span></span><br><span class="line"><span class="number">8</span>a48:	e0802002 	add	r2, r0, r2</span><br><span class="line"><span class="number">8</span>a4c:	e0823003 	add	r3, r2, r3</span><br><span class="line"><span class="number">8</span>a50:	e5933000 	ldr	r3, [r3]</span><br><span class="line"><span class="number">8</span>a54:	e50b3010 	str	r3, [fp, #<span class="number">-16</span>]</span><br><span class="line"><span class="comment">////////////////////////////////////</span></span><br><span class="line"><span class="number">8</span>a58:	e51b300c 	ldr	r3, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">8</span>a5c:	e2833001 	add	r3, r3, #<span class="number">1</span></span><br><span class="line"><span class="number">8</span>a60:	e50b300c 	str	r3, [fp, #<span class="number">-12</span>] ○<span class="number">8</span></span><br><span class="line"><span class="number">8</span>a64:	e51b300c 	ldr	r3, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">8</span>a68:	e3530005 	cmp	r3, #<span class="number">5</span></span><br><span class="line"><span class="number">8</span>a6c:	daffffe8 	ble	<span class="number">8</span>a14 &lt;phase_6+<span class="number">0x184</span>&gt;</span><br></pre></td></tr></table></figure>
+<p>该段代码也有一个for循环的嵌套。<br>首先初始化，将(PC+348)的索引的数存入r3中，由ida pro得出具体数据为</p>
+<p><img src="http://i.imgur.com/U4XskLn.png" alt=""></p>
+<p>所以将node1的索引传入r3，然后跳入到代码块○2，其逻辑是先取出a[i]的数据至r2，然后取出j至r3，比较这两个数据的大小，如果r2 &gt;r3,就跳到代码段○3，该逻辑是将r3+0x8的数据存入fp-16中，有以上的数据可知该数据为0x20A0，用IDA pro查找到为：</p>
+<p><img src="http://i.imgur.com/UBtpSiS.png" alt=""></p>
+<p>以此类推，根据每个节点的第8个字节处的数据作为下一个节点的地址，直到找到链表的a[i]个元素，就会跳出该内层的for循环，然后进入代码块○4，该逻辑是将该node的地址存入-0x3c+[R11] + 4 * i中，然后进入代码块○5，其逻辑是使变量i增1，然后判断是否大于5，如果小于5再跳入○1中继续循环。<br>其for循环的伪代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>;i &lt;=<span class="number">5</span>;i++)</span><br><span class="line">&#123;</span><br><span class="line">	node = <span class="number">0x000820AC</span>;</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>;j&lt;a[i];j++)</span><br><span class="line">		node = *(node+<span class="number">0x8</span>);</span><br><span class="line">	<span class="number">-0x3c</span>+[R11] + <span class="number">4</span> * i = node;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以经过上一个for循环的嵌套，从-0x3c+[R11]开始就有了这些节点的地址的索引，然后进入代码段○9，其逻辑是先将fp-12处的变量i初始化为1，目的是进入for循环。进入代码段○6,其目的是将*((-0x3c+[R11]+i-1)+0x8) = (-0x3c+[R11]+i)；然后进入代码段○7，其目的是将当前节点设为-0x3c+[R11]+i处的地址所指向的节点，进入代码块○8，使i增1并判断和5的大小关系。      </p>
+<h4 id="判断链表的节点的数值是否是按从大到小的顺序排列的"><a href="#判断链表的节点的数值是否是按从大到小的顺序排列的" class="headerlink" title="判断链表的节点的数值是否是按从大到小的顺序排列的"></a>判断链表的节点的数值是否是按从大到小的顺序排列的</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">8</span>a70:	e51b3010 	ldr	r3, [fp, #<span class="number">-16</span>]</span><br><span class="line"><span class="number">8</span>a74:	e3a02000 	mov	r2, #<span class="number">0</span></span><br><span class="line"><span class="number">8</span>a78:	e5832008 	str	r2, [r3, #<span class="number">8</span>]</span><br><span class="line"><span class="number">8</span>a7c:	e3a03000 	mov	r3, #<span class="number">0</span>  ○<span class="number">1</span></span><br><span class="line"><span class="number">8</span>a80:	e50b300c 	str	r3, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">8</span>a84:	e51b3040 	ldr	r3, [fp, #<span class="number">-64</span>]	; <span class="number">0xffffffc0</span></span><br><span class="line"><span class="number">8</span>a88:	e50b3010 	str	r3, [fp, #<span class="number">-16</span>]</span><br><span class="line"><span class="comment">//////////////////////////////////////</span></span><br><span class="line"><span class="number">8</span>a8c:	e51b3010 	ldr	r3, [fp, #<span class="number">-16</span>]</span><br><span class="line"><span class="number">8</span>a90:	e5932000 	ldr	r2, [r3]</span><br><span class="line"><span class="number">8</span>a94:	e51b3010 	ldr	r3, [fp, #<span class="number">-16</span>]</span><br><span class="line"><span class="number">8</span>a98:	e5933008 	ldr	r3, [r3, #<span class="number">8</span>] ○<span class="number">2</span></span><br><span class="line"><span class="number">8</span>a9c:	e5933000 	ldr	r3, [r3]</span><br><span class="line"><span class="number">8</span>aa0:	e1520003 	cmp	r2, r3</span><br><span class="line"><span class="number">8</span>aa4:	aa000000 	bge	<span class="number">8</span>aac &lt;phase_6+<span class="number">0x21c</span>&gt;</span><br><span class="line"><span class="number">8</span>aa8:	eb000194 	bl	<span class="number">9100</span> &lt;explode_bomb&gt;</span><br><span class="line"><span class="comment">//////////////////////////////////////////</span></span><br><span class="line"><span class="number">8</span>aac:	e51b3010 	ldr	r3, [fp, #<span class="number">-16</span>]</span><br><span class="line"><span class="number">8</span>ab0:	e5933008 	ldr	r3, [r3, #<span class="number">8</span>]  ○<span class="number">3</span></span><br><span class="line"><span class="number">8</span>ab4:	e50b3010 	str	r3, [fp, #<span class="number">-16</span>]</span><br><span class="line"><span class="comment">///////////////////////////////////////</span></span><br><span class="line"><span class="number">8</span>ab8:	e51b300c 	ldr	r3, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">8</span>abc:	e2833001 	add	r3, r3, #<span class="number">1</span>   </span><br><span class="line"><span class="number">8</span>ac0:	e50b300c 	str	r3, [fp, #<span class="number">-12</span>] ○<span class="number">4</span></span><br><span class="line"><span class="number">8</span>ac4:	e51b300c 	ldr	r3, [fp, #<span class="number">-12</span>]</span><br><span class="line"><span class="number">8</span>ac8:	e3530004 	cmp	r3, #<span class="number">4</span></span><br><span class="line"><span class="number">8</span>acc:	daffffee 	ble	<span class="number">8</span>a8c &lt;phase_6+<span class="number">0x1fc</span>&gt;</span><br></pre></td></tr></table></figure>
+<p>首先进入○1进行初始化，将（fp-16）处的地址换为链表的第一个node，并对（fp-12）的变量i初始化为0。然后进入代码块○2，首先获得当前node的地址，并将该node的数据存入r2中，地址存入r3中，然后通过[r3+8]获得下一个node的地址，并将下一个node的地址存入r3中，然后比较r2和r3的值，如果r2小于r3，就explode_bomb,<br>如果不小于就进入代码块○3，该逻辑是将当前节点（fp-16）的地址改为[r3+8]处的数值，即为下一个节点的地址，然后进入代码○4，对变量i进行增1操作，并判断和4的大小。其伪代码如下：<br>其中node的数据结构如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">node</span></span></span><br><span class="line"><span class="class"> &#123;</span></span><br><span class="line"> <span class="keyword">int</span> x, y;</span><br><span class="line"> node *next; &#125;;</span><br><span class="line"><span class="comment">//进行判断：</span></span><br><span class="line">node a = firstNode;</span><br><span class="line">   <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5</span>; i++)</span><br><span class="line">&#123;</span><br><span class="line">   node b = a-&gt;next;</span><br><span class="line">   <span class="keyword">if</span> (a-&gt;x &gt;= b-&gt;x)</span><br><span class="line">  a = b;</span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line">  explode_bomb();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>所以根据逻辑，先找出每个节点的数据，然后再根据输入的数进行排序，保证其是从大到小的顺序排列的。根据IDA pro找到每个node所在的地址为：<br>地址    数据    下个节点地址<br>0x820AC    0xFD    0x820A0<br>0x820A0    0x2D5    0x82094<br>0x82094    0x12D    0x82088<br>0x82088    0x3E5    0x8207C<br>0x8207C    0xD4    0x82070<br>0x82070    0x1B0    </p>
+<p>所以由大到小排列的话就为4 2 6 3 1 5</p>
+<h4 id="密码-5"><a href="#密码-5" class="headerlink" title="密码"></a>密码</h4><p>   4 2 6 3 1 5</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/反汇编/" rel="tag"># 反汇编</a>
+          
+            <a href="/tags/体系结构/" rel="tag"># 体系结构</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/13/Raytracing/" rel="next" title="Raytracing">
+                <i class="fa fa-chevron-left"></i> Raytracing
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/05/16/open-Rebort/" rel="prev" title="openGL_Rebort">
+                openGL_Rebort <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">binpang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">32</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">15</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">29</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#环境的搭建"><span class="nav-number">1.</span> <span class="nav-text">环境的搭建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#具体分析"><span class="nav-number">2.</span> <span class="nav-text">具体分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Phase-1"><span class="nav-number">2.1.</span> <span class="nav-text">Phase 1</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Arm指令"><span class="nav-number">2.1.1.</span> <span class="nav-text">Arm指令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#反汇编分析"><span class="nav-number">2.1.2.</span> <span class="nav-text">反汇编分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#密码"><span class="nav-number">2.1.3.</span> <span class="nav-text">密码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Phase-2"><span class="nav-number">2.2.</span> <span class="nav-text">Phase 2</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Arm指令-1"><span class="nav-number">2.2.1.</span> <span class="nav-text">Arm指令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#反汇编分析-1"><span class="nav-number">2.2.2.</span> <span class="nav-text">反汇编分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#密码-1"><span class="nav-number">2.2.3.</span> <span class="nav-text">密码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Phase-3"><span class="nav-number">2.3.</span> <span class="nav-text">Phase 3</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#arm指令"><span class="nav-number">2.3.1.</span> <span class="nav-text">arm指令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#反汇编分析-2"><span class="nav-number">2.3.2.</span> <span class="nav-text">反汇编分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#密码-2"><span class="nav-number">2.3.3.</span> <span class="nav-text">密码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Phase-4"><span class="nav-number">2.4.</span> <span class="nav-text">Phase 4</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Arm指令-2"><span class="nav-number">2.4.1.</span> <span class="nav-text">Arm指令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#反汇编分析-3"><span class="nav-number">2.4.2.</span> <span class="nav-text">反汇编分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#密码-3"><span class="nav-number">2.4.3.</span> <span class="nav-text">密码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Phase-5"><span class="nav-number">2.5.</span> <span class="nav-text">Phase 5</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Arm指令-3"><span class="nav-number">2.5.1.</span> <span class="nav-text">Arm指令</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#反汇编分析-4"><span class="nav-number">2.5.2.</span> <span class="nav-text">反汇编分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#密码-4"><span class="nav-number">2.5.3.</span> <span class="nav-text">密码</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Phase-6"><span class="nav-number">2.6.</span> <span class="nav-text">Phase 6</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#读入六个数"><span class="nav-number">2.6.1.</span> <span class="nav-text">读入六个数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#对这六个数的值进行判定"><span class="nav-number">2.6.2.</span> <span class="nav-text">对这六个数的值进行判定</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#根据输入的6个数把链表的6个node进行索引排序"><span class="nav-number">2.6.3.</span> <span class="nav-text">根据输入的6个数把链表的6个node进行索引排序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#判断链表的节点的数值是否是按从大到小的顺序排列的"><span class="nav-number">2.6.4.</span> <span class="nav-text">判断链表的节点的数值是否是按从大到小的顺序排列的</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#密码-5"><span class="nav-number">2.6.5.</span> <span class="nav-text">密码</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">binpang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v6.6.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.6.0"></script>
+
+  <script src="/js/src/motion.js?v=6.6.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/js/src/scrollspy.js?v=6.6.0"></script>
+<script src="/js/src/post-details.js?v=6.6.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.6.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

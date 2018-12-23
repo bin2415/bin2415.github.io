@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="default">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.6.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.6.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.6.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '6.6.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Xposed框架Xposed框架通过修改Android系统的源码，并替换Android的主程序Zygote(Init 是所有Linux程序的起点，而Zygote于Android，正如它的英文意思，是所有java程序的’孵化池’)，从而能够控制Android进程的执行流程，hook java层的API。">
+<meta name="keywords" content="Android,Hook">
+<meta property="og:type" content="article">
+<meta property="og:title" content="XposedHook:hook敏感函数">
+<meta property="og:url" content="http://bin2415.github.io/2016/08/16/xposed/index.html">
+<meta property="og:site_name" content="PCB博客">
+<meta property="og:description" content="Xposed框架Xposed框架通过修改Android系统的源码，并替换Android的主程序Zygote(Init 是所有Linux程序的起点，而Zygote于Android，正如它的英文意思，是所有java程序的’孵化池’)，从而能够控制Android进程的执行流程，hook java层的API。">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://i.imgur.com/XOVoaf1.png">
+<meta property="og:image" content="http://i.imgur.com/AGSWHIX.png">
+<meta property="og:image" content="http://i.imgur.com/2wogiTz.png">
+<meta property="og:image" content="http://i.imgur.com/KyVH8qz.png">
+<meta property="og:image" content="http://i.imgur.com/C02H8xN.png">
+<meta property="og:image" content="http://i.imgur.com/7JbmYot.png">
+<meta property="og:image" content="http://i.imgur.com/vjTMKex.png">
+<meta property="og:image" content="http://i.imgur.com/fNqLYSN.png">
+<meta property="og:image" content="http://i.imgur.com/NZdOdJr.png">
+<meta property="og:image" content="http://i.imgur.com/RcZsVZu.png">
+<meta property="og:updated_time" content="2018-12-23T05:33:53.027Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="XposedHook:hook敏感函数">
+<meta name="twitter:description" content="Xposed框架Xposed框架通过修改Android系统的源码，并替换Android的主程序Zygote(Init 是所有Linux程序的起点，而Zygote于Android，正如它的英文意思，是所有java程序的’孵化池’)，从而能够控制Android进程的执行流程，hook java层的API。">
+<meta name="twitter:image" content="http://i.imgur.com/XOVoaf1.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="PCB博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://bin2415.github.io/2016/08/16/xposed/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>XposedHook:hook敏感函数 | PCB博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion .logo-line-before i { left: initial; }
+    .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PCB博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">快乐记录每一天</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://bin2415.github.io/2016/08/16/xposed/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="binpang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PCB博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">XposedHook:hook敏感函数
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2016-08-16 17:58:59" itemprop="dateCreated datePublished" datetime="2016-08-16T17:58:59+08:00">2016-08-16</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-12-23 13:33:53" itemprop="dateModified" datetime="2018-12-23T13:33:53+08:00">2018-12-23</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/Hook/" itemprop="url" rel="index"><span itemprop="name">Hook</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Xposed框架"><a href="#Xposed框架" class="headerlink" title="Xposed框架"></a>Xposed框架</h2><p>Xposed框架通过修改Android系统的源码，并替换Android的主程序Zygote(Init 是所有Linux程序的起点，而Zygote于Android，正如它的英文意思，是所有java程序的’孵化池’)，从而能够控制Android进程的执行流程，hook java层的API。</p>
+<a id="more"></a>
+<p>首先在app_main.cpp中，对appRuntime.cpp进行了修改，其中onVmCreated(JNIEnv* env)修改如下：</p>
+<p><img src="http://i.imgur.com/XOVoaf1.png" alt=""></p>
+<p>在onVmCreate中，它将调用libxposed_dalvik.so中的xposedInitLib函数，然后再调用so中设置的onVmCreated函数。这个onVmCreated函数由xposedInitLib设置。</p>
+<p>在app_main.cpp的main方法中，进行了对xposed的环境初始化：</p>
+<p><img src="http://i.imgur.com/AGSWHIX.png" alt=""></p>
+<p>最后，如果xposed框架启用成功，那么zygote的入口类将由以前的com.android.internal.os.ZygoteInit变成de.robv.android.xposed.XposedBridge。</p>
+<p>下面我们按照执行流程，把相关函数分析一遍：</p>
+<p>AppRuntime的onVmCreated，它最终会导致libxposed_dalvik.so中的onVmCreated被调用。我们直接分析最后这个onVmCreated。</p>
+<p>然后AppRuntime里会调用de.robv.android.xposed.XposedBridge.main函数。</p>
+<p>所以通过调用XposedBridge.main函数，可以给APK进程的一些特定函数挂上钩子，从而能够监听该函数，进而通过beforeHookedMethod和afterHookedMethod方法可以分别实现调用函数前的操作和调用函数后的操作。</p>
+<hr>
+<h2 id="Hook用到的具体函数"><a href="#Hook用到的具体函数" class="headerlink" title="Hook用到的具体函数"></a>Hook用到的具体函数</h2><p>下面给出我在做Android恶意程序分析时需要hook的函数的一些操作，该程序参考了<a href="https://github.com/halfkiss/ZjDroid" target="_blank" rel="noopener">halfkiss</a>的框架。</p>
+<ul>
+<li>用到的Xposed的函数： 首先定义一个抽象类MethodHookCallBack继承自Xposed的XC_MethodHook类，该类有两个方法:beforeHookedMethod(MethodHookParam param)和AfterHookedMethod(MethodHookParam param)方法，这两个方法分别对应于要hook的函数调用之前所要执行的动作与该函数调用之后所要执行的动作。比如：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">beforeHookedMethod</span><span class="params">(MethodHookParam param)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">		Log.i(<span class="string">"Before hook"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的例子说明在调用要hook的函数之前打印一段log为Before hook。</p>
+<ul>
+<li><p>Xposed的hook的主函数hookMethod(Member hookMethod, XC_MethodHook callback),其中参数hookMethod表示要hook的函数，该函数可以通过java的反射机制获得，具体怎么获得在下面会讲到，参数callback就是前面讲到的Xposed函数的XC_MethodHook类，该类主要是表示该对要hook的函数做怎样的处理。具体的hookMethod方法如下图所示:</p>
+<p><img src="http://i.imgur.com/2wogiTz.png" alt=""></p>
+</li>
+</ul>
+<p>由hookMethod可知，一个目标函数可以挂多个钩子，这些钩子由一个集合来存储。然后我们将转到JNI层去看看hookMethodNative干了什么事情。这才是hook的核心。分析如下图所示：</p>
+<p><img src="http://i.imgur.com/KyVH8qz.png" alt=""></p>
+<p><img src="http://i.imgur.com/C02H8xN.png" alt=""></p>
+<p>所以当apk执行被hook的函数时，实际执行的是hookMethodCallBack函数，该函数就是钩子函数，我们来看看hookmethodCallBack函数具体是怎么执行的，该函数在libXposed_dalvik.cpp中。</p>
+<p><img src="http://i.imgur.com/7JbmYot.png" alt=""></p>
+<p>在xposedHandleHookedMethod函数中会以此执行钩子函数，即在前面介绍的XC_MethodHook函数，然后再会执行程序的原函数。</p>
+<p>在此，Hook需要用到的基本函数已经介绍完毕。接下来会介绍如何利用Xposed来实现hook敏感函数的操作。</p>
+<hr>
+<h2 id="hook敏感函数"><a href="#hook敏感函数" class="headerlink" title="hook敏感函数"></a>hook敏感函数</h2><ul>
+<li>首先定义MethodHookCallBack类继承自XC_MethodHook,该函数实现了beforeHookedMethod和afterHookedMethod函数，主要是获得HookParam类，该类主要是存储了一些MethodHookParam的一些参数。然后调用该类中beforeHookedMethod(HookParam param)或者afterHookedMethod(HookParam param)。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">MethodHookCallBack</span> <span class="keyword">extends</span> <span class="title">XC_MethodHook</span> </span>&#123;</span><br><span class="line">		</span><br><span class="line">		<span class="meta">@Override</span></span><br><span class="line">		<span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">beforeHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">			<span class="comment">// TODO Auto-generated method stub</span></span><br><span class="line">			<span class="keyword">super</span>.beforeHookedMethod(param);</span><br><span class="line">			HookParam hookParam = HookParam.fromXposed(param);</span><br><span class="line">			<span class="keyword">this</span>.beforeHookedMethod(hookParam);</span><br><span class="line">			<span class="keyword">if</span>(hookParam.hasResult())</span><br><span class="line">				param.setResult(hookParam.getResult());</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="meta">@Override</span></span><br><span class="line">		<span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">afterHookedMethod</span><span class="params">(MethodHookParam param)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">			<span class="comment">// TODO Auto-generated method stub</span></span><br><span class="line">			<span class="keyword">super</span>.afterHookedMethod(param);</span><br><span class="line">			HookParam hookParam = HookParam.fromXposed(param);</span><br><span class="line">			<span class="keyword">this</span>.afterHookedMethod(hookParam);</span><br><span class="line">			<span class="keyword">if</span>(hookParam.hasResult())</span><br><span class="line">				param.setResult(hookParam.getResult());</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		<span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">beforeHookedMethod</span><span class="params">(HookParam param)</span></span>;</span><br><span class="line">		<span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">afterHookedMethod</span><span class="params">(HookParam param)</span></span>;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>根据字符串找到要hook的函数，主要是利用java的反射函数，如果有兴趣的可以去查阅一下java的反射机制，主要是通过字符串来得到相应的类，函数或变量等，具体代码如下：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Method <span class="title">findMethod</span><span class="params">(String className, ClassLoader classLoader, String methodName,</span></span></span><br><span class="line"><span class="function"><span class="params">			Class&lt;?&gt;... parameterTypes)</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">		Class clazz = classLoader.loadClass(className);</span><br><span class="line">		Method method = clazz.getDeclaredMethod(methodName, parameterTypes);</span><br><span class="line">		method.setAccessible(<span class="keyword">true</span>);</span><br><span class="line">		<span class="keyword">return</span> method;</span><br><span class="line">	&#125; <span class="keyword">catch</span> (NoSuchMethodException e) &#123;</span><br><span class="line">		e.printStackTrace();</span><br><span class="line">	&#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">		<span class="comment">// TODO Auto-generated catch block</span></span><br><span class="line">		e.printStackTrace();</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们通过该方法可以获得要hook的具体method。</p>
+<ul>
+<li>定义抽象类AbstractBahaviorHookCallBack继承自前面讲到的MethodHookCallBack类，该类具体实现当调用要hook的函数时，就打印该函数。具体实现如下：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">    <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractBahaviorHookCallBack</span> <span class="keyword">extends</span> <span class="title">MethodHookCallBack</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    	<span class="meta">@Override</span></span><br><span class="line">    	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">beforeHookedMethod</span><span class="params">(HookParam param)</span> </span>&#123;</span><br><span class="line">    		<span class="comment">// TODO Auto-generated method stub</span></span><br><span class="line">    		<span class="comment">/*int length = param.args.length;</span></span><br><span class="line"><span class="comment">    		Object[] m = param.args;</span></span><br><span class="line"><span class="comment">    		String args = "/";</span></span><br><span class="line"><span class="comment">    		for(int i = 0; i &lt; length;i++)</span></span><br><span class="line"><span class="comment">    		&#123;</span></span><br><span class="line"><span class="comment">    			args+=(String)m[i]+"/";</span></span><br><span class="line"><span class="comment">    		&#125;*/</span></span><br><span class="line">    		Logger.logD(<span class="string">"Invoke "</span>+ param.method.getDeclaringClass().getName()+<span class="string">"-&gt;"</span>+param.method.getName());</span><br><span class="line">    		<span class="keyword">this</span>.descParam(param);</span><br><span class="line">    		<span class="comment">//this.printStackInfo();</span></span><br><span class="line">    	&#125;</span><br><span class="line">    </span><br><span class="line">    	<span class="meta">@Override</span></span><br><span class="line">    	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterHookedMethod</span><span class="params">(HookParam param)</span> </span>&#123;</span><br><span class="line">    		<span class="comment">// TODO Auto-generated method stub</span></span><br><span class="line">    		<span class="comment">//Logger.log_behavior("End Invoke "+ param.method.toString());</span></span><br><span class="line">    	&#125;</span><br><span class="line">    	</span><br><span class="line">    	<span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">printStackInfo</span><span class="params">()</span></span>&#123;</span><br><span class="line">    		Throwable ex = <span class="keyword">new</span> Throwable();</span><br><span class="line">    		StackTraceElement[] stackElements = ex.getStackTrace();</span><br><span class="line">    		<span class="keyword">if</span>(stackElements != <span class="keyword">null</span>)&#123;</span><br><span class="line">    			StackTraceElement st;</span><br><span class="line">    			<span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>; i&lt;stackElements.length; i++)&#123;</span><br><span class="line">    				st = stackElements[i];</span><br><span class="line">    				<span class="keyword">if</span>(st.getClassName().startsWith(<span class="string">"com.android.binpang"</span>)||st.getClassName().startsWith(<span class="string">"de.robv.android.xposed.XposedBridge"</span>))</span><br><span class="line">    					<span class="keyword">continue</span>;</span><br><span class="line">    				Logger.logD(st.getClassName()+<span class="string">":"</span>+st.getMethodName()+<span class="string">":"</span>+st.getFileName()+<span class="string">":"</span>+st.getLineNumber());</span><br><span class="line">    			&#125;</span><br><span class="line">    		&#125;</span><br><span class="line">    	&#125;</span><br><span class="line">    	</span><br><span class="line">    	<span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">descParam</span><span class="params">(HookParam param)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>具体要实现的hook函数</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Method sendTextMessagemethod =  FindMethod.findMethod(</span><br><span class="line">				<span class="string">"android.telephony.SmsManager"</span>, ClassLoader.getSystemClassLoader(),</span><br><span class="line">				<span class="string">"sendTextMessage"</span>, String.class,String.class,String.class,PendingIntent.class,PendingIntent.class);</span><br><span class="line">		hookhelper.hookMethod(sendTextMessagemethod, <span class="keyword">new</span> AbstractBahaviorHookCallBack() &#123;</span><br><span class="line">			</span><br><span class="line">			<span class="meta">@Override</span></span><br><span class="line">			<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">descParam</span><span class="params">(HookParam param)</span> </span>&#123;</span><br><span class="line">				<span class="comment">// TODO Auto-generated method stub</span></span><br><span class="line">				Logger.logI(<span class="string">"Send SMS -&gt;"</span>);</span><br><span class="line">				String dstNumber = (String)param.args[<span class="number">0</span>];</span><br><span class="line">				String content = (String)param.args[<span class="number">2</span>];</span><br><span class="line">				Logger.logI(<span class="string">"SMS DestNumber:"</span>+dstNumber);</span><br><span class="line">				Logger.logI(<span class="string">"SMS Content:"</span>+content);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;);</span><br></pre></td></tr></table></figure>
+<p>该示例函数是hook了android.telephony.SmeManager/sendTextMessage函数，当调用该函数的时候，会打印出来要发送的目标号码，及发送的message的内容。</p>
+<ul>
+<li>监听的敏感函数列表</li>
+</ul>
+<h3 id="SmsManager"><a href="#SmsManager" class="headerlink" title="SmsManager"></a>SmsManager</h3><ol>
+<li>android.telephony.SmsManager/sendTextMessage </li>
+<li>android.telephony.SmsManager/getAllMessagesFromIcc </li>
+<li>android.telephony.SmsManager/sendDataMessage </li>
+<li>android.telephony.SmsManager/sendMultipartTextMessage </li>
+</ol>
+<h3 id="TelephonyManager"><a href="#TelephonyManager" class="headerlink" title="TelephonyManager"></a>TelephonyManager</h3><ol>
+<li>android.telephony.TelephonyManager/getLine1Number </li>
+<li>android.telephony.TelephonyManager/listen </li>
+</ol>
+<h3 id="AccountManager"><a href="#AccountManager" class="headerlink" title="AccountManager"></a>AccountManager</h3><ol>
+<li>android.accounts.AccountManager/getAccounts </li>
+<li>android.accounts.AccountManager/getAccountsByType </li>
+</ol>
+<h3 id="ActivityManager"><a href="#ActivityManager" class="headerlink" title="ActivityManager"></a>ActivityManager</h3><ol>
+<li>android.app.ActivityManager/killBackgroundProcesses </li>
+<li>android.app.ActivityManager/forceStopPackage </li>
+</ol>
+<h3 id="AlarmManager"><a href="#AlarmManager" class="headerlink" title="AlarmManager"></a>AlarmManager</h3><ol>
+<li>android.app.AlarmManager/setImpl </li>
+</ol>
+<h3 id="AudioRecord"><a href="#AudioRecord" class="headerlink" title="AudioRecord"></a>AudioRecord</h3><ol>
+<li>android.media.AudioRecord </li>
+</ol>
+<h3 id="Camera"><a href="#Camera" class="headerlink" title="Camera"></a>Camera</h3><ol>
+<li>android.hardware.Camera/takepicture </li>
+<li>android.hardware.Camera/setPreviewCallback </li>
+<li>android.hardware.Camera/setPreviewCallbackWithBuffer </li>
+<li>android.hardware.Camera/setOneShotPreviewCallback </li>
+</ol>
+<h3 id="ConnectivityManager"><a href="#ConnectivityManager" class="headerlink" title="ConnectivityManager"></a>ConnectivityManager</h3><ol>
+<li>android.net.ConnectivityManager/setMobileDataEnabled </li>
+</ol>
+<h3 id="ContentResolver"><a href="#ContentResolver" class="headerlink" title="ContentResolver"></a>ContentResolver</h3><ol>
+<li>android.content.ContentResolver/qurey </li>
+<li>android.content.ContentResolver/registerContentObserver </li>
+<li>android.content.ContentResolver/insert </li>
+<li>android.content.ContentResolver/bulkInsert </li>
+<li>android.content.ContentResolver/delete </li>
+<li>android.content.ContentResolver/update </li>
+<li>android.content.ContentResolver/applyBatch </li>
+</ol>
+<h3 id="ContextImpl"><a href="#ContextImpl" class="headerlink" title="ContextImpl"></a>ContextImpl</h3><ol>
+<li>android.app.ContextImpl/registerReceiver </li>
+</ol>
+<h3 id="MediaRecorder"><a href="#MediaRecorder" class="headerlink" title="MediaRecorder"></a>MediaRecorder</h3><ol>
+<li>android.media.MediaRecorder/start </li>
+<li>android.media.MediaRecorder/stop </li>
+</ol>
+<h3 id="Internet"><a href="#Internet" class="headerlink" title="Internet"></a>Internet</h3><ol>
+<li>java.net.URL/openConnection </li>
+<li>org.apache.http.impl.client.AbstractHttpClient/execute </li>
+</ol>
+<h3 id="NotificationManager"><a href="#NotificationManager" class="headerlink" title="NotificationManager"></a>NotificationManager</h3><ol>
+<li>android.app.NotificationManager/notify </li>
+</ol>
+<h3 id="ApplicationPackageManager"><a href="#ApplicationPackageManager" class="headerlink" title="ApplicationPackageManager"></a>ApplicationPackageManager</h3><ol>
+<li>android.app.ApplicationPackageManager/installPackage </li>
+<li>android.app.ApplicationPackageManager/deletePackage </li>
+<li>android.app.ApplicationPackageManager/getInstalledPackages</li>
+</ol>
+<hr>
+<h2 id="Xposed编程步骤"><a href="#Xposed编程步骤" class="headerlink" title="Xposed编程步骤"></a>Xposed编程步骤</h2><ul>
+<li>首先在xposedbridgeapi.jar包导入到项目中，这里采用了XposedBridgeApi-54.jar包</li>
+<li>再项目的assets文件夹中新建一个xposed_init文件(没有后缀)，该文件表示该xposed模板的主函数类的具体路径，比如该项目为</li>
+</ul>
+<p><img src="http://i.imgur.com/vjTMKex.png" alt=""></p>
+<ul>
+<li>在AndroidManifest.xml文件的<application>标签下添加xposed的一些信息，以便Xposed能够识别该模板。</application></li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span><br><span class="line"><span class="tag">&lt;<span class="name">manifest</span> <span class="attr">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span></span></span><br><span class="line"><span class="tag"><span class="attr">package</span>=<span class="string">"com.example.methodhook"</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:versionCode</span>=<span class="string">"1"</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:versionName</span>=<span class="string">"1.0"</span> &gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">uses-sdk</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:minSdkVersion</span>=<span class="string">"18"</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:targetSdkVersion</span>=<span class="string">"21"</span> /&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">application</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:allowBackup</span>=<span class="string">"true"</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:icon</span>=<span class="string">"@drawable/ic_launcher"</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:label</span>=<span class="string">"@string/app_name"</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:theme</span>=<span class="string">"@style/AppTheme"</span> &gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">activity</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:name</span>=<span class="string">"com.binpang.methodhook.MainActivity"</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:label</span>=<span class="string">"@string/app_name"</span> &gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">intent-filter</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">action</span> <span class="attr">android:name</span>=<span class="string">"android.intent.action.MAIN"</span> /&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">category</span> <span class="attr">android:name</span>=<span class="string">"android.intent.category.LAUNCHER"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">intent-filter</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">activity</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta-data</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:name</span>=<span class="string">"xposedmodule"</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:value</span>=<span class="string">"true"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta-data</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:name</span>=<span class="string">"xposedminversion"</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:value</span>=<span class="string">"40"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta-data</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:name</span>=<span class="string">"xposeddescription"</span></span></span><br><span class="line"><span class="tag"><span class="attr">android:value</span>=<span class="string">"Monitor the System's apis"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">application</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">manifest</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>在Android手机(或模拟器,建议使用模拟器，一般的模拟器都已经root过了)中安装XposedInstaller(需要root权限), 由于Xposed替换了Android的一些程序，所以需要重启才能生效。</li>
+<li>然后启动该模板程序，使其安装到Android手机中，然后再Xposed的模板中找到它，并打钩，如图所示：</li>
+</ul>
+<p><img src="http://i.imgur.com/fNqLYSN.png" alt=""></p>
+<h2 id="演示hook结果"><a href="#演示hook结果" class="headerlink" title="演示hook结果"></a>演示hook结果</h2><p>通过短信软件向5554号码发送”hello,world”内容，如图所示：</p>
+<p><img src="http://i.imgur.com/NZdOdJr.png" alt=""></p>
+<p>结果查找logcat如图所示:</p>
+<p><img src="http://i.imgur.com/RcZsVZu.png" alt=""></p>
+<hr>
+<p>具体可以参考<a href="https://github.com/bin2415/methodHook" target="_blank" rel="noopener">我的github</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/Hook/" rel="tag"># Hook</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/16/github-ssh/" rel="next" title="github添加ssh秘钥">
+                <i class="fa fa-chevron-left"></i> github添加ssh秘钥
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/04/13/Raytracing/" rel="prev" title="Raytracing">
+                Raytracing <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">binpang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">32</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">15</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">29</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Xposed框架"><span class="nav-number">1.</span> <span class="nav-text">Xposed框架</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hook用到的具体函数"><span class="nav-number">2.</span> <span class="nav-text">Hook用到的具体函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hook敏感函数"><span class="nav-number">3.</span> <span class="nav-text">hook敏感函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SmsManager"><span class="nav-number">3.1.</span> <span class="nav-text">SmsManager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TelephonyManager"><span class="nav-number">3.2.</span> <span class="nav-text">TelephonyManager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AccountManager"><span class="nav-number">3.3.</span> <span class="nav-text">AccountManager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ActivityManager"><span class="nav-number">3.4.</span> <span class="nav-text">ActivityManager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AlarmManager"><span class="nav-number">3.5.</span> <span class="nav-text">AlarmManager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AudioRecord"><span class="nav-number">3.6.</span> <span class="nav-text">AudioRecord</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Camera"><span class="nav-number">3.7.</span> <span class="nav-text">Camera</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ConnectivityManager"><span class="nav-number">3.8.</span> <span class="nav-text">ConnectivityManager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ContentResolver"><span class="nav-number">3.9.</span> <span class="nav-text">ContentResolver</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ContextImpl"><span class="nav-number">3.10.</span> <span class="nav-text">ContextImpl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MediaRecorder"><span class="nav-number">3.11.</span> <span class="nav-text">MediaRecorder</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Internet"><span class="nav-number">3.12.</span> <span class="nav-text">Internet</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NotificationManager"><span class="nav-number">3.13.</span> <span class="nav-text">NotificationManager</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ApplicationPackageManager"><span class="nav-number">3.14.</span> <span class="nav-text">ApplicationPackageManager</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Xposed编程步骤"><span class="nav-number">4.</span> <span class="nav-text">Xposed编程步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#演示hook结果"><span class="nav-number">5.</span> <span class="nav-text">演示hook结果</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">binpang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v6.6.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.6.0"></script>
+
+  <script src="/js/src/motion.js?v=6.6.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/js/src/scrollspy.js?v=6.6.0"></script>
+<script src="/js/src/post-details.js?v=6.6.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.6.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
