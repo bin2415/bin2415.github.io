@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://bin2415.github.io/"/>
-  <updated>2019-01-04T13:46:34.491Z</updated>
+  <updated>2019-01-04T13:51:04.069Z</updated>
   <id>http://bin2415.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://bin2415.github.io/2019/01/03/debug-kernel/"/>
     <id>http://bin2415.github.io/2019/01/03/debug-kernel/</id>
     <published>2019-01-03T02:54:43.000Z</published>
-    <updated>2019-01-04T13:46:34.491Z</updated>
+    <updated>2019-01-04T13:51:04.069Z</updated>
     
     <content type="html"><![CDATA[<h2 id="编译linux内核"><a href="#编译linux内核" class="headerlink" title="编译linux内核"></a>编译linux内核</h2><ul>
 <li>下载内核源码</li>
@@ -41,7 +41,7 @@
 <ul>
 <li>使用GCC编译内核</li>
 </ul>
-<p>make -j$(nproc)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make -j$(nproc)</span><br></pre></td></tr></table></figure>
 <h2 id="gdb调试"><a href="#gdb调试" class="headerlink" title="gdb调试"></a>gdb调试</h2><ul>
 <li>qemu启动的时候添加选项 ‘-gdb tcp:1234’</li>
 <li>内核命令行添加’nokaslr’</li>

@@ -112,7 +112,7 @@
 <meta property="og:site_name" content="PCB博客">
 <meta property="og:description" content="编译linux内核 下载内核源码  1git clone https://github.com/torvalds/linux.git $KERNEL  生成默认的配置  123cd $KERNELmake defconfigmake kvmconfig  编辑.config，开启一些选项  12345678910111213141516171819202122# gdb configCONFIG_">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-01-04T13:46:34.491Z">
+<meta property="og:updated_time" content="2019-01-04T13:51:04.069Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="用gdb调试qemu内核">
 <meta name="twitter:description" content="编译linux内核 下载内核源码  1git clone https://github.com/torvalds/linux.git $KERNEL  生成默认的配置  123cd $KERNELmake defconfigmake kvmconfig  编辑.config，开启一些选项  12345678910111213141516171819202122# gdb configCONFIG_">
@@ -397,7 +397,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-01-04 21:46:34" itemprop="dateModified" datetime="2019-01-04T21:46:34+08:00">2019-01-04</time>
+                <time title="Modified: 2019-01-04 21:51:04" itemprop="dateModified" datetime="2019-01-04T21:51:04+08:00">2019-01-04</time>
               
             
           </span>
@@ -467,7 +467,7 @@
 <ul>
 <li>使用GCC编译内核</li>
 </ul>
-<p>make -j$(nproc)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make -j$(nproc)</span><br></pre></td></tr></table></figure>
 <h2 id="gdb调试"><a href="#gdb调试" class="headerlink" title="gdb调试"></a>gdb调试</h2><ul>
 <li>qemu启动的时候添加选项 ‘-gdb tcp:1234’</li>
 <li>内核命令行添加’nokaslr’</li>
