@@ -333,6 +333,186 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://bin2415.github.io/2017/05/20/llvm-DFG/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="binpang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PCB博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2017/05/20/llvm-DFG/" class="post-title-link" itemprop="http://bin2415.github.io/page/3/index.html">llvm:Data Flow Graph</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2017-05-20 18:36:06" itemprop="dateCreated datePublished" datetime="2017-05-20T18:36:06+08:00">2017-05-20</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-12-23 13:33:53" itemprop="dateModified" datetime="2018-12-23T13:33:53+08:00">2018-12-23</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/llvm/" itemprop="url" rel="index"><span itemprop="name">llvm</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          Data Flow Graph基本概念Data Flow Graph又叫数据流程图，表示在一个函数中的数据流动的方向。比如一个指令1定义了一个新变量%a,而另一个指令2用到了变量%a，此时就存在从指令1到指令2的边。llvm IR的表示形式是SSA，简单的来说SSA表示形式就是一个变量只能定义一次。
+          ...
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2017/05/20/llvm-DFG/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://bin2415.github.io/2017/05/20/llvm-CGAndCFG/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -632,7 +812,7 @@ Call GraphCall Gra
 <li>启动apache2服务：sudo service apache2 start</li>
 <li>配置Apache服务，在/etc/apache2/sites-available/default中，配置如下：<br><img src="http://i.imgur.com/5pqUZOD.png" alt=""></li>
 </ul>
-<h2 id="实验内容："><a href="#实验内容：" class="headerlink" title="实验内容："></a>实验内容：</h2><h3 id="Task-1-显示Alert窗口"><a href="#Task-1-显示Alert窗口" class="headerlink" title="Task 1:显示Alert窗口"></a>Task 1:显示Alert窗口</h3><p>在用户名boby下的修改信息这一网页中，在个人说明中插入alert信息：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;alert(‘XSS’);&lt;/script&gt;</span><br></pre></td></tr></table></figure></p>
+<h2 id="实验内容："><a href="#实验内容：" class="headerlink" title="实验内容："></a>实验内容：</h2><h3 id="Task-1-显示Alert窗口"><a href="#Task-1-显示Alert窗口" class="headerlink" title="Task 1:显示Alert窗口"></a>Task 1:显示Alert窗口</h3><p>在用户名boby下的修改信息这一网页中，在个人说明中插入alert信息：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;alert(‘XSS’);<span class="xml"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br></pre></td></tr></table></figure></p>
           <!--noindex-->
           
             <div class="post-button text-center">
@@ -1957,170 +2137,6 @@ Call GraphCall Gra
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://bin2415.github.io/2016/04/16/github-ssh/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="binpang">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PCB博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2016/04/16/github-ssh/" class="post-title-link" itemprop="http://bin2415.github.io/page/3/index.html">github添加ssh秘钥</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2016-04-16 18:00:22" itemprop="dateCreated datePublished" datetime="2016-04-16T18:00:22+08:00">2016-04-16</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2018-12-23 13:33:53" itemprop="dateModified" datetime="2018-12-23T13:33:53+08:00">2018-12-23</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          在windows下git push时由于每次都要提示输入用户名，密码，确实很繁杂，我们可以在windows下生成ssh秘钥，并将公钥放到github上，这样每次git push时就会自动匹配github上的公钥和自己机器上的密钥，从而避免自己输入用户名，密码。
-
-首先下载git客户端，这里提供一个下
-          ...
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2016/04/16/github-ssh/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2168,7 +2184,7 @@ Call GraphCall Gra
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">32</span>
+                    <span class="site-state-item-count">33</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -2211,7 +2227,9 @@ Call GraphCall Gra
                     
                       
                     
-                    <span class="site-state-item-count">15</span>
+                      
+                    
+                    <span class="site-state-item-count">16</span>
                     <span class="site-state-item-name">categories</span>
                   </a>
                 </div>
@@ -2282,7 +2300,9 @@ Call GraphCall Gra
                     
                       
                     
-                    <span class="site-state-item-count">29</span>
+                      
+                    
+                    <span class="site-state-item-count">30</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
@@ -2328,7 +2348,7 @@ Call GraphCall Gra
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2016 – <span itemprop="copyrightYear">2018</span>
+        <div class="copyright">&copy; 2016 – <span itemprop="copyrightYear">2019</span>
   <span class="with-love" id="animate">
     <i class="fa fa-user"></i>
   </span>

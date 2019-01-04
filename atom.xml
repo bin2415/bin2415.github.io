@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://bin2415.github.io/"/>
-  <updated>2018-12-23T05:35:18.271Z</updated>
+  <updated>2019-01-04T13:46:34.491Z</updated>
   <id>http://bin2415.github.io/</id>
   
   <author>
@@ -14,6 +14,63 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>用gdb调试qemu内核</title>
+    <link href="http://bin2415.github.io/2019/01/03/debug-kernel/"/>
+    <id>http://bin2415.github.io/2019/01/03/debug-kernel/</id>
+    <published>2019-01-03T02:54:43.000Z</published>
+    <updated>2019-01-04T13:46:34.491Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="编译linux内核"><a href="#编译linux内核" class="headerlink" title="编译linux内核"></a>编译linux内核</h2><ul>
+<li>下载内核源码</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/torvalds/linux.git $KERNEL</span><br></pre></td></tr></table></figure>
+<ul>
+<li>生成默认的配置</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd $KERNEL</span><br><span class="line">make defconfig</span><br><span class="line">make kvmconfig</span><br></pre></td></tr></table></figure>
+<ul>
+<li>编辑.config，开启一些选项</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> gdb config</span><br><span class="line">CONFIG_GDB_SCRIPTS=y</span><br><span class="line">CONFIG_DEBUG_INFO=y</span><br><span class="line"><span class="meta">#</span> CONFIG_DEBUG_INFO_REDUCED is not set</span><br><span class="line"><span class="meta">#</span> CONFIG_RANDOMIZE_BASE is not set</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> kgdb config</span><br><span class="line"><span class="meta">#</span> CONFIG_STRICT_KERNEL_RWX is not set</span><br><span class="line">CONFIG_FRAME_POINTER=y</span><br><span class="line">CONFIG_KGDB=y</span><br><span class="line">CONFIG_KGDB_SERIAL_CONSOLE=y</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> kdb config</span><br><span class="line"><span class="meta">#</span> CONFIG_STRICT_KERNEL_RWX is not set</span><br><span class="line">CONFIG_FRAME_POINTER=y</span><br><span class="line">CONFIG_KGDB=y</span><br><span class="line">CONFIG_KGDB_SERRIAL_CONSOLE=y</span><br><span class="line">CONFIG_KGDB_KDB=y</span><br><span class="line">CONFIG_KDB_KEYBOARD=y</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span> manually debug using the SysRq-G</span><br><span class="line">CONFIG_MAGIC_SysRq=y</span><br></pre></td></tr></table></figure>
+<ul>
+<li>重新生成config文件，其中有一些子选项，默认即可</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make oldconfig</span><br></pre></td></tr></table></figure>
+<ul>
+<li>使用GCC编译内核</li>
+</ul>
+<p>make -j$(nproc)</p>
+<h2 id="gdb调试"><a href="#gdb调试" class="headerlink" title="gdb调试"></a>gdb调试</h2><ul>
+<li>qemu启动的时候添加选项 ‘-gdb tcp:1234’</li>
+<li>内核命令行添加’nokaslr’</li>
+</ul>
+<p>参考qemu配置如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-x86_64 -S -smp 2 -m 4G -enable-kvm -cpu host \</span><br><span class="line">    -net nic -net user,hostfwd=tcp::10022-:22 \</span><br><span class="line">    -gdb tcp::1234 \</span><br><span class="line">    -kernel ./kernel/arch/x86/boot/bzImage -nographic \</span><br><span class="line">    -device virtio-scsi-pci,id=scsi \</span><br><span class="line">    -device scsi-hd,bus=scsi.0,drive=d0 \</span><br><span class="line">    -drive file=wheezy.img,format=raw,if=none,id=d0 \</span><br><span class="line">    -append &quot;root=/dev/sda noaslr&quot;</span><br></pre></td></tr></table></figure>
+<p>gdb 命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gdb vmlinux</span><br><span class="line">target remote :1234</span><br><span class="line">c</span><br></pre></td></tr></table></figure>
+<h2 id="kgdb-kdb调试"><a href="#kgdb-kdb调试" class="headerlink" title="kgdb, kdb调试"></a>kgdb, kdb调试</h2><p>参考qemu配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">qemu-system-x86_64 -smp 2 -m 4G -enable-kvm -cpu host \</span><br><span class="line">    -net nic -net user,hostfwd=tcp::10022-:22 \</span><br><span class="line">    -kernel ./kernel/arch/x86/boot/bzImage -nographic \</span><br><span class="line">    -device virtio-scsi-pci,id=scsi \</span><br><span class="line">    -device scsi-hd,bus=scsi.0,drive=d0 \</span><br><span class="line">    -drive file=wheezy.img,format=raw,if=none,id=d0 \</span><br><span class="line">    -append &quot;root=/dev/sda noaslr kgdbwait kgdboc=ttyS0,115200&quot; \</span><br><span class="line">    -serial tcp::1234,server,nowait</span><br></pre></td></tr></table></figure>
+<p>强制下断点：<br>开一个终端连接qemu里的系统，以root用户执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo g &gt; /proc/sysrq-trigger</span><br></pre></td></tr></table></figure>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;编译linux内核&quot;&gt;&lt;a href=&quot;#编译linux内核&quot; class=&quot;headerlink&quot; title=&quot;编译linux内核&quot;&gt;&lt;/a&gt;编译linux内核&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;下载内核源码&lt;/li&gt;
+&lt;/ul&gt;
+&lt;figure class=&quot;hig
+    
+    </summary>
+    
+      <category term="kernel" scheme="http://bin2415.github.io/categories/kernel/"/>
+    
+    
+      <category term="kernel" scheme="http://bin2415.github.io/tags/kernel/"/>
+    
+  </entry>
   
   <entry>
     <title>git本地冲突</title>
@@ -306,9 +363,9 @@
       <category term="fuzzing" scheme="http://bin2415.github.io/categories/fuzzing/"/>
     
     
-      <category term="afl" scheme="http://bin2415.github.io/tags/afl/"/>
-    
       <category term="fuzzing" scheme="http://bin2415.github.io/tags/fuzzing/"/>
+    
+      <category term="afl" scheme="http://bin2415.github.io/tags/afl/"/>
     
   </entry>
   
@@ -994,37 +1051,6 @@
       <category term="exploit" scheme="http://bin2415.github.io/tags/exploit/"/>
     
       <category term="angr" scheme="http://bin2415.github.io/tags/angr/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>llvm:Data Flow Graph</title>
-    <link href="http://bin2415.github.io/2017/05/20/llvm-DFG/"/>
-    <id>http://bin2415.github.io/2017/05/20/llvm-DFG/</id>
-    <published>2017-05-20T10:36:06.000Z</published>
-    <updated>2018-12-23T05:33:53.016Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="Data-Flow-Graph"><a href="#Data-Flow-Graph" class="headerlink" title="Data Flow Graph"></a>Data Flow Graph</h2><h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p>Data Flow Graph又叫数据流程图，表示在一个函数中的数据流动的方向。比如一个指令1定义了一个新变量%a,而另一个指令2用到了变量%a，此时就存在从指令1到指令2的边。llvm IR的表示形式是SSA，简单的来说SSA表示形式就是一个变量只能定义一次。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">x = y + <span class="number">1</span>;</span><br><span class="line">x = y + <span class="number">2</span>;</span><br><span class="line">y = <span class="number">3</span>;</span><br></pre></td></tr></table></figure>
-<p>上面的形式就不是SSA的表示形式，因为x被定义（赋值）了两次，可以通过修改使其变成SSA的表示形式：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">x1 = y + <span class="number">1</span>;</span><br><span class="line">x2 = y + <span class="number">2</span>;</span><br><span class="line">y = <span class="number">3</span>;</span><br></pre></td></tr></table></figure>
-<h3 id="实验过程"><a href="#实验过程" class="headerlink" title="实验过程"></a>实验过程</h3><p>在具体的实验中，我们遍历函数中的每一个指令，判断该指令是否为load，store指令，把load和store指令与其他指令区别开来是因为在IR中只有store和load指令直接与内存直接接触。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">                  <span class="keyword">case</span> llvm::Instruction::Load:</span><br><span class="line">&#123;</span><br><span class="line">	LoadInst* linst = dyn_cast&lt;LoadInst&gt;(curII);</span><br><span class="line">	Value* loadValPtr = linst-&gt;getPointerOperand();</span><br><span class="line">	edges.push_back(edge(node(loadValPtr, getValueName(loadValPtr)), node(curII, getValueName(curII))));</span><br><span class="line">	<span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">case</span> llvm::Instruction::Store: &#123;</span><br><span class="line">	StoreInst* sinst = dyn_cast&lt;StoreInst&gt;(curII);</span><br><span class="line">	Value* storeValPtr = sinst-&gt;getPointerOperand();</span><br><span class="line">	Value* storeVal = sinst-&gt;getValueOperand();</span><br><span class="line">	edges.push_back(edge(node(storeVal, getValueName(storeVal)), node(curII, getValueName(curII))));</span><br><span class="line">	edges.push_back(edge(node(curII, getValueName(curII)), node(storeValPtr, getValueName(storeValPtr))));</span><br><span class="line">	<span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>对于其余的指令，遍历每一个指令的操作数，判断其是不是一个指令，如果是指令的话，就添加相应的边。</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (Instruction::op_iterator op = curII-&gt;op_begin(), opEnd = curII-&gt;op_end(); op != opEnd; ++op)</span><br><span class="line">							&#123;</span><br><span class="line">								Instruction* tempIns;</span><br><span class="line">								<span class="keyword">if</span> (dyn_cast&lt;Instruction&gt;(*op))</span><br><span class="line">								&#123;</span><br><span class="line">									edges.push_back(edge(node(op-&gt;get(), getValueName(op-&gt;get())), node(curII, getValueName(curII))));</span><br><span class="line">								&#125;</span><br><span class="line">							&#125;</span><br></pre></td></tr></table></figure>
-<p>具体代码请参考<a href="https://github.com/bin2415/llvm_DFGPass" target="_blank" rel="noopener">我的github</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h2 id=&quot;Data-Flow-Graph&quot;&gt;&lt;a href=&quot;#Data-Flow-Graph&quot; class=&quot;headerlink&quot; title=&quot;Data Flow Graph&quot;&gt;&lt;/a&gt;Data Flow Graph&lt;/h2&gt;&lt;h3 id=&quot;基本概念&quot;&gt;&lt;a href
-    
-    </summary>
-    
-      <category term="llvm" scheme="http://bin2415.github.io/categories/llvm/"/>
-    
-    
-      <category term="llvm" scheme="http://bin2415.github.io/tags/llvm/"/>
     
   </entry>
   

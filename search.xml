@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[用gdb调试qemu内核]]></title>
+    <url>%2F2019%2F01%2F03%2Fdebug-kernel%2F</url>
+    <content type="text"><![CDATA[编译linux内核 下载内核源码 1git clone https://github.com/torvalds/linux.git $KERNEL 生成默认的配置 123cd $KERNELmake defconfigmake kvmconfig 编辑.config，开启一些选项 12345678910111213141516171819202122# gdb configCONFIG_GDB_SCRIPTS=yCONFIG_DEBUG_INFO=y# CONFIG_DEBUG_INFO_REDUCED is not set# CONFIG_RANDOMIZE_BASE is not set# kgdb config# CONFIG_STRICT_KERNEL_RWX is not setCONFIG_FRAME_POINTER=yCONFIG_KGDB=yCONFIG_KGDB_SERIAL_CONSOLE=y# kdb config# CONFIG_STRICT_KERNEL_RWX is not setCONFIG_FRAME_POINTER=yCONFIG_KGDB=yCONFIG_KGDB_SERRIAL_CONSOLE=yCONFIG_KGDB_KDB=yCONFIG_KDB_KEYBOARD=y# manually debug using the SysRq-GCONFIG_MAGIC_SysRq=y 重新生成config文件，其中有一些子选项，默认即可 1make oldconfig 使用GCC编译内核 make -j$(nproc) gdb调试 qemu启动的时候添加选项 ‘-gdb tcp:1234’ 内核命令行添加’nokaslr’ 参考qemu配置如下： 12345678qemu-system-x86_64 -S -smp 2 -m 4G -enable-kvm -cpu host \ -net nic -net user,hostfwd=tcp::10022-:22 \ -gdb tcp::1234 \ -kernel ./kernel/arch/x86/boot/bzImage -nographic \ -device virtio-scsi-pci,id=scsi \ -device scsi-hd,bus=scsi.0,drive=d0 \ -drive file=wheezy.img,format=raw,if=none,id=d0 \ -append &quot;root=/dev/sda noaslr&quot; gdb 命令： 123gdb vmlinuxtarget remote :1234c kgdb, kdb调试参考qemu配置： 12345678qemu-system-x86_64 -smp 2 -m 4G -enable-kvm -cpu host \ -net nic -net user,hostfwd=tcp::10022-:22 \ -kernel ./kernel/arch/x86/boot/bzImage -nographic \ -device virtio-scsi-pci,id=scsi \ -device scsi-hd,bus=scsi.0,drive=d0 \ -drive file=wheezy.img,format=raw,if=none,id=d0 \ -append &quot;root=/dev/sda noaslr kgdbwait kgdboc=ttyS0,115200&quot; \ -serial tcp::1234,server,nowait 强制下断点：开一个终端连接qemu里的系统，以root用户执行： 1echo g &gt; /proc/sysrq-trigger]]></content>
+      <categories>
+        <category>kernel</category>
+      </categories>
+      <tags>
+        <tag>kernel</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[git本地冲突]]></title>
     <url>%2F2018%2F11%2F27%2Fgit%E6%9C%AC%E5%9C%B0%E5%86%B2%E7%AA%81%2F</url>
     <content type="text"><![CDATA[在使用git进行多人协作时，一般需要先pull下来，再commit进行push来避免冲突，然而当pull下来的文件与本地文件有冲突怎么办呢，这时“git stash”就派上了用场： 先将本地的修改存储起来 git stash pull下来远程仓库的内容 git pull 此时本地的文件已被远程仓库的内容覆盖 还原缓存的内容 git stash pop stash@{0} 手动解决冲突 此时会提示你有冲突，让你手动解决。]]></content>
@@ -54,8 +65,8 @@
         <category>fuzzing</category>
       </categories>
       <tags>
-        <tag>afl</tag>
         <tag>fuzzing</tag>
+        <tag>afl</tag>
       </tags>
   </entry>
   <entry>

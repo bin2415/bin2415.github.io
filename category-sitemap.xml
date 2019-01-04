@@ -14,14 +14,14 @@
     </url>
 
     <url>
-        <loc>http://bin2415.github.io/categories/iot/</loc>
+        <loc>http://bin2415.github.io/categories/angr/</loc>
         <lastmod>2018-12-23T05:33:53.001Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
 
     <url>
-        <loc>http://bin2415.github.io/categories/angr/</loc>
+        <loc>http://bin2415.github.io/categories/iot/</loc>
         <lastmod>2018-12-23T05:33:53.001Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
@@ -107,6 +107,13 @@
     <url>
         <loc>http://bin2415.github.io/categories/%E7%BD%91%E7%BB%9C/</loc>
         <lastmod>2018-12-23T05:33:53.028Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>http://bin2415.github.io/categories/kernel/</loc>
+        <lastmod>2019-01-04T13:46:34.491Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>
