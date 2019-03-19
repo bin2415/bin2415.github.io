@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="default">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.6.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.6.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.6.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.6.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="AddressSanitizer简介AddressSanitizer是Google用于检测内存各种buffer overflow(Heap buffer overflow, Stack buffer overflow, Global buffer overflow)的一个非常有用的工具。该工具是一个LLVM的Pass，现已集成至llvm中，要是用它可以通过-fsanitizer=address选项">
+<meta name="keywords" content="LLVM,Sanitizer">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AddressSanitizer算法及源码解析">
+<meta property="og:url" content="http://bin2415.github.io/2017/07/26/AddressSanitizer/index.html">
+<meta property="og:site_name" content="PCB博客">
+<meta property="og:description" content="AddressSanitizer简介AddressSanitizer是Google用于检测内存各种buffer overflow(Heap buffer overflow, Stack buffer overflow, Global buffer overflow)的一个非常有用的工具。该工具是一个LLVM的Pass，现已集成至llvm中，要是用它可以通过-fsanitizer=address选项">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://bin2415.github.io/2017/07/26/AddressSanitizer/RedZone.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/07/26/AddressSanitizer/mapping.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/07/26/AddressSanitizer/typicalMapping.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/07/26/AddressSanitizer/runOnModule.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/07/26/AddressSanitizer/instrument_global.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/07/26/AddressSanitizer/posionGlobal_struct.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/07/26/AddressSanitizer/poisonGlobal_runtimeStruct.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/07/26/AddressSanitizer/instrumentGlobal_actural.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/07/26/AddressSanitizer/register_unregisterGlobal.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/07/26/AddressSanitizer/Register.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/07/26/AddressSanitizer/unregisterGlobal.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/07/26/AddressSanitizer/stack_instrument.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/07/26/AddressSanitizer/instrumentMop.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/07/26/AddressSanitizer/doInstrument.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/07/26/AddressSanitizer/hookFunction.png">
+<meta property="og:updated_time" content="2018-12-23T05:33:52.990Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AddressSanitizer算法及源码解析">
+<meta name="twitter:description" content="AddressSanitizer简介AddressSanitizer是Google用于检测内存各种buffer overflow(Heap buffer overflow, Stack buffer overflow, Global buffer overflow)的一个非常有用的工具。该工具是一个LLVM的Pass，现已集成至llvm中，要是用它可以通过-fsanitizer=address选项">
+<meta name="twitter:image" content="http://bin2415.github.io/2017/07/26/AddressSanitizer/RedZone.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="PCB博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://bin2415.github.io/2017/07/26/AddressSanitizer/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>AddressSanitizer算法及源码解析 | PCB博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion .logo-line-before i { left: initial; }
+    .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PCB博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">快乐记录每一天</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://bin2415.github.io/2017/07/26/AddressSanitizer/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="binpang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PCB博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">AddressSanitizer算法及源码解析
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2017-07-26 10:03:38" itemprop="dateCreated datePublished" datetime="2017-07-26T10:03:38+08:00">2017-07-26</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-12-23 13:33:52" itemprop="dateModified" datetime="2018-12-23T13:33:52+08:00">2018-12-23</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/LLVM/" itemprop="url" rel="index"><span itemprop="name">LLVM</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="AddressSanitizer简介"><a href="#AddressSanitizer简介" class="headerlink" title="AddressSanitizer简介"></a>AddressSanitizer简介</h2><p>AddressSanitizer是Google用于检测内存各种buffer overflow(Heap buffer overflow, Stack buffer overflow, Global buffer overflow)的一个非常有用的工具。该工具是一个LLVM的Pass，现已集成至llvm中，要是用它可以通过-fsanitizer=address选项使用它。AddressSanitizer的源码位于/lib/Transforms/Instrumentation/AddressSanitizer.cpp中，Runtime-library的源码在llvm的另一个项目compiler-rt的/lib/asan文件夹中。</p>
+<h2 id="AddressSanitizer算法"><a href="#AddressSanitizer算法" class="headerlink" title="AddressSanitizer算法"></a>AddressSanitizer算法</h2><p>具体的算法可以参考<a href="https://github.com/google/sanitizers/wiki/AddressSanitizerAlgorithm" target="_blank" rel="noopener">WIKI</a>,在此对AddressSanitizer算法做一个简短的介绍。AddressSanitizer主要包括两部分：插桩(Instrumentation)和动态运行库(Run-time library)。插桩主要是针对在llvm编译器级别对访问内存的操作(store，load，alloca等)，将它们进行处理。动态运行库主要提供一些运行时的复杂的功能(比如poison/unpoison shadow memory)以及将malloc,free等系统调用函数hook住。其实该算法的思路很简单，如果想防住Buffer Overflow漏洞，只需要在每块内存区域右端（或两端，能防overflow和underflow）加一块区域（RedZone），使RedZone的区域的影子内存（Shadow Memory)设置为不可写即可。具体的示意图如下图所示。</p>
+<p><img src="/2017/07/26/AddressSanitizer/RedZone.png" alt="RedZone"></p>
+<h3 id="内存映射"><a href="#内存映射" class="headerlink" title="内存映射"></a>内存映射</h3><p>AddressSanitizer保护的主要原理是对程序中的虚拟内存提供粗粒度的影子内存(没8个字节的内存对应一个字节的影子内存)，为了减少overhead，就采用了直接内存映射策略，所采用的具体策略如下：Shadow=(Mem &gt;&gt; 3) + offset。每8个字节的内存对应一个字节的影子内存，影子内存中每个字节存取一个数字k,如果k=0，则表示该影子内存对应的8个字节的内存都能访问，如果0&lt;k&lt;7,表示前k个字节可以访问，如果k为负数，不同的数字表示不同的错误（e.g. Stack buffer overflow, Heap buffer overflow)。具体的映射策略如下图所示。<br><img src="/2017/07/26/AddressSanitizer/mapping.png" alt="mapping图片"></p>
+<center> 图1： 虚拟地址映射图 </center>
+
+<p><img src="/2017/07/26/AddressSanitizer/typicalMapping.png" alt="typicalMapping"></p>
+<h3 id="插桩"><a href="#插桩" class="headerlink" title="插桩"></a>插桩</h3><p>为了防止buffer overflow，需要将原来分配的内存两边分配额外的内存Redzone，并将这两边的内存加锁，设为不能访问状态，这样可以有效的防止buffer overflow(但不能杜绝buffer overflow)。一下是在栈中插桩的一个例子。</p>
+<p>未插桩的代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">char</span> a[<span class="number">8</span>];</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>插桩后的代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">char</span> redzone1[<span class="number">32</span>];  <span class="comment">// 32-byte aligned</span></span><br><span class="line">  <span class="keyword">char</span> a[<span class="number">8</span>];          <span class="comment">// 32-byte aligned</span></span><br><span class="line">  <span class="keyword">char</span> redzone2[<span class="number">24</span>]; </span><br><span class="line">  <span class="keyword">char</span> redzone3[<span class="number">32</span>];  <span class="comment">// 32-byte aligned</span></span><br><span class="line">  <span class="keyword">int</span>  *shadow_base = MemToShadow(redzone1);</span><br><span class="line">  shadow_base[<span class="number">0</span>] = <span class="number">0xffffffff</span>;  <span class="comment">// poison redzone1</span></span><br><span class="line">  shadow_base[<span class="number">1</span>] = <span class="number">0xffffff00</span>;  <span class="comment">// poison redzone2, unpoison 'a'</span></span><br><span class="line">  shadow_base[<span class="number">2</span>] = <span class="number">0xffffffff</span>;  <span class="comment">// poison redzone3</span></span><br><span class="line">  ...</span><br><span class="line">  shadow_base[<span class="number">0</span>] = shadow_base[<span class="number">1</span>] = shadow_base[<span class="number">2</span>] = <span class="number">0</span>; <span class="comment">// unpoison all</span></span><br><span class="line">  <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="动态运行库"><a href="#动态运行库" class="headerlink" title="动态运行库"></a>动态运行库</h3><p>在动态运行库中将malloc/free函数进行了替换。在malloc函数中额外的分配了Redzone区域的内存，将与Redzone区域对应的影子内存加锁，主要的内存区域对应的影子内存不加锁。</p>
+<p>free函数将所有分配的内存区域加锁，并放到了隔离区域的队列中(保证在一定的时间内不会再被malloc函数分配)。</p>
+<h2 id="AddressSanitizer源码分析"><a href="#AddressSanitizer源码分析" class="headerlink" title="AddressSanitizer源码分析"></a>AddressSanitizer源码分析</h2><p>AddressSanitizer主要有三种层面的变量：Stack Variable(局部变量)，Global Variable, Heap Variable。由于每种变量的生命周期（life time)不同，所以对不同种类的变量处理也是不同的。下面分别从Global Variable，Stack Variable，Heap Variable三个层次来分析AddressSanitizer源码的逻辑结构。</p>
+<h3 id="Global-Variable"><a href="#Global-Variable" class="headerlink" title="Global Variable"></a>Global Variable</h3><p>Global Variable存放在程序的数据段。在该算法的实现过程中，处理GlobalVariale的是AddressSanitizerModule类，该类继承自llvm的ModulePass，所以我们先看一下AddressSanitizerModule类的runOnModule(Module &amp;M)方法的处理过程，该过程首先进行一些初始化，然后我们可以看到对Global的插桩方法InstrumentGlobals()方法。</p>
+<p><img src="/2017/07/26/AddressSanitizer/runOnModule.png" alt="runOnMoudle"></p>
+<center> 图2： RunOnModule </center>
+
+<p>在InstrumentGlobals()方法中，主要是分成两步：首先，重新声明一个GlobalVariable，这个GlobalVariable包含以前的GlobalVariable和一个RedZone；然后，调用runtime-library将新声明的这个GlobalVariable的RedZone区域加锁。我们先来看第一步的具体实现，如图3所示。</p>
+<p><img src="/2017/07/26/AddressSanitizer/instrument_global.png" alt="instrumentGlobal"></p>
+<center> 图3： 生成包含RedZone的新的GlobalVariable </center>
+
+<p>下面，我们首先看一下一个Struct结构，该结构记录GlobalVariable存储的首地址，数据的大小，Redzone的大小，Module的名字等信息，便于在Runtime-library中使用。该结构在AddressSanitizerModule和runtime-library中都有相应的定义：</p>
+<p><img src="/2017/07/26/AddressSanitizer/posionGlobal_struct.png" alt="poisonGlobal"><br><img src="/2017/07/26/AddressSanitizer/poisonGlobal_runtimeStruct.png" alt="poisonGlobalRuntime"></p>
+<p>然后我们可以看到对GlobalVariable进行插桩来实现RedZone的Poison和整个GlobalVariable的Poison操作。</p>
+<p><img src="/2017/07/26/AddressSanitizer/instrumentGlobal_actural.png" alt="instrumentGlobal_actural"><br><img src="/2017/07/26/AddressSanitizer/register_unregisterGlobal.png" alt="register_unregisterGlobal">  </p>
+<p>具体的Poison RedZone和Poison GlobalVariable的实现在Runtime-library中：<br><img src="/2017/07/26/AddressSanitizer/Register.png" alt="RegisterGlobal"><br><img src="/2017/07/26/AddressSanitizer/unregisterGlobal.png" alt="UnRegisterGlobal"></p>
+<h3 id="Stack-Variable"><a href="#Stack-Variable" class="headerlink" title="Stack Variable"></a>Stack Variable</h3><p>Stack Variable保存在栈区，在栈中的数据我们需要控制好变量的声明周期(lifetime),当调用一个函数时，会开辟一个栈，栈中的数据会有相应的redzone和shadow memory，并将redzone的shadow memory Poison，当函数结束（正常返回，异常），栈被销毁，需要将数据和redzone清空，其相应的shadow memory也要UnPoison掉。</p>
+<p>对于Stack Variable，AddressSanitizer算法中实现了AddressSanitizer类，该类是继承了llvm的FunctionPass，该Pass能够处理每一个函数，在处理每个函数的时候，处理每一个load，store等能够访问内存的指令，在这些指令执行前进行插桩，看其访问的内存是不是被poison。</p>
+<p>下面我们主要看一下AddressSanitizer::runOnFunction(Module &amp;M)函数中主要的插桩过程。</p>
+<p><img src="/2017/07/26/AddressSanitizer/stack_instrument.png" alt="stackInstrument"></p>
+<p>在每次访问内存时，都会查看影子内存的值，看其是否是0，如果是0则表示都能访问具体的插桩在instrumentMop函数中，</p>
+<p><img src="/2017/07/26/AddressSanitizer/instrumentMop.png" alt="instrumentMop"></p>
+<p>其中具体的处理过程在instrumentAddress函数中：</p>
+<p><img src="/2017/07/26/AddressSanitizer/doInstrument.png" alt="instrumentAddress"></p>
+<h3 id="Heap-Variable"><a href="#Heap-Variable" class="headerlink" title="Heap Variable"></a>Heap Variable</h3><p>Heap Variable保存在堆区，其分配的函数是malloc函数，该部分的主要代码在runtime-library中，该库中主要是先将malloc的库函数hook住，然后自己定义malloc函数，定义分配策略。</p>
+<p><img src="/2017/07/26/AddressSanitizer/hookFunction.png" alt="hookFunction"></p>
+<p>具体的分配策略定义在compiler-rt/lib/asan/asan-allocator.cc文件中，感兴趣可以看一下。</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/LLVM/" rel="tag"># LLVM</a>
+          
+            <a href="/tags/Sanitizer/" rel="tag"># Sanitizer</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/20/angr-bomb/" rel="next" title="使用angr和Radare解决CMU的二进制炸弹">
+                <i class="fa fa-chevron-left"></i> 使用angr和Radare解决CMU的二进制炸弹
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/09/22/ptmalloc堆内存管理/" rel="prev" title="ptmalloc堆内存管理">
+                ptmalloc堆内存管理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">binpang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">34</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">30</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/bin2415" title="GitHub &rarr; https://github.com/bin2415" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:pangbin2415@gmail.com" title="E-Mail &rarr; mailto:pangbin2415@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#AddressSanitizer简介"><span class="nav-number">1.</span> <span class="nav-text">AddressSanitizer简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AddressSanitizer算法"><span class="nav-number">2.</span> <span class="nav-text">AddressSanitizer算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#内存映射"><span class="nav-number">2.1.</span> <span class="nav-text">内存映射</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#插桩"><span class="nav-number">2.2.</span> <span class="nav-text">插桩</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态运行库"><span class="nav-number">2.3.</span> <span class="nav-text">动态运行库</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AddressSanitizer源码分析"><span class="nav-number">3.</span> <span class="nav-text">AddressSanitizer源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Global-Variable"><span class="nav-number">3.1.</span> <span class="nav-text">Global Variable</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Stack-Variable"><span class="nav-number">3.2.</span> <span class="nav-text">Stack Variable</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Heap-Variable"><span class="nav-number">3.3.</span> <span class="nav-text">Heap Variable</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">binpang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.6.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script src="/lib/three/three-waves.min.js"></script>
+  
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.6.0"></script>
+
+  <script src="/js/src/motion.js?v=6.6.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/js/src/scrollspy.js?v=6.6.0"></script>
+<script src="/js/src/post-details.js?v=6.6.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.6.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

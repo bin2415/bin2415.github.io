@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="default">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.6.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.6.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.6.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '6.6.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="背景介绍Linux的栈内存管理相信大家都已经很熟悉了，针对栈内存的攻击也是比较常见的。然而对于堆内存的管理机制可能不太熟悉，针对堆内存的攻击也是比较困难的，所以我通过阅读各种资料以及Glibc的相关源码，对Glibc下的堆内存管理机制有了一定的了解，故在此记录下学习心得。 首先不同平台的堆内存管理机制是不一样的，我现在主要是针对Glibc的堆内存管理机制进行分析，Glibc的堆内存管理机制叫做pt">
+<meta name="keywords" content="ptmalloc">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ptmalloc堆内存管理">
+<meta property="og:url" content="http://bin2415.github.io/2017/09/22/ptmalloc堆内存管理/index.html">
+<meta property="og:site_name" content="PCB博客">
+<meta property="og:description" content="背景介绍Linux的栈内存管理相信大家都已经很熟悉了，针对栈内存的攻击也是比较常见的。然而对于堆内存的管理机制可能不太熟悉，针对堆内存的攻击也是比较困难的，所以我通过阅读各种资料以及Glibc的相关源码，对Glibc下的堆内存管理机制有了一定的了解，故在此记录下学习心得。 首先不同平台的堆内存管理机制是不一样的，我现在主要是针对Glibc的堆内存管理机制进行分析，Glibc的堆内存管理机制叫做pt">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://bin2415.github.io/2017/09/22/ptmalloc堆内存管理/fastbin_malloc.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/09/22/ptmalloc堆内存管理/smallbin_malloc.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/09/22/ptmalloc堆内存管理/fastbin_consolidate.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/09/22/ptmalloc堆内存管理/unsortedbin_lastremainder.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/09/22/ptmalloc堆内存管理/unsortedbin_insert.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/09/22/ptmalloc堆内存管理/largebin_find.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/09/22/ptmalloc堆内存管理/topchunk_malloc.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/09/22/ptmalloc堆内存管理/fastbin_free.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/09/22/ptmalloc堆内存管理/nomalfree_error.png">
+<meta property="og:image" content="http://bin2415.github.io/2017/09/22/ptmalloc堆内存管理/normalfree.png">
+<meta property="og:updated_time" content="2018-12-23T05:33:53.018Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ptmalloc堆内存管理">
+<meta name="twitter:description" content="背景介绍Linux的栈内存管理相信大家都已经很熟悉了，针对栈内存的攻击也是比较常见的。然而对于堆内存的管理机制可能不太熟悉，针对堆内存的攻击也是比较困难的，所以我通过阅读各种资料以及Glibc的相关源码，对Glibc下的堆内存管理机制有了一定的了解，故在此记录下学习心得。 首先不同平台的堆内存管理机制是不一样的，我现在主要是针对Glibc的堆内存管理机制进行分析，Glibc的堆内存管理机制叫做pt">
+<meta name="twitter:image" content="http://bin2415.github.io/2017/09/22/ptmalloc堆内存管理/fastbin_malloc.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="PCB博客" type="application/atom+xml">
+
+
+
+
+  <link rel="canonical" href="http://bin2415.github.io/2017/09/22/ptmalloc堆内存管理/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>ptmalloc堆内存管理 | PCB博客</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion .logo-line-before i { left: initial; }
+    .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PCB博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">快乐记录每一天</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://bin2415.github.io/2017/09/22/ptmalloc堆内存管理/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="binpang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PCB博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ptmalloc堆内存管理
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2017-09-22 20:11:38" itemprop="dateCreated datePublished" datetime="2017-09-22T20:11:38+08:00">2017-09-22</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-12-23 13:33:53" itemprop="dateModified" datetime="2018-12-23T13:33:53+08:00">2018-12-23</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/malloc/" itemprop="url" rel="index"><span itemprop="name">malloc</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="背景介绍"><a href="#背景介绍" class="headerlink" title="背景介绍"></a>背景介绍</h2><p>Linux的栈内存管理相信大家都已经很熟悉了，针对栈内存的攻击也是比较常见的。然而对于堆内存的管理机制可能不太熟悉，针对堆内存的攻击也是比较困难的，所以我通过阅读各种资料以及Glibc的相关源码，对Glibc下的堆内存管理机制有了一定的了解，故在此记录下学习心得。</p>
+<p>首先不同平台的堆内存管理机制是不一样的，我现在主要是针对Glibc的堆内存管理机制进行分析，Glibc的堆内存管理机制叫做ptmalloc。其他的一些比较流行的管理机制有：</p>
+<ol>
+<li>jemalloc(FreeBSD, Firefox, Android)</li>
+<li>ptmalloc(Glibc)</li>
+<li>tcmalloc(Google)</li>
+<li>libumem(Solaris)</li>
+</ol>
+<h2 id="Chunk-structure"><a href="#Chunk-structure" class="headerlink" title="Chunk structure"></a>Chunk structure</h2><p>在Glibc的堆内存管理中，chunk是堆内存分配的基本的单位，它表示堆内存中连续的内存单元。比方说我们通过malloc(8)申请一个连续的8字节内存，则Glibc会分配我们一个大小为8(chunk size + previous size)+8(payload)大小的chunk。chunk分为allocated chunk和freed chunk。chunk structure在Glibc的定义如下所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span> &#123;</span></span><br><span class="line"></span><br><span class="line">  INTERNAL_SIZE_T      prev_size;  <span class="comment">/* Size of previous chunk (if free).  */</span></span><br><span class="line">  INTERNAL_SIZE_T      size;       <span class="comment">/* Size in bytes, including overhead. */</span></span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">fd</span>;</span>         <span class="comment">/* double links -- used only if free. */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">bk</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Only used for large blocks: pointer to next larger size.  */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">fd_nextsize</span>;</span> <span class="comment">/* double links -- used only if free. */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">bk_nextsize</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>从上面的结构我们可以看出，如果一个chunk为allocated chunk，则它需要分配prev_size和size域，其中prev_size和size(表示整个chunk的大小，包括sizeof(prev_size)+sizeof(size)+sizeof(payload))用来在进行free()操作的时候将与该chunk空间上相邻的freed chunk进行合并，减少了堆内存空间的碎片化（具体怎么合并的在下面会具体介绍）。如果一个chunk为freed chunk的话，其相对于allocated chunk来说又多了两个域–fd和bk指针。因为freed chunk是通过多个链表结构将所有的freed chunk链接了起来，这样便于malloc函数快速找到合适大小的freed chunk，并且该这些表是双向链表(fastbins除外)。</p>
+<p>所以对于malloced chunk来说，具体的内存区域如下所示:<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">chunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">	    |             prev_size:Size of previous chunk, <span class="keyword">if</span> allocated  | |</span><br><span class="line">	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">	    |             Size of chunk, in bytes                       |M|P|</span><br><span class="line">      mem-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">	    |             User data starts here...                          .</span><br><span class="line">	    .                                                               .</span><br><span class="line">	    .             (malloc_usable_size() bytes)                      .</span><br><span class="line">	    .                                                               |</span><br><span class="line">nextchunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">	    |             Size of chunk                                     |</span><br><span class="line">	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br></pre></td></tr></table></figure></p>
+<p>在size域，有两个标志位，一个为M，一个为P。M表示该chunk是否是allocated chunk，P表示与该chunk空间上相邻的之前的chunk是否是freed chunk，如果该标识为0，表示previous chunk为freed chunk,则prev_size域表示previous chunk的大小; 否则如果previous chunk为allocated chunk，则记录previous chunk的大小就没有意义，此时就将prev_size域当做previous chunk的payload的一部分。</p>
+<p>对于freed chunk来说，具体的内存区域如下所示:<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"> chunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">	    |             Size of previous chunk                            |</span><br><span class="line">	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">    `head:' |             Size of chunk, in bytes                         |P|</span><br><span class="line">      mem-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">	    |             Forward pointer to next chunk in <span class="built_in">list</span>             |</span><br><span class="line">	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">	    |             Back pointer to previous chunk in <span class="built_in">list</span>            |</span><br><span class="line">	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">	    |             Unused space (may be 0 bytes long)                .</span><br><span class="line">	    .                                                               .</span><br><span class="line">	    .                                                               |</span><br><span class="line">nextchunk-&gt; +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br><span class="line">    `foot:' |             Size of chunk, in bytes                           |</span><br><span class="line">	    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+</span><br></pre></td></tr></table></figure></p>
+<p>对于freed chunk来说，就多了两个域：fd和bk，这两个域分别指向该链表中的前一个元素和后一个元素。</p>
+<h2 id="Bins"><a href="#Bins" class="headerlink" title="Bins"></a>Bins</h2><p>在Glibc的堆内存管理中，bin是将一个个freed chunk链接起来的链表，而bins就是存储这些链表的一维数组。每一个bin都是双向链表。根据freed chunk的大小将其分为了不同的136个bin，其中有10个为fastbin, 62个small bin，63个large bin和一个unsorted bin。在malloc_state结构中，就定义了这些bin的数组，具体声明如下：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">malloc_state</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="comment">/* Serialize access.  */</span></span><br><span class="line">  <span class="keyword">mutex_t</span> mutex;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Flags (formerly in max_fast).  */</span></span><br><span class="line">  <span class="keyword">int</span> flags;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> THREAD_STATS</span></span><br><span class="line">  <span class="comment">/* Statistics for locking.  Only used if THREAD_STATS is defined.  */</span></span><br><span class="line">  <span class="keyword">long</span> stat_lock_direct, stat_lock_loop, stat_lock_wait;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Fastbins */</span></span><br><span class="line">  mfastbinptr fastbinsY[NFASTBINS];</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Base of the topmost chunk -- not otherwise kept in a bin */</span></span><br><span class="line">  mchunkptr top;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* The remainder from the most recent split of a small request */</span></span><br><span class="line">  mchunkptr last_remainder;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Normal bins packed as described above */</span></span><br><span class="line">  mchunkptr bins[NBINS * <span class="number">2</span> - <span class="number">2</span>];</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Bitmap of bins */</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">int</span> binmap[BINMAPSIZE];</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Linked list */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_state</span> *<span class="title">next</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Linked list for free arenas.  */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_state</span> *<span class="title">next_free</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Memory allocated from the system in this arena.  */</span></span><br><span class="line">  INTERNAL_SIZE_T system_mem;</span><br><span class="line">  INTERNAL_SIZE_T max_system_mem;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<h3 id="Fast-Bins"><a href="#Fast-Bins" class="headerlink" title="Fast Bins"></a>Fast Bins</h3><p>在Glibc的堆内存管理机制中，一共有10个fast bin,每个fast bin链表中的所有freed chunk的大小(sizeof(prev_size)+sizeof(size)+sizeof(payload))都是相等的。每个fast bin都是一个单链表( )。Fastbins中最小的bin中的chunk大小为16字节，随后每个bin都增加8字节，所以最大的bin为80字节。需要注意的是，fast bin和其它的bin在free处理的时候有很大的不同，fast bin中的chunk的M标志都为1，因此在进行free处理的时候不进行freed chunk的合并操作(具体的合并操作在下文会具体介绍)。在每一个fast bin链表中，当有新的freed chunk需要插入时，会插入到该链表的尾部，删除也是从尾部删除，因此形成了一个先入后出(FILO)的策略。</p>
+<h3 id="Small-Bins"><a href="#Small-Bins" class="headerlink" title="Small Bins"></a>Small Bins</h3><p>Small bin的个数为62个，每一个small bin是一些大小相等的freed chunk组成的循环双向链表。当有新的freed chunk加入到该链表中，就加入到该链表的头部；如果要从链表中删除一个freed chunk时，则从该链表的为尾部删除，因此形成了一个先入先出(FIFO)的策略。第一个small bin中的freed chunk的大小都是16 bytes，后面每一个small bin的freed chunk的大小都依次增加8 bytes，因此最后一个small bin的freed chunk的大小为512 bytes。</p>
+<h3 id="Large-Bins"><a href="#Large-Bins" class="headerlink" title="Large Bins"></a>Large Bins</h3><p>与small bin和fast bin不同的是，每一个large bin中的freed chunk的大小不一定相等，其只是表示一个范围，在前32个large bin中，以64字节为步长，即第一个large bin中的chunk大小为512~575字节，第二个large bin中的free chunk大小为576~639字节。紧随其后的16个large bin依次以512字节步长为间隔；之后的8个bin以步长4096为间隔；再之后的4个bin以32768字节为间隔；之后的2个bin以262144字节为间隔；剩下的chunk就放在最后一个large bin中。</p>
+<h3 id="Unsorted-Bin"><a href="#Unsorted-Bin" class="headerlink" title="Unsorted Bin"></a>Unsorted Bin</h3><p>只有一个unsorted sin，其主要存储两种chunk。一种是在malloc()操作中由于要分配的大小比freed chunk的大小要小，所以需要将该freed chunk进行分割，返回与要分配的大小相符的chunk，剩余的freed chunk则加入unsorted bin中；另一种是在free()操作之后，会返回一个新的freed chunk，该freed chunk(不在fast bin范围的chunk)则加入unsorted bin中。设置这一个bin的主要目的是扮演一个缓存层的角色以加快分配和释放的操作。</p>
+<h3 id="Top-chunk"><a href="#Top-chunk" class="headerlink" title="Top chunk"></a>Top chunk</h3><p>有一个特殊的chunk没有在以上的bins中，那就是top chunk，top chunk可以看做是heap的一个边界，当所有的bin中的chunk大小都不符合所请求的大小时，就从该chunk中进行分配，如果top chunk的大小大于所请求的大小时，则将top chunk分为两部分，一个是用户请求的chunk，剩余的部分就会成为一个新的chunk。否则，就需要扩展通过上移top chunk指针来扩展heap的大小(或者通过mmap来分配新的heap)。</p>
+<h2 id="Malloc"><a href="#Malloc" class="headerlink" title="Malloc"></a>Malloc</h2><p>malloc函数是堆内存管理中最重要的一个函数之一，其在glibc中的包装函数为__libc_malloc(size_t)函数，在该函数中主要是进行一些准备性的工作–查找对应的arena结构，然后调用真正的分配内存的函数 _int_malloc(ar_ptr, bytes)。arena在glibc中的结构为malloc_state结构，主要存储bins，top chunk等结构。下面我们来看一下主要的分配函数_int_malloc的具体实现。</p>
+<p>_int_malloc (mstate av, size_t bytes)</p>
+<ol>
+<li><p>首先_int_malloc函数根据要请求的内存大小bytes来计算要请求的chunk的大小nb。主要是加上size和prev_size域和对齐的padding。</p>
+</li>
+<li><p>得到了要请求的chunk大小之后，首先判断该chunk的大小是否在fast bins的范围内，如果在它们的范围内就在fast bins中找到大小相符的chunk来分配。</p>
+<p><img src="/2017/09/22/ptmalloc堆内存管理/fastbin_malloc.png" alt="fast bin图片"></p>
+</li>
+<li><p>如果要请求的大小不在fast bins范围之内或者相应的fast bin链表为空，则会判断其chunk size是否在small bins的范围之内，找到对应的small bin，取出该small bin尾部的那个chunk进行分配。<br><img src="/2017/09/22/ptmalloc堆内存管理/smallbin_malloc.png" alt="small bin图片"></p>
+</li>
+<li><p>如果请求的大小是一个比较大的请求，则将fast bins进行合并。其要做fast bins合作的目的是为了避免有fast bins所引起的内存碎片化问题。在实际的操作中，程序一般都是分配小的内存或者分配大的内存，而不怎么会即分配大的内存又分配小的内存。所以这样的策略在实际的程序中效率还是很理想的。</p>
+<p><img src="/2017/09/22/ptmalloc堆内存管理/fastbin_consolidate.png" alt="fast bin合并图片"></p>
+</li>
+<li><p>由于unsorted bin中存储最近freed的chunk(包括第4步合并后的fast bins)，接下来会遍历unsorted bin中的所有freed chunk，直到找到freed chunk大小和请求的大小相等的为止，或者循环了10000次也会停止遍历unsorted bin。遍历unsorted bin是唯一一个将freed chunk插入到相应的small bins和large bins的操作。在遍历的过程中，将当前节点chunk从unsorted bin中删除，如果chunk大小与要请求的chunk大小正好一致，则将该chunk返回，停止遍历，否则，将当前节点的chunk放入相应的small bins和large bins中。</p>
+<p><img src="/2017/09/22/ptmalloc堆内存管理/unsortedbin_lastremainder.png" alt="unsorted bin last remainder图片"></p>
+<p><img src="/2017/09/22/ptmalloc堆内存管理/unsortedbin_insert.png" alt="unsorted bin insert图片"></p>
+</li>
+<li><p>遍历了unsorted bin之后仍然没有找到合适的freed chunk，接下来回从large bins中进行查找，首先从large bin中的chunk大于等于请求的chunk进行查找。</p>
+<p><img src="/2017/09/22/ptmalloc堆内存管理/largebin_find.png" alt="large bin find"></p>
+<p>如果该large bin为空或者最大的chunk比要请求的chunk的大小还要小，则找到chunk size范围更大的large bin，进行的操作和刚才介绍的操作一致。</p>
+</li>
+<li><p>如果要请求的大小比large bins中的chunk还要大，则需要查看top chunk的大小了，如果top chunk的大小比要请求的chunk的大小要大，则分割top chunk，将剩余的chunk继续作为top chunk的一部分，否则判断是否还有fastbins，如果有fastbins，则将fastbins合并。以上各种查询都没有找到合适的chunk，则只能调用sysmalloc函数来进行分配。</p>
+<p><img src="/2017/09/22/ptmalloc堆内存管理/topchunk_malloc.png" alt="top chunk malloc"></p>
+</li>
+<li><p>至此，malloc的分配的过程已经介绍完了，总结一下其查找过程就是fastbins-&gt;smallbins-&gt;unsortedbins-&gt;largebins-&gt;topchunk</p>
+</li>
+</ol>
+<h2 id="Free"><a href="#Free" class="headerlink" title="Free"></a>Free</h2><p>free函数也是堆内存管理中最重要的函数之一，堆内存的攻击也主要是针对free函数的进行的攻击。在glibc中，__libc_free(void<em> mem)为free(void</em> mem)函数的包装函数，其主要的功能也是找到malloc_state结构，然后再调用 _int_free(mstate av, mchunkptr p, int have_lock)函数。</p>
+<ol>
+<li><p>判断p指向的地址是否在p+chunksize(p)指向的地址之前，如果不符合该规则的话就会抛出错误(“free(): invalid pointer”)。</p>
+</li>
+<li><p>判断chunk的大小是否大于MINSIZE或者是不是MALLOC_ALIGNMENT的整数倍，否则抛出错误(“free(): invalid size”)</p>
+</li>
+<li><p>判断要free的chunk的大小是否落在了fast bins的范围内，如果落在了这个范围内，则将该freed chunk加入到对应的fast bin中。</p>
+<p><img src="/2017/09/22/ptmalloc堆内存管理/fastbin_free.png" alt="free chunk fastbin"></p>
+</li>
+<li><p>判断该chunk是否是mmapped，如果不是，就进行各种判断防止部分针对free操作的攻击。</p>
+<ul>
+<li>判断要free的chunk是否是top chunk，如果是，则抛出错误(“double free or corruption (top)”)</li>
+<li>判断next chunk在内存中是否在arean的范围内，如果不是，则抛出错误(“double free or corruption (out)”)</li>
+<li>判断next chunk的P标志是否为真，如果不是，则抛出错误(“double free or corruption (!prev)”)</li>
+<li>判断next chunk的大小是否正常范围之间，如果不是，则抛出错误(“free(): invalid next size (normal)”)</li>
+</ul>
+<p><img src="/2017/09/22/ptmalloc堆内存管理/nomalfree_error.png" alt="normal free error"></p>
+<p>然后将与free的chunk与其相邻的freed chunk进行合并，合并了之后将它插入到unsorted bin中。</p>
+<p><img src="/2017/09/22/ptmalloc堆内存管理/normalfree.png" alt="normal free"></p>
+</li>
+</ol>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a href="https://sploitfun.wordpress.com/2015/02/10/understanding-glibc-malloc/comment-page-1/?spm=a313e.7916648.0.0.73affabdV5vocG" target="_blank" rel="noopener">Understanding glibc malloc</a></li>
+<li><a href="https://www.gitbook.com/book/dhavalkapil/heap-exploitation/details" target="_blank" rel="noopener">heap-exploitation</a></li>
+<li><a href="https://jaq.alibaba.com/community/art/show?spm=a313e.7916648.0.0.Oqn9vN&amp;articleid=315" target="_blank" rel="noopener">Linux堆内存管理深入分析(上)</a></li>
+<li><a href="https://jaq.alibaba.com/community/art/show?spm=a313e.7916648.0.0.36f39d7ebNe83t&amp;articleid=334" target="_blank" rel="noopener">Linux堆内存管理深入分析(下)</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ptmalloc/" rel="tag"># ptmalloc</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/07/26/AddressSanitizer/" rel="next" title="AddressSanitizer算法及源码解析">
+                <i class="fa fa-chevron-left"></i> AddressSanitizer算法及源码解析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/09/24/linux堆内存漏洞利用之fastbin/" rel="prev" title="linux堆内存漏洞利用之fastbin">
+                linux堆内存漏洞利用之fastbin <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">binpang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">34</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">16</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">30</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/bin2415" title="GitHub &rarr; https://github.com/bin2415" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:pangbin2415@gmail.com" title="E-Mail &rarr; mailto:pangbin2415@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#背景介绍"><span class="nav-number">1.</span> <span class="nav-text">背景介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Chunk-structure"><span class="nav-number">2.</span> <span class="nav-text">Chunk structure</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Bins"><span class="nav-number">3.</span> <span class="nav-text">Bins</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Fast-Bins"><span class="nav-number">3.1.</span> <span class="nav-text">Fast Bins</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Small-Bins"><span class="nav-number">3.2.</span> <span class="nav-text">Small Bins</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Large-Bins"><span class="nav-number">3.3.</span> <span class="nav-text">Large Bins</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Unsorted-Bin"><span class="nav-number">3.4.</span> <span class="nav-text">Unsorted Bin</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Top-chunk"><span class="nav-number">3.5.</span> <span class="nav-text">Top chunk</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Malloc"><span class="nav-number">4.</span> <span class="nav-text">Malloc</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Free"><span class="nav-number">5.</span> <span class="nav-text">Free</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">6.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">binpang</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v6.6.0</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script src="/lib/three/three-waves.min.js"></script>
+  
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.6.0"></script>
+
+  <script src="/js/src/motion.js?v=6.6.0"></script>
+
+
+
+  
+  
+
+  
+  <script src="/js/src/scrollspy.js?v=6.6.0"></script>
+<script src="/js/src/post-details.js?v=6.6.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.6.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
