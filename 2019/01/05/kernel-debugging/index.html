@@ -104,13 +104,20 @@
 
 
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="PCB博客">
-<meta property="og:url" content="http://bin2415.github.io/tags/fastbin/index.html">
+  <meta name="description" content="环境 linux kernel版本：4.10.1 gcc编译: 7.4 linux kernel开启KASAN和debug信息 1234567CONFIG_KCOV=yCONFIG_DEBUG_INFO=yCONFIG_KASAN=yCONFIG_KASAN_INLINE=yCONFIG_CONFIGFS_FS=yCONFIG_SECURITYFS=y  在编译的时候出现‘undefined re">
+<meta name="keywords" content="kernel">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分析CVE-2017-8890">
+<meta property="og:url" content="http://bin2415.github.io/2019/01/05/kernel-debugging/index.html">
 <meta property="og:site_name" content="PCB博客">
+<meta property="og:description" content="环境 linux kernel版本：4.10.1 gcc编译: 7.4 linux kernel开启KASAN和debug信息 1234567CONFIG_KCOV=yCONFIG_DEBUG_INFO=yCONFIG_KASAN=yCONFIG_KASAN_INLINE=yCONFIG_CONFIGFS_FS=yCONFIG_SECURITYFS=y  在编译的时候出现‘undefined re">
 <meta property="og:locale" content="default">
+<meta property="og:image" content="http://bin2415.github.io/2019/01/05/kernel-debugging/kernel-debugging/crash.png">
+<meta property="og:updated_time" content="2019-01-05T13:07:28.593Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="PCB博客">
+<meta name="twitter:title" content="分析CVE-2017-8890">
+<meta name="twitter:description" content="环境 linux kernel版本：4.10.1 gcc编译: 7.4 linux kernel开启KASAN和debug信息 1234567CONFIG_KCOV=yCONFIG_DEBUG_INFO=yCONFIG_KASAN=yCONFIG_KASAN_INLINE=yCONFIG_CONFIGFS_FS=yCONFIG_SECURITYFS=y  在编译的时候出现‘undefined re">
+<meta name="twitter:image" content="http://bin2415.github.io/2019/01/05/kernel-debugging/kernel-debugging/crash.png">
 
 
 
@@ -119,7 +126,7 @@
 
 
 
-  <link rel="canonical" href="http://bin2415.github.io/tags/fastbin/">
+  <link rel="canonical" href="http://bin2415.github.io/2019/01/05/kernel-debugging/">
 
 
 
@@ -129,7 +136,7 @@
   };
 </script>
 
-  <title>Tag: fastbin | PCB博客</title>
+  <title>分析CVE-2017-8890 | PCB博客</title>
   
 
 
@@ -177,7 +184,7 @@
     
   
 
-  <div class="container sidebar-position-left ">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
@@ -236,7 +243,7 @@
         
         
           
-          <li class="menu-item menu-item-tags menu-item-active">
+          <li class="menu-item menu-item-tags">
 
     
     
@@ -292,25 +299,6 @@
   
     
 
-    
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-    
-
-  
-
-
   
 
   
@@ -335,56 +323,221 @@
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block tag">
+  <div id="posts" class="posts-expand">
+    
 
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h1>fastbin<small>Tag</small>
-        </h1>
-      </div>
+  
 
-      
-        
+  
+  
+  
+
+  
 
   <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://bin2415.github.io/2019/01/05/kernel-debugging/">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="binpang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PCB博客">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/2017/09/24/linux堆内存漏洞利用之fastbin/" itemprop="url">
-              
-                <span itemprop="name">linux堆内存漏洞利用之fastbin</span>
-              
-            </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">分析CVE-2017-8890
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2017-09-24T10:14:15+08:00" content="2017-09-24">
-          09-24
-        </time>
-      </div>
+              
+            
+          </h1>
+        
 
-    </header>
-  </article>
+        <div class="post-meta">
+          <span class="post-time">
 
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-01-05 20:28:58 / Modified: 21:07:28" itemprop="dateCreated datePublished" datetime="2019-01-05T20:28:58+08:00">2019-01-05</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/kernel/" itemprop="url" rel="index"><span itemprop="name">kernel</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><ul>
+<li>linux kernel版本：4.10.1</li>
+<li>gcc编译: 7.4</li>
+<li><p>linux kernel开启KASAN和debug信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CONFIG_KCOV=y</span><br><span class="line">CONFIG_DEBUG_INFO=y</span><br><span class="line">CONFIG_KASAN=y</span><br><span class="line">CONFIG_KASAN_INLINE=y</span><br><span class="line"></span><br><span class="line">CONFIG_CONFIGFS_FS=y</span><br><span class="line">CONFIG_SECURITYFS=y</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在编译的时候出现‘undefined reference to `____ilog2_NaN’ ‘</p>
+<p>  解决方案：<a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/diff/?id=474c90156c8dcc2fa815e6716cc9394d7930cb9c" target="_blank" rel="noopener">patch</a> 将该patch保存为patch.diff，拷贝到linux内核根目录下。</p>
+<p>  运行命令：patch -i patch.diff，提示输入文件时，先后输入include/linux/log2.h和tools/include/linux/log2.h即可。</p>
+</li>
+</ul>
+<h2 id="Debug"><a href="#Debug" class="headerlink" title="Debug"></a>Debug</h2><h3 id="编译Linux内核"><a href="#编译Linux内核" class="headerlink" title="编译Linux内核"></a>编译Linux内核</h3><pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">CONFIG_DEBUG_KERNEL=y</span><br><span class="line">CONFIG_DEBUG_INFO=y</span><br><span class="line"></span><br><span class="line">CONFIG_CONSOLE_POLL=y</span><br><span class="line">CONFIG_KDB_CONTINUE_CATASTROPHIC=0</span><br><span class="line">CONFIG_KDB_DEFAULT_ENABLE=0x1</span><br><span class="line">CONFIG_KDB_KEYBOARD=y</span><br><span class="line">CONFIG_KGDB=y</span><br><span class="line">CONFIG_KGDB_KDB=y</span><br><span class="line">CONFIG_KGDB_LOW_LEVEL_TRAP=y</span><br><span class="line">CONFIG_KGDB_SERIAL_CONSOLE=y</span><br><span class="line">CONFIG_KGDB_TESTS=y</span><br><span class="line">CONFIG_KGDB_TESTS_ON_BOOT=n</span><br><span class="line">CONFIG_MAGIC_SYSRQ=y</span><br><span class="line">CONFIG_MAGIC_SYSRQ_DEFAULT_ENABLE=0x1</span><br><span class="line">CONFIG_SERIAL_KGDB_NMI=n</span><br></pre></td></tr></table></figure>
+</code></pre><h3 id="Add-to-your-QEMU-command"><a href="#Add-to-your-QEMU-command" class="headerlink" title="Add to your QEMU command:"></a>Add to your QEMU command:</h3><pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">append &apos;kgdbwait kgdboc=ttyS0,115200&apos; \</span><br><span class="line">serial tcp::1234,server,nowait</span><br></pre></td></tr></table></figure>
+</code></pre><h3 id="gdb连接"><a href="#gdb连接" class="headerlink" title="gdb连接"></a>gdb连接</h3><ul>
+<li>gdb vmlinux</li>
+<li>target remote :1234</li>
+<li>c</li>
+</ul>
+<h3 id="PoC"><a href="#PoC" class="headerlink" title="PoC"></a>PoC</h3><ul>
+<li><a href="https://github.com/beraphin/CVE-2017-8890" target="_blank" rel="noopener">poc</a></li>
+<li>在qemu里面的虚拟机里面运行poc</li>
+<li>此时发生crash:</li>
+</ul>
+<p><img src="/2019/01/05/kernel-debugging/./kernel-debugging/crash.png" alt="crash"></p>
+<p>可以发现其访问了（rcx+rax)的地址区域， 而该地址是不可访问地址区域</p>
+<ul>
+<li>手动下断点<ul>
+<li>echo g &gt; /proc/sysrq-trigger</li>
+</ul>
+</li>
+</ul>
 
       
     </div>
 
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/kernel/" rel="tag"># kernel</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/01/03/debug-kernel/" rel="next" title="用gdb调试qemu内核">
+                <i class="fa fa-chevron-left"></i> 用gdb调试qemu内核
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
+
+  </div>
 
 
           </div>
           
+
+  
+
+
 
         </div>
         
@@ -405,8 +558,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
 
-      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <div class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
             
@@ -572,6 +734,22 @@
       </div>
 
       
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#环境"><span class="nav-number">1.</span> <span class="nav-text">环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Debug"><span class="nav-number">2.</span> <span class="nav-text">Debug</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#编译Linux内核"><span class="nav-number">2.1.</span> <span class="nav-text">编译Linux内核</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Add-to-your-QEMU-command"><span class="nav-number">2.2.</span> <span class="nav-text">Add to your QEMU command:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#gdb连接"><span class="nav-number">2.3.</span> <span class="nav-text">gdb连接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PoC"><span class="nav-number">2.4.</span> <span class="nav-text">PoC</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
 
       
 
@@ -712,6 +890,10 @@
   
 
   
+  <script src="/js/src/scrollspy.js?v=6.6.0"></script>
+<script src="/js/src/post-details.js?v=6.6.0"></script>
+
+
 
   
 

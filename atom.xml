@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://bin2415.github.io/"/>
-  <updated>2019-01-04T13:51:04.069Z</updated>
+  <updated>2019-01-05T13:07:28.593Z</updated>
   <id>http://bin2415.github.io/</id>
   
   <author>
@@ -14,6 +14,62 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>分析CVE-2017-8890</title>
+    <link href="http://bin2415.github.io/2019/01/05/kernel-debugging/"/>
+    <id>http://bin2415.github.io/2019/01/05/kernel-debugging/</id>
+    <published>2019-01-05T12:28:58.000Z</published>
+    <updated>2019-01-05T13:07:28.593Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><ul>
+<li>linux kernel版本：4.10.1</li>
+<li>gcc编译: 7.4</li>
+<li><p>linux kernel开启KASAN和debug信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CONFIG_KCOV=y</span><br><span class="line">CONFIG_DEBUG_INFO=y</span><br><span class="line">CONFIG_KASAN=y</span><br><span class="line">CONFIG_KASAN_INLINE=y</span><br><span class="line"></span><br><span class="line">CONFIG_CONFIGFS_FS=y</span><br><span class="line">CONFIG_SECURITYFS=y</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在编译的时候出现‘undefined reference to `____ilog2_NaN’ ‘</p>
+<p>  解决方案：<a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/diff/?id=474c90156c8dcc2fa815e6716cc9394d7930cb9c" target="_blank" rel="noopener">patch</a> 将该patch保存为patch.diff，拷贝到linux内核根目录下。</p>
+<p>  运行命令：patch -i patch.diff，提示输入文件时，先后输入include/linux/log2.h和tools/include/linux/log2.h即可。</p>
+</li>
+</ul>
+<h2 id="Debug"><a href="#Debug" class="headerlink" title="Debug"></a>Debug</h2><h3 id="编译Linux内核"><a href="#编译Linux内核" class="headerlink" title="编译Linux内核"></a>编译Linux内核</h3><pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">CONFIG_DEBUG_KERNEL=y</span><br><span class="line">CONFIG_DEBUG_INFO=y</span><br><span class="line"></span><br><span class="line">CONFIG_CONSOLE_POLL=y</span><br><span class="line">CONFIG_KDB_CONTINUE_CATASTROPHIC=0</span><br><span class="line">CONFIG_KDB_DEFAULT_ENABLE=0x1</span><br><span class="line">CONFIG_KDB_KEYBOARD=y</span><br><span class="line">CONFIG_KGDB=y</span><br><span class="line">CONFIG_KGDB_KDB=y</span><br><span class="line">CONFIG_KGDB_LOW_LEVEL_TRAP=y</span><br><span class="line">CONFIG_KGDB_SERIAL_CONSOLE=y</span><br><span class="line">CONFIG_KGDB_TESTS=y</span><br><span class="line">CONFIG_KGDB_TESTS_ON_BOOT=n</span><br><span class="line">CONFIG_MAGIC_SYSRQ=y</span><br><span class="line">CONFIG_MAGIC_SYSRQ_DEFAULT_ENABLE=0x1</span><br><span class="line">CONFIG_SERIAL_KGDB_NMI=n</span><br></pre></td></tr></table></figure>
+</code></pre><h3 id="Add-to-your-QEMU-command"><a href="#Add-to-your-QEMU-command" class="headerlink" title="Add to your QEMU command:"></a>Add to your QEMU command:</h3><pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">append &apos;kgdbwait kgdboc=ttyS0,115200&apos; \</span><br><span class="line">serial tcp::1234,server,nowait</span><br></pre></td></tr></table></figure>
+</code></pre><h3 id="gdb连接"><a href="#gdb连接" class="headerlink" title="gdb连接"></a>gdb连接</h3><ul>
+<li>gdb vmlinux</li>
+<li>target remote :1234</li>
+<li>c</li>
+</ul>
+<h3 id="PoC"><a href="#PoC" class="headerlink" title="PoC"></a>PoC</h3><ul>
+<li><a href="https://github.com/beraphin/CVE-2017-8890" target="_blank" rel="noopener">poc</a></li>
+<li>在qemu里面的虚拟机里面运行poc</li>
+<li>此时发生crash:</li>
+</ul>
+<p><img src="/2019/01/05/kernel-debugging/./kernel-debugging/crash.png" alt="crash"></p>
+<p>可以发现其访问了（rcx+rax)的地址区域， 而该地址是不可访问地址区域</p>
+<ul>
+<li>手动下断点<ul>
+<li>echo g &gt; /proc/sysrq-trigger</li>
+</ul>
+</li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;环境&quot;&gt;&lt;a href=&quot;#环境&quot; class=&quot;headerlink&quot; title=&quot;环境&quot;&gt;&lt;/a&gt;环境&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;linux kernel版本：4.10.1&lt;/li&gt;
+&lt;li&gt;gcc编译: 7.4&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;linux kern
+    
+    </summary>
+    
+      <category term="kernel" scheme="http://bin2415.github.io/categories/kernel/"/>
+    
+    
+      <category term="kernel" scheme="http://bin2415.github.io/tags/kernel/"/>
+    
+  </entry>
   
   <entry>
     <title>用gdb调试qemu内核</title>
@@ -119,9 +175,55 @@
     <link href="http://bin2415.github.io/2018/10/05/fuzzing/"/>
     <id>http://bin2415.github.io/2018/10/05/fuzzing/</id>
     <published>2018-10-05T07:09:11.000Z</published>
-    <updated>2018-12-23T05:33:53.008Z</updated>
+    <updated>2019-03-19T08:30:44.195Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="Interesting-Fuzzing"><a href="#Interesting-Fuzzing" class="headerlink" title="Interesting Fuzzing"></a>Interesting Fuzzing</h1><h2 id="Coverage-based-Greybox-Fuzzing-as-Markov-Chain-CCS-16"><a href="#Coverage-based-Greybox-Fuzzing-as-Markov-Chain-CCS-16" class="headerlink" title="Coverage-based Greybox Fuzzing as Markov Chain(CCS 16)"></a>Coverage-based Greybox Fuzzing as Markov Chain(CCS 16)</h2><ul>
+    <content type="html"><![CDATA[<ul>
+<li><p><a href="#interesting-fuzzing">Interesting Fuzzing</a></p>
+<ul>
+<li><a href="#coverage-based-greybox-fuzzing-as-markov-chainccs-16">Coverage-based Greybox Fuzzing as Markov Chain(CCS 16)</a></li>
+<li><a href="#t-fuzz-fuzzing-by-program-transformationoakland-18">T-Fuzz: fuzzing by program transformation(oakland 18)</a></li>
+<li><a href="#collafl-path-sensitive-fuzzingoakland-18">CollAFL: Path Sensitive Fuzzing(oakland 18)</a></li>
+<li><a href="#driller-argumenting-fuzzing-through-selective-symbolic-executionndss-16">Driller: Argumenting Fuzzing Through Selective Symbolic Execution(ndss 16)</a></li>
+<li><a href="#vuzzer-application-aware-evolutionary-fuzzingndss-17">VUzzer: Application-aware Evolutionary Fuzzing(ndss 17)</a></li>
+<li><a href="#angora-efficient-fuzzing-by-principled-searchoakland-18">Angora: Efficient Fuzzing by Principled Search(oakland 18)</a>)</li>
+<li><a href="#designing-new-operating-primitives-to-improve-fuzzing-performanceccs-17">Designing New Operating Primitives to Improve Fuzzing Performance(CCS 17)</a></li>
+<li><a href="#qsym-a-practical-concolic-execution-engine-tailored-for-hybrid-fuzzingusenix-18">QSYM: A Practical Concolic Execution Engine Tailored for Hybrid Fuzzing(Usenix 18)</a></li>
+<li><a href="#fairfuzz-a-targeted-mutation-strategy-for-increasing-greybox-fuzz-testing-coveragease-18">FairFuzz: A Targeted Mutation Strategy for Increasing Greybox Fuzz Testing Coverage(ASE 18)</a></li>
+<li><a href="#full-speed-fuzzing-reducing-fuzzing-overhead-through-coverage-guided-tracingoakland-19">Full-speed Fuzzing: Reducing Fuzzing Overhead through Coverage-guided Tracing(oakland 19)</a></li>
+<li><a href="#profuzzer-on-the-fly-input-type-probing-for-better-zero-day-vulnerability-discoveryoakland-19">ProFuzzer: On-the-fly Input Type Probing for Better Zero-day Vulnerability Discovery(oakland 19)</a></li>
+<li><a href="#neuzz-efficient-fuzzing-with-neural-program-smoothingoakland-19">NEUZZ: Efficient Fuzzing with Neural Program Smoothing(oakland 19)</a></li>
+<li><a href="#redqueen-fuzzing-with-input-to-state-correspondencendss-19">REDQUEEN: Fuzzing with Input-to-State Correspondence(NDSS 19)</a></li>
+<li><a href="#nautilus-fishing-for-deep-bugs-with-grammarsndss-19">NAUTILUS: Fishing for Deep Bugs with Grammars(NDSS 19)</a> </li>
+<li><a href="#send-hardest-problems-my-way-probabilistic-path-prioritization-for-hybrid-fuzzingndss-19">Send Hardest Problems My Way: Probabilistic Path Prioritization for Hybrid Fuzzing(NDSS 19)</a>   </li>
+</ul>
+</li>
+<li><p><a href="#directed-fuzzing">Directed Fuzzing</a></p>
+<ul>
+<li><a href="#directed-greybox-fuzzingccs-17">Directed Greybox Fuzzing(CCS 17)</a></li>
+<li><a href="#hawkeye-towards-a-desired-directed-grey-box-fuzzerccs-18">Hawkeye: Towards a Desired Directed Grey-box Fuzzer(CCS 18)</a></li>
+</ul>
+</li>
+<li><p><a href="#fuzzing-machine-learning-model">Fuzzing Machine Learning Model</a></p>
+<ul>
+<li><a href="#tensorfuzz-debugging-neural-networks-with-coverage-guided-fuzzing18">TensorFuzz: Debugging Neural Networks with Coverage-Guided Fuzzing(18)</a></li>
+<li><a href="#coverage-guided-fuzzing-for-deep-neural-networks18">Coverage-Guided Fuzzing for Deep Neural Networks</a></li>
+</ul>
+</li>
+<li><p><a href="#kernel-fuzzing">Kernel Fuzzing</a></p>
+<ul>
+<li><a href="#razzer-finding-kernel-race-bugs-through-fuzzingoakland-19">RAZZER: Finding Kernel Race Bugs through Fuzzing(oakland 19)</a></li>
+<li><a href="#kafl-hardware-assisted-feedback-fuzzing-for-os-kernelsusenix-security-17">kAFL: Hardware-Assisted Feedback Fuzzing for OS Kernels(Usenix Security 17)</a></li>
+<li><a href="#fuzzing-file-systems-via-two-dimensional-input-space-explorationoakland-19">Fuzzing File Systems via Two-Dimensional Input Space Exploration(oakland 19)</a></li>
+<li><a href="#periscope-an-effective-probing-and-fuzzing-framework-for-the-hardware-os-boundaryndss-19">PeriScope: An Effective Probing and Fuzzing Framework for the Hardware-OS Boundary(NDSS 19)</a></li>
+</ul>
+</li>
+<li><p><a href="#evaluate-fuzzing">Evaluate Fuzzing</a></p>
+<ul>
+<li><a href="#evaluating-fuzz-testingccs-18">Evaluating Fuzz Testing(CCS 18)</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="Interesting-Fuzzing"><a href="#Interesting-Fuzzing" class="headerlink" title="Interesting Fuzzing"></a>Interesting Fuzzing</h1><h2 id="Coverage-based-Greybox-Fuzzing-as-Markov-Chain-CCS-16"><a href="#Coverage-based-Greybox-Fuzzing-as-Markov-Chain-CCS-16" class="headerlink" title="Coverage-based Greybox Fuzzing as Markov Chain(CCS 16)"></a>Coverage-based Greybox Fuzzing as Markov Chain(CCS 16)</h2><ul>
 <li><a href="https://github.com/bin2415/fuzzing_paper/tree/master/paper/CCS16_aflfast.pdf" target="_blank" rel="noopener">paper</a></li>
 <li><a href="https://github.com/mboehme/aflfast" target="_blank" rel="noopener">source code</a></li>
 </ul>
@@ -130,7 +232,7 @@
 <li>Power Schedule</li>
 <li>通过改变前面两个方法来使程序更大概率地走到low-density region.</li>
 </ul>
-<h2 id="T-Fuzz-fuzzing-by-program-transformation-S-amp-P-18"><a href="#T-Fuzz-fuzzing-by-program-transformation-S-amp-P-18" class="headerlink" title="T-Fuzz: fuzzing by program transformation(S&amp;P 18)"></a>T-Fuzz: fuzzing by program transformation(S&amp;P 18)</h2><ul>
+<h2 id="T-Fuzz-fuzzing-by-program-transformation-oakland-18"><a href="#T-Fuzz-fuzzing-by-program-transformation-oakland-18" class="headerlink" title="T-Fuzz: fuzzing by program transformation(oakland 18)"></a>T-Fuzz: fuzzing by program transformation(oakland 18)</h2><ul>
 <li><a href="https://github.com/bin2415/fuzzing_paper/tree/master/paper/oakland18_T-Fuzz.pdf" target="_blank" rel="noopener">paper</a></li>
 <li><a href="https://github.com/HexHive/T-Fuzz" target="_blank" rel="noopener">source code</a></li>
 </ul>
@@ -144,7 +246,7 @@
 <li>Program Transformation: After finding NCCs, T-Fuzz should “remove” the NCCs conditions to guide the execution to the another branch. T-Fuzz transforms programs by replacing the detected NCC candidates with negated conditional jump.</li>
 <li>Filtering out False Positives and Reproducing Bugs: As the removed NCC candidates might be meaningful guards in the original program(as opposed to, e.g., magic number checks), removing detected NCC edges might introduce new bugs in the transformed program. Consequently, T-Fuzz’s Crash Analyzer verifies that each bug in the transformaed program is also present in the original proram, thus filtering out false positives. The Crash Analyser uses a transformation-aware combination of the preconstrained tracing technique leveraged by Driller and the Path Kneading techniques proposed by ShellSwap to collect path constraints of the original program by tracing the program path leading to a crash in the transformed program.</li>
 </ul>
-<h2 id="CollAFL-Path-Sensitive-Fuzzing-S-amp-P-18"><a href="#CollAFL-Path-Sensitive-Fuzzing-S-amp-P-18" class="headerlink" title="CollAFL: Path Sensitive Fuzzing(S&amp;P 18)"></a>CollAFL: Path Sensitive Fuzzing(S&amp;P 18)</h2><ul>
+<h2 id="CollAFL-Path-Sensitive-Fuzzing-oakland-18"><a href="#CollAFL-Path-Sensitive-Fuzzing-oakland-18" class="headerlink" title="CollAFL: Path Sensitive Fuzzing(oakland 18)"></a>CollAFL: Path Sensitive Fuzzing(oakland 18)</h2><ul>
 <li><a href="https://github.com/bin2415/fuzzing_paper/tree/master/paper/oakland18_collafl.pdf" target="_blank" rel="noopener">paper</a></li>
 <li>source code has not been found.</li>
 </ul>
@@ -159,7 +261,7 @@
 <p>其中上面的prev_location右移一位主要是为了区分路径A-&gt;B和B-&gt;A。由于每个basic block的id是随机分配的，所以这种hash方法很容易产生collision，特别当程序比较大的时候，collision rate也越大。</p>
 <h3 id="CollAFL’s-Solution-to-Hash-Collision"><a href="#CollAFL’s-Solution-to-Hash-Collision" class="headerlink" title="CollAFL’s Solution to Hash Collision"></a>CollAFL’s Solution to Hash Collision</h3><p>CollAFL通过三种方式来解决hash collision:</p>
 <ol>
-<li><img src="/2018/10/05/fuzzing/./s1.png" alt="公式1"><br>通过贪心算法，为每个basic block分配x和y的值，保证每条edge计算的hash值都是不同的。</li>
+<li><img src="/2018/10/05/fuzzing/./image/s1.png" alt="公式1"><br>通过贪心算法，为每个basic block分配x和y的值，保证每条edge计算的hash值都是不同的。</li>
 <li>如果每个basic block只有一个前继basic block，即只有一条边到达该basic block，所以只需要将该basic block的id来表示该edge即可。</li>
 <li>如果前面两种方法无法解决，则动态的时候为每条边分配不同的id。</li>
 </ol>
@@ -175,7 +277,7 @@
 <p>Vuzzer是公认的比较好的类AFL fuzzer。它主要利用Data-flow features和Control-flow features来辅助fuzzer变异和进行seed的选择。</p>
 <h3 id="Data-flow-features"><a href="#Data-flow-features" class="headerlink" title="Data-flow features"></a>Data-flow features</h3><p>利用dynamic taint analysis 来推断input的结构和类型，以及某段数据在input的偏移。比如，它通过对每个cmp指令进行插桩来判断input的哪些字节与输入有关，并且知道与它比较的另外一个值。同时，Vuzzer也可以对lea指令进行插桩，从而检测<em>index</em>操作是不是与input某些bytes有关。</p>
 <h3 id="Control-flow-features"><a href="#Control-flow-features" class="headerlink" title="Control-flow features"></a>Control-flow features</h3><p>Control-flow features可以让Vuzzer推断出执行路径的重要性。比如，某些执行路径最后到达了<em>error-hanling blocks</em>。Vuzzer就通过静态的方法识别出了一下<em>error-handling code</em>。同时，Vuzzer通过对每个basic block赋予特定的权重，来促使fuzzer走到更深的路径中去。</p>
-<h2 id="Angora-Efficient-Fuzzing-by-Principled-Search-S-amp-P-18"><a href="#Angora-Efficient-Fuzzing-by-Principled-Search-S-amp-P-18" class="headerlink" title="Angora: Efficient Fuzzing by Principled Search(S&amp;P 18)"></a>Angora: Efficient Fuzzing by Principled Search(S&amp;P 18)</h2><ul>
+<h2 id="Angora-Efficient-Fuzzing-by-Principled-Search-oakland-18"><a href="#Angora-Efficient-Fuzzing-by-Principled-Search-oakland-18" class="headerlink" title="Angora: Efficient Fuzzing by Principled Search(oakland 18)"></a>Angora: Efficient Fuzzing by Principled Search(oakland 18)</h2><ul>
 <li><a href="https://github.com/bin2415/fuzzing_paper/blob/master/paper/oakland18_Angora.pdf" target="_blank" rel="noopener">paper</a></li>
 <li><a href="https://github.com/AngoraFuzzer/Angora" target="_blank" rel="noopener">source code</a></li>
 </ul>
@@ -190,7 +292,7 @@
 <li><a href="https://github.com/bin2415/fuzzing_paper/blob/master/paper/ccs17_prefFuzz.pdf" target="_blank" rel="noopener">paper</a></li>
 <li><a href="https://github.com/sslab-gatech/perf-fuzz" target="_blank" rel="noopener">source code</a></li>
 </ul>
-<h3 id="AFL-Overview"><a href="#AFL-Overview" class="headerlink" title="AFL Overview"></a>AFL Overview</h3><p><img src="/2018/10/05/fuzzing/./afl_overview.png" alt="afl-overview"></p>
+<h3 id="AFL-Overview"><a href="#AFL-Overview" class="headerlink" title="AFL Overview"></a>AFL Overview</h3><p><img src="https://github.com/bin2415/fuzzing_paper/blob/master/image/afl_overview.png" alt="afl-overview"></p>
 <ul>
 <li>Mutating inputs(1). AFL uses an evolutionary coverage-based mutation technique to generate test cases for discovering new execution paths of the target application. In AFL, an execution path is represented as a sequence of taken branches(i.e., a coverage bitmap) in the target instance for a given input. To track whether a branch is taken, AFL instruments every conditional branch and function entry of the target application at the time of compilation.</li>
 <li>Launching the target application(2). Traditional fuzzers call <em>fork()</em> followed by <em>execve()</em> to launch an instance of the target application. This process occurs in every fuzzing loop to deliver a new input to the target application. It is not only time consuming, but also a non-scalable operation. Previous research shows that the majority of fuzzing execution explores only the shallow part of the code and terminates quickly(e.g., because of invalid input format), which results in frequent executions for the input cases. Thus, the cost of fork() and execve() dominates the cost of fuzzing. To mitigate this cost, AFL introduced a fork server, which is similar to a Zygote process in Android that eliminates the heavyweight execve() system call. After instantiating a target application, the fork server waits for a starting signal sent over the pip from the AFL instance. Upon receiving the request, it first clones the already-loaded program using fork() and the child process continues the execution of the original target code immediately from the entry point(i.e., main) with a given input generated for the current fuzzing loop. The parent process waits for the termination of its child, and then informs the AFL process. The AFL process collects the branch coverage of the past execution, and maintains the test input if it is interesting.</li>
@@ -206,6 +308,35 @@
 <p>然而使用IR则引发了额外的overhead。首先，从机器指令到IR的转换本身就有overhead。由于amd64是CISC(complex instruction set computer)，而IR是RISC(reduced instruction set computer)，一般一条amd64的指令需要转换成多条IR指令，拿angr为例，如果将amd64指令转为VEX IR，则平均增加的指令数是4.69倍。其次，采用IR导致basic block level taint。因为由于效率的原因，从native instructions到IR的转换一般是以basic block为单位的，这样就导致无法将单个的native instruction转换成IR，所以也就只能做到哪些basic block需要符号化，而不是具体的某条指令需要符号化。这样做导致的后果就是如果某个basic block中只有一条指令和输入有关需要符号化，则整个basic block都需要符号模拟，这样就会造成很高的overhead。如果没有IR的话就可以做到指令级别的taint，就能够清楚的判断哪些指令需要符号模拟，哪些指令只需native execution，减少了不必要的符号模拟。实验表明，在一个basic block中，只有30%的指令需要符号模拟。</p>
 <h4 id="Ineffective-Snapshot"><a href="#Ineffective-Snapshot" class="headerlink" title="Ineffective Snapshot"></a>Ineffective Snapshot</h4><p>snapshot是conclic execution常用的一个技术，它能够保存某条分支前的状态S，当该分支执行完或者”stuck”时，可以从该状态S直接执行另外一个分支，避免了重新执行的overhead。然而snapshot本身就有一些缺点：snapshot需要保存一些外部的状态(文件系统，内存管理系统)，则此时需要对影响外部状态的系统调用进行处理，一般有两个方法: full system concolic execution and External environment modeling。这两个方法都有一些缺陷：第一个方法是由于外部环境比较复杂，实现起来比较难，overhead较高；第二个则是model的system call较少，并且有些system call建模的不够完全。另外由于fuzzing的输入一般不会共享同一个分支，所以snapshot可能对于fuzzing这个场景也不是很好，所以该paper就没有采用snapshot的机制，对于每个输入都会重新执行，对于系统调用，则具体执行。</p>
 <h4 id="Slow-and-Inflexible-Sound-Analysis"><a href="#Slow-and-Inflexible-Sound-Analysis" class="headerlink" title="Slow and Inflexible Sound Analysis"></a>Slow and Inflexible Sound Analysis</h4><p>现在的concolic execution是将某条路径上的所有contraints都满足，从而求解出具体的input。然而复杂的contraints可能会导致输入求解不出。所以该paper的一个解决方法就是只求解出部分contraints。</p>
+<h2 id="FAIRFUZZ-A-Targeted-Mutation-Strategy-for-Increasing-Greybox-Fuzz-Testing-Coverage-ASE-18"><a href="#FAIRFUZZ-A-Targeted-Mutation-Strategy-for-Increasing-Greybox-Fuzz-Testing-Coverage-ASE-18" class="headerlink" title="FAIRFUZZ: A Targeted Mutation Strategy for Increasing Greybox Fuzz Testing Coverage(ASE 18)"></a>FAIRFUZZ: A Targeted Mutation Strategy for Increasing Greybox Fuzz Testing Coverage(ASE 18)</h2><ul>
+<li><a href="https://github.com/bin2415/fuzzing_paper/blob/master/paper/ase18-fairfuzz.pdf" target="_blank" rel="noopener">paper</a></li>
+<li><a href="https://github.com/carolemieux/afl-rb" target="_blank" rel="noopener">source code</a></li>
+</ul>
+<p>FairFuzz focus on branch coverage, it works in two main steps.</p>
+<p>First, it identifies the program branches that are rarely hit by previously-generated inputs.  It call such branches rare branches. These rare branches guard under-explored functionalities of the program. By generating more random inputs hitting these rare branches, FairFuzz greatly increases the coverage of the parts of the code guarded by them.</p>
+<p>Second, FairFuzz uses a novel lightweight mutation technique to increase the probability of hitting these rare branches. The mutation stategy is based on the observation that certain parts of an input already hitting a rare branch are crucial to satify the conditions necessary to hit that branch. Therefore, to generate more inputs hitting the rare branch via mutation, the parts of the input that are crucial for hitting the branch should not be mutated.</p>
+<h2 id="Full-speed-Fuzzing-Reducing-Fuzzing-Overhead-through-Coverage-guided-Tracing-oakland-19"><a href="#Full-speed-Fuzzing-Reducing-Fuzzing-Overhead-through-Coverage-guided-Tracing-oakland-19" class="headerlink" title="Full-speed Fuzzing: Reducing Fuzzing Overhead through Coverage-guided Tracing(oakland 19)"></a>Full-speed Fuzzing: Reducing Fuzzing Overhead through Coverage-guided Tracing(oakland 19)</h2><ul>
+<li><a href="https://arxiv.org/pdf/1812.11875.pdf" target="_blank" rel="noopener">paper</a></li>
+<li><a href="https://github.com/FoRTE-Research/UnTracer-AFL" target="_blank" rel="noopener">source code</a></li>
+</ul>
+<h2 id="ProFuzzer-On-the-fly-Input-Type-Probing-for-Better-Zero-day-Vulnerability-Discovery-oakland-19"><a href="#ProFuzzer-On-the-fly-Input-Type-Probing-for-Better-Zero-day-Vulnerability-Discovery-oakland-19" class="headerlink" title="ProFuzzer: On-the-fly Input Type Probing for Better Zero-day Vulnerability Discovery(oakland 19)"></a>ProFuzzer: On-the-fly Input Type Probing for Better Zero-day Vulnerability Discovery(oakland 19)</h2><ul>
+<li><a href="https://www.computer.org/csdl/proceedings/sp/2019/6660/00/666000a883.pdf" target="_blank" rel="noopener">paper</a></li>
+</ul>
+<h2 id="NEUZZ-Efficient-Fuzzing-with-Neural-Program-Smoothing-oakland-19"><a href="#NEUZZ-Efficient-Fuzzing-with-Neural-Program-Smoothing-oakland-19" class="headerlink" title="NEUZZ: Efficient Fuzzing with Neural Program Smoothing(oakland 19)"></a>NEUZZ: Efficient Fuzzing with Neural Program Smoothing(oakland 19)</h2><ul>
+<li><a href="https://www.computer.org/csdl/proceedings/sp/2019/6660/00/666000a901.pdf" target="_blank" rel="noopener">paper</a></li>
+<li><a href="https://github.com/Dongdongshe/neuzz" target="_blank" rel="noopener">code</a></li>
+</ul>
+<h2 id="REDQUEEN-Fuzzing-with-Input-to-State-Correspondence-NDSS-19"><a href="#REDQUEEN-Fuzzing-with-Input-to-State-Correspondence-NDSS-19" class="headerlink" title="REDQUEEN: Fuzzing with Input-to-State Correspondence(NDSS 19)"></a>REDQUEEN: Fuzzing with Input-to-State Correspondence(NDSS 19)</h2><ul>
+<li><a href="https://www.ndss-symposium.org/wp-content/uploads/2019/02/ndss2019_04A-2_Aschermann_paper.pdf" target="_blank" rel="noopener">paper</a></li>
+<li><a href="https://github.com/RUB-SysSec/redqueen" target="_blank" rel="noopener">code</a></li>
+</ul>
+<h2 id="NAUTILUS-Fishing-for-Deep-Bugs-with-Grammars-NDSS-19"><a href="#NAUTILUS-Fishing-for-Deep-Bugs-with-Grammars-NDSS-19" class="headerlink" title="NAUTILUS: Fishing for Deep Bugs with Grammars(NDSS 19)"></a>NAUTILUS: Fishing for Deep Bugs with Grammars(NDSS 19)</h2><ul>
+<li><a href="https://www.ndss-symposium.org/wp-content/uploads/2019/02/ndss2019_04A-3_Aschermann_paper.pdf" target="_blank" rel="noopener">paper</a></li>
+<li><a href="https://github.com/RUB-SysSec/nautilus" target="_blank" rel="noopener">code</a></li>
+</ul>
+<h2 id="Send-Hardest-Problems-My-Way-Probabilistic-Path-Prioritization-for-Hybrid-Fuzzing-NDSS-19"><a href="#Send-Hardest-Problems-My-Way-Probabilistic-Path-Prioritization-for-Hybrid-Fuzzing-NDSS-19" class="headerlink" title="Send Hardest Problems My Way: Probabilistic Path Prioritization for Hybrid Fuzzing(NDSS 19)"></a>Send Hardest Problems My Way: Probabilistic Path Prioritization for Hybrid Fuzzing(NDSS 19)</h2><ul>
+<li><a href="https://www.ndss-symposium.org/wp-content/uploads/2019/02/ndss2019_04A-5_Zhao_paper.pdf" target="_blank" rel="noopener">paper</a></li>
+</ul>
 <h1 id="Directed-Fuzzing"><a href="#Directed-Fuzzing" class="headerlink" title="Directed Fuzzing"></a>Directed Fuzzing</h1><h2 id="Directed-Greybox-Fuzzing-CCS-17"><a href="#Directed-Greybox-Fuzzing-CCS-17" class="headerlink" title="Directed Greybox Fuzzing(CCS 17)"></a>Directed Greybox Fuzzing(CCS 17)</h2><ul>
 <li><a href="https://github.com/bin2415/fuzzing_paper/tree/master/paper/CCS17_aflgo.pdf" target="_blank" rel="noopener">paper</a></li>
 <li><a href="https://github.com/aflgo/aflgo" target="_blank" rel="noopener">source code</a></li>
@@ -234,7 +365,7 @@
 <li>For P3, a moderation to the current power scheduling is required. The distance-guided seed prioritization is also needed.</li>
 <li>For P4, the DGF needs an adaptive mutation strategy, which optimally applies the fine-grained abd ciarse-graubed nytatuibs wgeb tge dustabce between the seed to the targets is different.</li>
 </ul>
-<h3 id="Hawkeye’s-Design"><a href="#Hawkeye’s-Design" class="headerlink" title="Hawkeye’s Design"></a>Hawkeye’s Design</h3><p><img src="/2018/10/05/fuzzing/./hawkeye_overview.png" alt="overview"></p>
+<h3 id="Hawkeye’s-Design"><a href="#Hawkeye’s-Design" class="headerlink" title="Hawkeye’s Design"></a>Hawkeye’s Design</h3><p><img src="https://github.com/bin2415/fuzzing_paper/blob/master/image/hawkeye_overview.png" alt="overview"></p>
 <p>During fuzzing, the fuzzer selects a seed from a priority seed queue. The fuzzer applies a power scheduling against the seed with the goal of giving those seeds that are considered to be “closer” to the target sites more mutation chances, i.e, energy. Specifically, this is achieved through a power function, which is a combination of the <em>covered function similarity</em> and the <em>basic block trace distance</em>. For each newly generated test seed during mutation, after capturing its execution trace, the fuzzer will calculate the covered function similarity and the basic block trace distance based on the utilities. For each input execution trace, its basic block trace distance is calculated as the accumulated basic block level distances divided by the total number of executed basic blocks; and its covered function similarity is calculated based on the overlapping of current executed functions and the target function trace closure, as well as the function level distance.</p>
 <p>After the energy is determined, the fuzzer adaptively allocates mutation budgets on two different categories of mutations according to mutators’ granularities on the seed(coarse-grained mutations and fine-grained mutations). Afterwards, the fuzzer evaluates the newly generated seeds to prioritize those that have more energy or that have reached the target functions.</p>
 <h1 id="Fuzzing-Machine-Learning-Model"><a href="#Fuzzing-Machine-Learning-Model" class="headerlink" title="Fuzzing Machine Learning Model"></a>Fuzzing Machine Learning Model</h1><h2 id="TensorFuzz-Debugging-Neural-Networks-with-Coverage-Guided-Fuzzing-18"><a href="#TensorFuzz-Debugging-Neural-Networks-with-Coverage-Guided-Fuzzing-18" class="headerlink" title="TensorFuzz: Debugging Neural Networks with Coverage-Guided Fuzzing(18)"></a>TensorFuzz: Debugging Neural Networks with Coverage-Guided Fuzzing(18)</h2><ul>
@@ -244,11 +375,40 @@
 <h2 id="Coverage-Guided-Fuzzing-for-Deep-Neural-Networks-18"><a href="#Coverage-Guided-Fuzzing-for-Deep-Neural-Networks-18" class="headerlink" title="Coverage-Guided Fuzzing for Deep Neural Networks(18)"></a>Coverage-Guided Fuzzing for Deep Neural Networks(18)</h2><ul>
 <li><a href="https://github.com/bin2415/fuzzing_paper/blob/master/paper/18_coverage-guided-fuzzing-for-deep-neural-networks.pdf" target="_blank" rel="noopener">paper</a></li>
 </ul>
+<h1 id="Kernel-Fuzzing"><a href="#Kernel-Fuzzing" class="headerlink" title="Kernel Fuzzing"></a>Kernel Fuzzing</h1><h2 id="RAZZER-Finding-Kernel-Race-Bugs-through-Fuzzing-oakland-19"><a href="#RAZZER-Finding-Kernel-Race-Bugs-through-Fuzzing-oakland-19" class="headerlink" title="RAZZER: Finding Kernel Race Bugs through Fuzzing(oakland 19)"></a>RAZZER: Finding Kernel Race Bugs through Fuzzing(oakland 19)</h2><ul>
+<li><a href="https://github.com/bin2415/fuzzing_paper/blob/master/paper/oakland19_RAZZER.pdf" target="_blank" rel="noopener">paper</a></li>
+<li><a href="https://github.com/compsec-snu/razzer" target="_blank" rel="noopener">source code</a></li>
+</ul>
+<h2 id="kAFL-Hardware-Assisted-Feedback-Fuzzing-for-OS-Kernels-Usenix-Security-17"><a href="#kAFL-Hardware-Assisted-Feedback-Fuzzing-for-OS-Kernels-Usenix-Security-17" class="headerlink" title="kAFL: Hardware-Assisted Feedback Fuzzing for OS Kernels(Usenix Security 17)"></a>kAFL: Hardware-Assisted Feedback Fuzzing for OS Kernels(Usenix Security 17)</h2><ul>
+<li><a href="https://github.com/bin2415/fuzzing_paper/blob/master/paper/usenix17_kafl.pdf" target="_blank" rel="noopener">paper</a></li>
+<li><a href="https://github.com/RUB-SysSec/kAFL" target="_blank" rel="noopener">source code</a></li>
+</ul>
+<h2 id="Fuzzing-File-Systems-via-Two-Dimensional-Input-Space-Exploration-oakland-19"><a href="#Fuzzing-File-Systems-via-Two-Dimensional-Input-Space-Exploration-oakland-19" class="headerlink" title="Fuzzing File Systems via Two-Dimensional Input Space Exploration(oakland 19)"></a>Fuzzing File Systems via Two-Dimensional Input Space Exploration(oakland 19)</h2><ul>
+<li><a href="https://github.com/bin2415/fuzzing_paper/blob/master/paper/oakland19_fuzzing_file_system.pdf" target="_blank" rel="noopener">paper</a></li>
+</ul>
+<h2 id="PeriScope-An-Effective-Probing-and-Fuzzing-Framework-for-the-Hardware-OS-Boundary-NDSS-19"><a href="#PeriScope-An-Effective-Probing-and-Fuzzing-Framework-for-the-Hardware-OS-Boundary-NDSS-19" class="headerlink" title="PeriScope: An Effective Probing and Fuzzing Framework for the Hardware-OS Boundary(NDSS 19)"></a>PeriScope: An Effective Probing and Fuzzing Framework for the Hardware-OS Boundary(NDSS 19)</h2><ul>
+<li><a href="https://people.cs.kuleuven.be/~stijn.volckaert/papers/2019_NDSS_PeriScope.pdf" target="_blank" rel="noopener">paper</a></li>
+<li><a href="https://github.com/securesystemslab/periscope" target="_blank" rel="noopener">source code</a></li>
+</ul>
+<h1 id="Evaluate-Fuzzing"><a href="#Evaluate-Fuzzing" class="headerlink" title="Evaluate Fuzzing"></a>Evaluate Fuzzing</h1><h2 id="Evaluating-Fuzz-Testing-CCS-18"><a href="#Evaluating-Fuzz-Testing-CCS-18" class="headerlink" title="Evaluating Fuzz Testing(CCS 18)"></a>Evaluating Fuzz Testing(CCS 18)</h2><ul>
+<li><a href="https://github.com/bin2415/fuzzing_paper/blob/master/paper/ccs18_Evaluating%20Fuzz%20Testing.pdf" target="_blank" rel="noopener">paper</a></li>
+</ul>
+<p>They found that:</p>
+<ul>
+<li>Most papers failed perform multiple runs, and those that did failed to account for varying performance by using a statistical test.</li>
+<li>Many papers measured fuzzer performance not by counting distinct bugs, but instead by counting “unique crashes” using heuristics such as<br>AFL’s coverage measure and stack hashes.</li>
+<li>Many papers used short timeouts, without justification.</li>
+<li>Many papers did not carefully consider the impact of seed choices on algorithmic improvements.</li>
+<li>Papers varied widely on their choice of target programs.</li>
+</ul>
 ]]></content>
     
     <summary type="html">
     
-      &lt;h1 id=&quot;Interesting-Fuzzing&quot;&gt;&lt;a href=&quot;#Interesting-Fuzzing&quot; class=&quot;headerlink&quot; title=&quot;Interesting Fuzzing&quot;&gt;&lt;/a&gt;Interesting Fuzzing&lt;/h1&gt;&lt;h2 i
+      &lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&quot;#interesting-fuzzing&quot;&gt;Interesting Fuzzing&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;#coverage-based-greybox-fuzzing-as-markov-chainccs-
     
     </summary>
     
@@ -1000,57 +1160,6 @@
       <category term="LLVM" scheme="http://bin2415.github.io/tags/LLVM/"/>
     
       <category term="Sanitizer" scheme="http://bin2415.github.io/tags/Sanitizer/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>使用angr和Radare解决CMU的二进制炸弹</title>
-    <link href="http://bin2415.github.io/2017/06/20/angr-bomb/"/>
-    <id>http://bin2415.github.io/2017/06/20/angr-bomb/</id>
-    <published>2017-06-20T10:05:53.000Z</published>
-    <updated>2018-12-23T05:33:53.001Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近在学习angr的使用，主要是如何利用angr来进行符号执行分析。发现了国外一篇比较实用的文章介绍如何使用angr和Radare(二进制分析框架)来分析CMU的二进制炸弹问题。故在此翻译一下<a href="http://ctfhacker.com/ctf/python/symbolic/execution/reverse/radare/2015/11/28/cmu-binary-bomb-flag2.html" target="_blank" rel="noopener">这篇文章</a>的工作。</p>
-<h3 id="angr"><a href="#angr" class="headerlink" title="angr"></a>angr</h3><p>angr是一个使用python语言编写的二进制分析框架，它主要是进行静态和动态的符号分析，现已成为CTF比赛的一大利器。angr最主要的一个工具就是符号执行，具体的符号执行可以参考<a href="https://www.youtube.com/watch?v=mffhPgsl8Ws" target="_blank" rel="noopener">MIT的一个课程</a>(需要梯子才可以观看)。</p>
-<h3 id="Radare2"><a href="#Radare2" class="headerlink" title="Radare2"></a>Radare2</h3><p>radare2是从零开始重写radare，以便提供一组库和工具来处理二进制文件。</p>
-<p>在这篇文章里是先用的Radare2对二进制炸弹进行分析，弄清二进制文件的逻辑关系，然后再用angr的符号执行工具解出答案。关于radare2工具的介绍可以参考<a href="https://radare.gitbooks.io/radare2book/content/" target="_blank" rel="noopener">Radare2 Book</a></p>
-<h3 id="所面临的问题"><a href="#所面临的问题" class="headerlink" title="所面临的问题"></a>所面临的问题</h3><p>要用angr和radare2所解决的问题是<a href="https://csapp.cs.cmu.edu/3e/bomb.tar" target="_blank" rel="noopener">CMU的二进制炸弹</a>，我们在此只分析phase2部分，如果对其他部分有兴趣的话可以参考我的<a href="http://blog.binpang.me/2017/05/16/Bomb/" target="_blank" rel="noopener">另一篇博客</a>对二进制炸弹做了全面的分析。phase2主要是要求输入6个正确的数字。</p>
-<h2 id="Crack"><a href="#Crack" class="headerlink" title="Crack"></a>Crack</h2><h3 id="Radare2分析"><a href="#Radare2分析" class="headerlink" title="Radare2分析"></a>Radare2分析</h3><ol>
-<li><p>使用Radare2加载程序，并输入aaa开始分析二进制程序<br><img src="https://ooo.0o0.ooo/2017/06/20/5949089e4fb62.png" alt=""></p>
-</li>
-<li><p>首先利用Radare2中的工具afl来查找符合条件的函数。使用afl并且grep(使用符号~来代表)筛选关键字, 可以看到筛选结果中有phase2。<br><img src="https://ooo.0o0.ooo/2017/06/20/594909adcb430.png" alt=""></p>
-</li>
-<li><p>使用seek工具来定位到我们感兴趣的函数处，此处为sym.phase_2函数。并用pdf([p]rint [d]issembly of [f]unction)命令来展示该函数的内容。<br><img src="https://ooo.0o0.ooo/2017/06/20/59490a845a6db.png" alt=""></p>
-</li>
-<li><p>如何要展示函数中的控制流程图可以在Radare2中使用VV（两个大写的V）指令。<br><img src="https://ooo.0o0.ooo/2017/06/20/59490b3ce8e98.png" alt=""></p>
-</li>
-<li><p>为了进行符号执行，我们必须弄清楚程序的输入是什么，通过radare工具反汇编出来的代码可以看出，函数read_six_numbers很有可能就是处理输入的函数。<br><img src="https://ooo.0o0.ooo/2017/06/20/59490ca528d44.png" alt=""></p>
-</li>
-<li><p>在radare2中使用ga指令进入read_six_numbers函数, 具体的函数代码如下所示：<br><img src="https://ooo.0o0.ooo/2017/06/20/59491342ec7ac.png" alt=""></p>
-</li>
-</ol>
-<p>可以看出该函数中以六个数字作为scanf函数的输入，所以我们就将此作为输入。</p>
-<ol>
-<li>接下来我们需要分析符号执行所需要开始的代码处，符号执行不能走的路径以及要到达的目标代码处。<br><img src="https://ooo.0o0.ooo/2017/06/20/59492f1f0be19.png" alt=""><br>从上图可以看出0x400f10和0x400f20处的代码都调用explode_bomb函数。</li>
-</ol>
-<p><img src="https://ooo.0o0.ooo/2017/06/20/5949301b20e05.png" alt=""><br>具体的explode_bomb函数如上图所示，我们可以看出该函数会调用exit函数，所以我们要避免走到explode_bomb函数中去。即避免走到0x400f10和0x400f20。<br>要到达的目标函数我们可以设置到从phase2函数中返回。我们将调用完read_six_numbers函数后一条指令即0x400f0a作为程序分析的开始处。</p>
-<h3 id="angr分析"><a href="#angr分析" class="headerlink" title="angr分析"></a>angr分析</h3><p>具体的angr分析代码如下所示：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## Binary found here: http://csapp.cs.cmu.edu/3e/bomb.tar</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> angr, logging</span><br><span class="line"><span class="keyword">from</span> subprocess <span class="keyword">import</span> Popen, PIPE</span><br><span class="line"><span class="keyword">from</span> itertools <span class="keyword">import</span> product</span><br><span class="line"><span class="keyword">import</span> struct</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line">    proj = angr.Project(<span class="string">'bomb'</span>, load_options=&#123;<span class="string">'auto_load_libs'</span>:<span class="keyword">False</span>&#125;)</span><br><span class="line"></span><br><span class="line">    logging.basicConfig()</span><br><span class="line">    logging.getLogger(<span class="string">'angr.surveyors.explorer'</span>).setLevel(logging.DEBUG)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">nop</span><span class="params">(state)</span>:</span></span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">    bomb_explode = <span class="number">0x40143a</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># Start analysis at the phase_2 function after the sscanf</span></span><br><span class="line">    state = proj.factory.blank_state(addr=<span class="number">0x400f0a</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Sscanf is looking for '%d %d %d %d %d %d' which ends up dropping 6 ints onto the stack</span></span><br><span class="line">    <span class="comment"># We will create 6 symbolic values onto the stack to mimic this</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> xrange(<span class="number">6</span>):</span><br><span class="line">        state.stack_push(state.se.BVS(<span class="string">'int&#123;&#125;'</span>.format(i), <span class="number">4</span>*<span class="number">8</span>))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># Attempt to find a path to the end of the phase_2 function while avoiding the bomb_explode</span></span><br><span class="line">    path = proj.factory.path(state=state)</span><br><span class="line">    ex = proj.surveyors.Explorer(start=path, find=(<span class="number">0x400f3c</span>,),</span><br><span class="line">                                 avoid=(bomb_explode, <span class="number">0x400f10</span>, <span class="number">0x400f20</span>,),</span><br><span class="line">                                 enable_veritesting=<span class="keyword">True</span>)</span><br><span class="line">    ex.run()</span><br><span class="line">    <span class="keyword">if</span> ex.found:</span><br><span class="line">        found = ex.found[<span class="number">0</span>].state</span><br><span class="line"></span><br><span class="line">        answer = []</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> x <span class="keyword">in</span> xrange(<span class="number">3</span>):</span><br><span class="line">            curr_int = found.se.any_int(found.stack_pop())</span><br><span class="line"></span><br><span class="line">            <span class="comment"># We are popping off 8 bytes at a time</span></span><br><span class="line">            <span class="comment"># 0x0000000200000001</span></span><br><span class="line"></span><br><span class="line">            <span class="comment"># This is just one way to extract the individual numbers from this popped value</span></span><br><span class="line">            answer.append(str(curr_int &amp; <span class="number">0xffffffff</span>))</span><br><span class="line">            answer.append(str(curr_int&gt;&gt;<span class="number">32</span> &amp; <span class="number">0xffffffff</span>))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="string">' '</span>.join(answer)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">assert</span> main() == <span class="string">'1 2 4 8 16 32'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    print(main())</span><br></pre></td></tr></table></figure></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;最近在学习angr的使用，主要是如何利用angr来进行符号执行分析。发现了国外一篇比较实用的文章介绍如何使用angr和Radare(二进制分
-    
-    </summary>
-    
-      <category term="angr" scheme="http://bin2415.github.io/categories/angr/"/>
-    
-    
-      <category term="翻译" scheme="http://bin2415.github.io/tags/%E7%BF%BB%E8%AF%91/"/>
-    
-      <category term="exploit" scheme="http://bin2415.github.io/tags/exploit/"/>
-    
-      <category term="angr" scheme="http://bin2415.github.io/tags/angr/"/>
     
   </entry>
   
