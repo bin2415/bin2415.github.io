@@ -112,12 +112,12 @@
 <meta property="og:site_name" content="PCB博客">
 <meta property="og:description" content="环境 linux kernel版本：4.10.1 gcc编译: 7.4 linux kernel开启KASAN和debug信息 1234567CONFIG_KCOV=yCONFIG_DEBUG_INFO=yCONFIG_KASAN=yCONFIG_KASAN_INLINE=yCONFIG_CONFIGFS_FS=yCONFIG_SECURITYFS=y  在编译的时候出现‘undefined re">
 <meta property="og:locale" content="default">
-<meta property="og:image" content="http://bin2415.github.io/2019/01/05/kernel-debugging/kernel-debugging/crash.png">
-<meta property="og:updated_time" content="2019-01-05T13:07:28.593Z">
+<meta property="og:image" content="http://bin2415.github.io/2019/01/05/kernel-debugging/crash.png">
+<meta property="og:updated_time" content="2019-03-19T08:35:33.571Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="分析CVE-2017-8890">
 <meta name="twitter:description" content="环境 linux kernel版本：4.10.1 gcc编译: 7.4 linux kernel开启KASAN和debug信息 1234567CONFIG_KCOV=yCONFIG_DEBUG_INFO=yCONFIG_KASAN=yCONFIG_KASAN_INLINE=yCONFIG_CONFIGFS_FS=yCONFIG_SECURITYFS=y  在编译的时候出现‘undefined re">
-<meta name="twitter:image" content="http://bin2415.github.io/2019/01/05/kernel-debugging/kernel-debugging/crash.png">
+<meta name="twitter:image" content="http://bin2415.github.io/2019/01/05/kernel-debugging/crash.png">
 
 
 
@@ -382,12 +382,24 @@
                 
               
 
-              <time title="Created: 2019-01-05 20:28:58 / Modified: 21:07:28" itemprop="dateCreated datePublished" datetime="2019-01-05T20:28:58+08:00">2019-01-05</time>
+              <time title="Created: 2019-01-05 20:28:58" itemprop="dateCreated datePublished" datetime="2019-01-05T20:28:58+08:00">2019-01-05</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-03-19 16:35:33" itemprop="dateModified" datetime="2019-03-19T16:35:33+08:00">2019-03-19</time>
               
             
           </span>
@@ -461,7 +473,7 @@
 <li>在qemu里面的虚拟机里面运行poc</li>
 <li>此时发生crash:</li>
 </ul>
-<p><img src="/2019/01/05/kernel-debugging/./kernel-debugging/crash.png" alt="crash"></p>
+<p><img src="/2019/01/05/kernel-debugging/./crash.png" alt="crash"></p>
 <p>可以发现其访问了（rcx+rax)的地址区域， 而该地址是不可访问地址区域</p>
 <ul>
 <li>手动下断点<ul>

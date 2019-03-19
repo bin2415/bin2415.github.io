@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://bin2415.github.io/"/>
-  <updated>2019-01-05T13:07:28.593Z</updated>
+  <updated>2019-03-19T08:35:33.571Z</updated>
   <id>http://bin2415.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://bin2415.github.io/2019/01/05/kernel-debugging/"/>
     <id>http://bin2415.github.io/2019/01/05/kernel-debugging/</id>
     <published>2019-01-05T12:28:58.000Z</published>
-    <updated>2019-01-05T13:07:28.593Z</updated>
+    <updated>2019-03-19T08:35:33.571Z</updated>
     
     <content type="html"><![CDATA[<h2 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h2><ul>
 <li>linux kernel版本：4.10.1</li>
@@ -45,7 +45,7 @@
 <li>在qemu里面的虚拟机里面运行poc</li>
 <li>此时发生crash:</li>
 </ul>
-<p><img src="/2019/01/05/kernel-debugging/./kernel-debugging/crash.png" alt="crash"></p>
+<p><img src="/2019/01/05/kernel-debugging/./crash.png" alt="crash"></p>
 <p>可以发现其访问了（rcx+rax)的地址区域， 而该地址是不可访问地址区域</p>
 <ul>
 <li>手动下断点<ul>
