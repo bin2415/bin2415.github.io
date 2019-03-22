@@ -386,6 +386,186 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://bin2415.github.io/2017/07/26/AddressSanitizer/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="binpang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PCB博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2017/07/26/AddressSanitizer/" class="post-title-link" itemprop="http://bin2415.github.io/page/3/index.html">AddressSanitizer算法及源码解析</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2017-07-26 10:03:38" itemprop="dateCreated datePublished" datetime="2017-07-26T10:03:38+08:00">2017-07-26</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-12-23 13:33:52" itemprop="dateModified" datetime="2018-12-23T13:33:52+08:00">2018-12-23</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/LLVM/" itemprop="url" rel="index"><span itemprop="name">LLVM</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          AddressSanitizer简介AddressSanitizer是Google用于检测内存各种buffer overflow(Heap buffer overflow, Stack buffer overflow, Global buffer overflow)的一个非常有用的工具。该工具是一个
+          ...
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2017/07/26/AddressSanitizer/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://bin2415.github.io/2017/06/20/angr-bomb/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1046,7 +1226,7 @@ Call GraphCall Gra
 <li>启动apache2服务：sudo service apache2 start</li>
 <li>配置Apache服务，在/etc/apache2/sites-available/default中，配置如下：<br><img src="http://i.imgur.com/5pqUZOD.png" alt=""></li>
 </ul>
-<h2 id="实验内容："><a href="#实验内容：" class="headerlink" title="实验内容："></a>实验内容：</h2><h3 id="Task-1-显示Alert窗口"><a href="#Task-1-显示Alert窗口" class="headerlink" title="Task 1:显示Alert窗口"></a>Task 1:显示Alert窗口</h3><p>在用户名boby下的修改信息这一网页中，在个人说明中插入alert信息：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;alert(‘XSS’);&lt;/script&gt;</span><br></pre></td></tr></table></figure></p>
+<h2 id="实验内容："><a href="#实验内容：" class="headerlink" title="实验内容："></a>实验内容：</h2><h3 id="Task-1-显示Alert窗口"><a href="#Task-1-显示Alert窗口" class="headerlink" title="Task 1:显示Alert窗口"></a>Task 1:显示Alert窗口</h3><p>在用户名boby下的修改信息这一网页中，在个人说明中插入alert信息：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;alert(‘XSS’);<span class="xml"><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span></span><br></pre></td></tr></table></figure></p>
           <!--noindex-->
           
             <div class="post-button text-center">
@@ -2014,185 +2194,6 @@ Call GraphCall Gra
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://bin2415.github.io/2017/04/13/Raytracing/">
-
-    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="binpang">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpeg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="PCB博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2017/04/13/Raytracing/" class="post-title-link" itemprop="http://bin2415.github.io/page/3/index.html">Raytracing</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2017-04-13 15:40:03" itemprop="dateCreated datePublished" datetime="2017-04-13T15:40:03+08:00">2017-04-13</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2018-12-23 13:33:52" itemprop="dateModified" datetime="2018-12-23T13:33:52+08:00">2018-12-23</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/计算机图形学/" itemprop="url" rel="index"><span itemprop="name">计算机图形学</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="题目要求"><a href="#题目要求" class="headerlink" title="题目要求"></a>题目要求</h2><p>本程序是根据<a href="http://run.usc.edu/cs480-s13/assignments/assign3/assign3.html" target="_blank" rel="noopener">Raytracing</a>的要求所写。</p>
-<p>该题目要求根据其所给的框架程序来实现raytracing的功能。</p>
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2017/04/13/Raytracing/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-         
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2242,7 +2243,7 @@ Call GraphCall Gra
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">34</span>
+                    <span class="site-state-item-count">35</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>

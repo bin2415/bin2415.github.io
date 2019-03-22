@@ -148,18 +148,20 @@
 
 
 
-  <meta name="description" content="有的时候需要在编译器LLVM上添加自己写的sanitizer，比如自己写的sanitizer名字叫做Bitype，想通过指定-fsanitize=bitype来开启Bitype sanitizer，则需要如下步骤:  在clang/Basic/Sanitizers.def文件中添加SANITIZER(“bitype”, Bitype) 在clang/Driver/SanitizerArgs.h中添">
-<meta name="keywords" content="llvm">
+  <meta name="description" content="前言最近和jaguo在给南京大学软件安全课程出Buffer Overflow实验的时候，发现了出现shellcode exit normally的情况，但是并没有发现启动了新的shell。 漏洞程序1234567891011121314151617181920212223// buf2.c// gcc −z execstack −o buf buf2#include &amp;lt;stdlib.h&amp;gt">
+<meta name="keywords" content="exploit">
 <meta property="og:type" content="article">
-<meta property="og:title" content="LLVM添加sanitizer">
-<meta property="og:url" content="http://bin2415.github.io/2018/08/28/add-sanitizer/index.html">
+<meta property="og:title" content="shellcode exit normally">
+<meta property="og:url" content="http://bin2415.github.io/2019/03/22/shellcode-exit/index.html">
 <meta property="og:site_name" content="PCB博客">
-<meta property="og:description" content="有的时候需要在编译器LLVM上添加自己写的sanitizer，比如自己写的sanitizer名字叫做Bitype，想通过指定-fsanitize=bitype来开启Bitype sanitizer，则需要如下步骤:  在clang/Basic/Sanitizers.def文件中添加SANITIZER(“bitype”, Bitype) 在clang/Driver/SanitizerArgs.h中添">
+<meta property="og:description" content="前言最近和jaguo在给南京大学软件安全课程出Buffer Overflow实验的时候，发现了出现shellcode exit normally的情况，但是并没有发现启动了新的shell。 漏洞程序1234567891011121314151617181920212223// buf2.c// gcc −z execstack −o buf buf2#include &amp;lt;stdlib.h&amp;gt">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-12-23T05:33:52.999Z">
+<meta property="og:image" content="http://bin2415.github.io/2019/03/22/shellcode-exit/shellcode-exit/shell_exit.png">
+<meta property="og:updated_time" content="2019-03-22T05:37:49.846Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="LLVM添加sanitizer">
-<meta name="twitter:description" content="有的时候需要在编译器LLVM上添加自己写的sanitizer，比如自己写的sanitizer名字叫做Bitype，想通过指定-fsanitize=bitype来开启Bitype sanitizer，则需要如下步骤:  在clang/Basic/Sanitizers.def文件中添加SANITIZER(“bitype”, Bitype) 在clang/Driver/SanitizerArgs.h中添">
+<meta name="twitter:title" content="shellcode exit normally">
+<meta name="twitter:description" content="前言最近和jaguo在给南京大学软件安全课程出Buffer Overflow实验的时候，发现了出现shellcode exit normally的情况，但是并没有发现启动了新的shell。 漏洞程序1234567891011121314151617181920212223// buf2.c// gcc −z execstack −o buf buf2#include &amp;lt;stdlib.h&amp;gt">
+<meta name="twitter:image" content="http://bin2415.github.io/2019/03/22/shellcode-exit/shellcode-exit/shell_exit.png">
 
 
 
@@ -168,7 +170,7 @@
 
 
 
-  <link rel="canonical" href="http://bin2415.github.io/2018/08/28/add-sanitizer/">
+  <link rel="canonical" href="http://bin2415.github.io/2019/03/22/shellcode-exit/">
 
 
 
@@ -178,7 +180,7 @@
   };
 </script>
 
-  <title>LLVM添加sanitizer | PCB博客</title>
+  <title>shellcode exit normally | PCB博客</title>
   
 
 
@@ -390,7 +392,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://bin2415.github.io/2018/08/28/add-sanitizer/">
+    <link itemprop="mainEntityOfPage" href="http://bin2415.github.io/2019/03/22/shellcode-exit/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="binpang">
@@ -407,7 +409,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">LLVM添加sanitizer
+          <h1 class="post-title" itemprop="name headline">shellcode exit normally
 
               
             
@@ -433,46 +435,16 @@
                 
               
 
-              <time title="Created: 2018-08-28 16:24:13" itemprop="dateCreated datePublished" datetime="2018-08-28T16:24:13+08:00">2018-08-28</time>
+              <time title="Created: 2019-03-22 12:46:12 / Modified: 13:37:49" itemprop="dateCreated datePublished" datetime="2019-03-22T12:46:12+08:00">2019-03-22</time>
             
 
             
               
 
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2018-12-23 13:33:52" itemprop="dateModified" datetime="2018-12-23T13:33:52+08:00">2018-12-23</time>
               
             
           </span>
 
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/llvm/" itemprop="url" rel="index"><span itemprop="name">llvm</span></a></span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -501,13 +473,18 @@
       
 
       
-        <p>有的时候需要在编译器LLVM上添加自己写的sanitizer，比如自己写的sanitizer名字叫做Bitype，想通过指定-fsanitize=bitype来开启Bitype sanitizer，则需要如下步骤:</p>
-<ul>
-<li>在clang/Basic/Sanitizers.def文件中添加SANITIZER(“bitype”, Bitype)</li>
-<li>在clang/Driver/SanitizerArgs.h中添加needsBitypeRt函数</li>
-<li>在clang/lib/Deriver/ToolChain.cpp文件中getSupportedSanitizers()函数添加Res对Bitype的支持</li>
-</ul>
-
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近和<a href="http://jaguo.github.io" target="_blank" rel="noopener">jaguo</a>在给南京大学软件安全课程出Buffer Overflow实验的时候，发现了出现shellcode exit normally的情况，但是并没有发现启动了新的shell。</p>
+<h2 id="漏洞程序"><a href="#漏洞程序" class="headerlink" title="漏洞程序"></a>漏洞程序</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// buf2.c</span></span><br><span class="line"><span class="comment">// gcc −z execstack −o buf buf2</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vul</span><span class="params">(<span class="keyword">char</span> *str)</span></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buffer[<span class="number">36</span>];</span><br><span class="line">    <span class="comment">// buffer overflow</span></span><br><span class="line">    <span class="built_in">strcpy</span>(buffer, str);</span><br><span class="line">&#125;</span><br><span class="line">buf2 . c −fno−<span class="built_in">stack</span>−protector</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> str[<span class="number">128</span>];</span><br><span class="line">    <span class="keyword">int</span> n = read(<span class="number">0</span>， str, <span class="number">128</span>);</span><br><span class="line">    <span class="keyword">if</span>(n &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Read Error\n"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    vul(str);</span><br><span class="line">    <span class="built_in">printf</span>(”Returned Properly\n”);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们一开始的设计是漏洞程序如上所示，由于需要注入shellcode，有些是不可见字符，所以我们一开始设计将shellcode写入到一个文件attack_input中，然后通过重定位将输入定位到attack_input文件中，可以将shellcode传给输入。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./buf2 &lt; attack_input</span><br></pre></td></tr></table></figure>
+<p>然而这样就导致虽然能够正确注入shellcode，但是只要执行shellcode中的execve(‘/bin//sh’, 0, 0)，就立即退出/bin//sh程序，而不是给出bash的命令行窗口。</p>
+<p><img src="/2019/03/22/shellcode-exit/./shellcode-exit/shell_exit.png" alt="shell_exit"></p>
+<h2 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h2><p>经过查阅资料发现，我们在使用输入重定位的时候，就相当于将进程的输入重定位到文件中，而当程序将文件中的内容读完之后，会关闭该文件，此时相当于将程序的输入（stdin）关闭了。<br>当该进程启动一个shell进程时，shell进程是该进程的子进程，继承了父进程的文件描述符（包括已经关闭了的标准输入），此时shell发现标准输入已经关闭了，就会退出。</p>
+<p>下面我们通过下面的实验来验证一下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    fclose(<span class="built_in">stdin</span>);</span><br><span class="line">    system(<span class="string">"/bin/sh"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译运行该程序，会发现shell也会正常退出。</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>我们的解决方案就是使用文件读函数正常的从文件中读取shellcode。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// buf2.c</span></span><br><span class="line"><span class="comment">// gcc -z execstack -o buf2 buf2.c -fno-stack-protector</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vul</span><span class="params">(<span class="keyword">char</span> *str)</span></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buffer[<span class="number">36</span>];</span><br><span class="line">    <span class="comment">// buffer overflow</span></span><br><span class="line">    <span class="built_in">strcpy</span>(buffer, str);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> str[<span class="number">128</span>];</span><br><span class="line">    FILE *file;</span><br><span class="line">    file = fopen(<span class="string">"attack_input2"</span>, <span class="string">"r"</span>);</span><br><span class="line">    fread(str, <span class="keyword">sizeof</span>(<span class="keyword">char</span>), <span class="number">128</span>, file);</span><br><span class="line">    vul(str);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Returned Properly\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
       
     </div>
 
@@ -530,7 +507,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/llvm/" rel="tag"># llvm</a>
+            <a href="/tags/exploit/" rel="tag"># exploit</a>
           
         </div>
       
@@ -543,8 +520,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/08/06/afl-fork-server/" rel="next" title="afl fork server">
-                <i class="fa fa-chevron-left"></i> afl fork server
+              <a href="/2019/01/05/kernel-debugging/" rel="next" title="分析CVE-2017-8890">
+                <i class="fa fa-chevron-left"></i> 分析CVE-2017-8890
               </a>
             
           </div>
@@ -552,10 +529,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/09/27/llvm-gold/" rel="prev" title="llvm gold build">
-                llvm gold build <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -600,8 +573,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
 
-      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <div class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
             
@@ -794,6 +776,22 @@
         </div>
       </div>
 
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#漏洞程序"><span class="nav-number">2.</span> <span class="nav-text">漏洞程序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#原因"><span class="nav-number">3.</span> <span class="nav-text">原因</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解决方案"><span class="nav-number">4.</span> <span class="nav-text">解决方案</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
       
 
       

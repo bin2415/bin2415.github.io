@@ -149,13 +149,6 @@
     </url>
 
     <url>
-        <loc>http://bin2415.github.io/tags/exploit/</loc>
-        <lastmod>2018-12-23T05:33:53.027Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
         <loc>http://bin2415.github.io/tags/qemu/</loc>
         <lastmod>2018-12-23T05:33:53.027Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -207,6 +200,13 @@
     <url>
         <loc>http://bin2415.github.io/tags/kernel/</loc>
         <lastmod>2019-03-19T08:35:33.571Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>http://bin2415.github.io/tags/exploit/</loc>
+        <lastmod>2019-03-22T05:37:49.846Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>

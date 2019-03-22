@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://bin2415.github.io/"/>
-  <updated>2019-03-19T08:35:33.571Z</updated>
+  <updated>2019-03-22T05:37:49.846Z</updated>
   <id>http://bin2415.github.io/</id>
   
   <author>
@@ -14,6 +14,37 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>shellcode exit normally</title>
+    <link href="http://bin2415.github.io/2019/03/22/shellcode-exit/"/>
+    <id>http://bin2415.github.io/2019/03/22/shellcode-exit/</id>
+    <published>2019-03-22T04:46:12.000Z</published>
+    <updated>2019-03-22T05:37:49.846Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近和<a href="http://jaguo.github.io" target="_blank" rel="noopener">jaguo</a>在给南京大学软件安全课程出Buffer Overflow实验的时候，发现了出现shellcode exit normally的情况，但是并没有发现启动了新的shell。</p>
+<h2 id="漏洞程序"><a href="#漏洞程序" class="headerlink" title="漏洞程序"></a>漏洞程序</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// buf2.c</span></span><br><span class="line"><span class="comment">// gcc −z execstack −o buf buf2</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vul</span><span class="params">(<span class="keyword">char</span> *str)</span></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buffer[<span class="number">36</span>];</span><br><span class="line">    <span class="comment">// buffer overflow</span></span><br><span class="line">    <span class="built_in">strcpy</span>(buffer, str);</span><br><span class="line">&#125;</span><br><span class="line">buf2 . c −fno−<span class="built_in">stack</span>−protector</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> str[<span class="number">128</span>];</span><br><span class="line">    <span class="keyword">int</span> n = read(<span class="number">0</span>， str, <span class="number">128</span>);</span><br><span class="line">    <span class="keyword">if</span>(n &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Read Error\n"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    vul(str);</span><br><span class="line">    <span class="built_in">printf</span>(”Returned Properly\n”);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们一开始的设计是漏洞程序如上所示，由于需要注入shellcode，有些是不可见字符，所以我们一开始设计将shellcode写入到一个文件attack_input中，然后通过重定位将输入定位到attack_input文件中，可以将shellcode传给输入。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./buf2 &lt; attack_input</span><br></pre></td></tr></table></figure>
+<p>然而这样就导致虽然能够正确注入shellcode，但是只要执行shellcode中的execve(‘/bin//sh’, 0, 0)，就立即退出/bin//sh程序，而不是给出bash的命令行窗口。</p>
+<p><img src="/2019/03/22/shellcode-exit/./shellcode-exit/shell_exit.png" alt="shell_exit"></p>
+<h2 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h2><p>经过查阅资料发现，我们在使用输入重定位的时候，就相当于将进程的输入重定位到文件中，而当程序将文件中的内容读完之后，会关闭该文件，此时相当于将程序的输入（stdin）关闭了。<br>当该进程启动一个shell进程时，shell进程是该进程的子进程，继承了父进程的文件描述符（包括已经关闭了的标准输入），此时shell发现标准输入已经关闭了，就会退出。</p>
+<p>下面我们通过下面的实验来验证一下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    fclose(<span class="built_in">stdin</span>);</span><br><span class="line">    system(<span class="string">"/bin/sh"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译运行该程序，会发现shell也会正常退出。</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>我们的解决方案就是使用文件读函数正常的从文件中读取shellcode。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// buf2.c</span></span><br><span class="line"><span class="comment">// gcc -z execstack -o buf2 buf2.c -fno-stack-protector</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vul</span><span class="params">(<span class="keyword">char</span> *str)</span></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buffer[<span class="number">36</span>];</span><br><span class="line">    <span class="comment">// buffer overflow</span></span><br><span class="line">    <span class="built_in">strcpy</span>(buffer, str);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> str[<span class="number">128</span>];</span><br><span class="line">    FILE *file;</span><br><span class="line">    file = fopen(<span class="string">"attack_input2"</span>, <span class="string">"r"</span>);</span><br><span class="line">    fread(str, <span class="keyword">sizeof</span>(<span class="keyword">char</span>), <span class="number">128</span>, file);</span><br><span class="line">    vul(str);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Returned Properly\n"</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h2&gt;&lt;p&gt;最近和&lt;a href=&quot;http://jaguo.github.io&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;jag
+    
+    </summary>
+    
+    
+      <category term="exploit" scheme="http://bin2415.github.io/tags/exploit/"/>
+    
+  </entry>
   
   <entry>
     <title>分析CVE-2017-8890</title>
@@ -523,9 +554,9 @@
       <category term="fuzzing" scheme="http://bin2415.github.io/categories/fuzzing/"/>
     
     
-      <category term="fuzzing" scheme="http://bin2415.github.io/tags/fuzzing/"/>
-    
       <category term="afl" scheme="http://bin2415.github.io/tags/afl/"/>
+    
+      <category term="fuzzing" scheme="http://bin2415.github.io/tags/fuzzing/"/>
     
   </entry>
   
@@ -1097,69 +1128,6 @@
     
     
       <category term="ptmalloc" scheme="http://bin2415.github.io/tags/ptmalloc/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>AddressSanitizer算法及源码解析</title>
-    <link href="http://bin2415.github.io/2017/07/26/AddressSanitizer/"/>
-    <id>http://bin2415.github.io/2017/07/26/AddressSanitizer/</id>
-    <published>2017-07-26T02:03:38.000Z</published>
-    <updated>2018-12-23T05:33:52.990Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="AddressSanitizer简介"><a href="#AddressSanitizer简介" class="headerlink" title="AddressSanitizer简介"></a>AddressSanitizer简介</h2><p>AddressSanitizer是Google用于检测内存各种buffer overflow(Heap buffer overflow, Stack buffer overflow, Global buffer overflow)的一个非常有用的工具。该工具是一个LLVM的Pass，现已集成至llvm中，要是用它可以通过-fsanitizer=address选项使用它。AddressSanitizer的源码位于/lib/Transforms/Instrumentation/AddressSanitizer.cpp中，Runtime-library的源码在llvm的另一个项目compiler-rt的/lib/asan文件夹中。</p>
-<h2 id="AddressSanitizer算法"><a href="#AddressSanitizer算法" class="headerlink" title="AddressSanitizer算法"></a>AddressSanitizer算法</h2><p>具体的算法可以参考<a href="https://github.com/google/sanitizers/wiki/AddressSanitizerAlgorithm" target="_blank" rel="noopener">WIKI</a>,在此对AddressSanitizer算法做一个简短的介绍。AddressSanitizer主要包括两部分：插桩(Instrumentation)和动态运行库(Run-time library)。插桩主要是针对在llvm编译器级别对访问内存的操作(store，load，alloca等)，将它们进行处理。动态运行库主要提供一些运行时的复杂的功能(比如poison/unpoison shadow memory)以及将malloc,free等系统调用函数hook住。其实该算法的思路很简单，如果想防住Buffer Overflow漏洞，只需要在每块内存区域右端（或两端，能防overflow和underflow）加一块区域（RedZone），使RedZone的区域的影子内存（Shadow Memory)设置为不可写即可。具体的示意图如下图所示。</p>
-<p><img src="/2017/07/26/AddressSanitizer/RedZone.png" alt="RedZone"></p>
-<h3 id="内存映射"><a href="#内存映射" class="headerlink" title="内存映射"></a>内存映射</h3><p>AddressSanitizer保护的主要原理是对程序中的虚拟内存提供粗粒度的影子内存(没8个字节的内存对应一个字节的影子内存)，为了减少overhead，就采用了直接内存映射策略，所采用的具体策略如下：Shadow=(Mem &gt;&gt; 3) + offset。每8个字节的内存对应一个字节的影子内存，影子内存中每个字节存取一个数字k,如果k=0，则表示该影子内存对应的8个字节的内存都能访问，如果0&lt;k&lt;7,表示前k个字节可以访问，如果k为负数，不同的数字表示不同的错误（e.g. Stack buffer overflow, Heap buffer overflow)。具体的映射策略如下图所示。<br><img src="/2017/07/26/AddressSanitizer/mapping.png" alt="mapping图片"></p>
-<center> 图1： 虚拟地址映射图 </center>
-
-<p><img src="/2017/07/26/AddressSanitizer/typicalMapping.png" alt="typicalMapping"></p>
-<h3 id="插桩"><a href="#插桩" class="headerlink" title="插桩"></a>插桩</h3><p>为了防止buffer overflow，需要将原来分配的内存两边分配额外的内存Redzone，并将这两边的内存加锁，设为不能访问状态，这样可以有效的防止buffer overflow(但不能杜绝buffer overflow)。一下是在栈中插桩的一个例子。</p>
-<p>未插桩的代码：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">char</span> a[<span class="number">8</span>];</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>插桩后的代码：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">char</span> redzone1[<span class="number">32</span>];  <span class="comment">// 32-byte aligned</span></span><br><span class="line">  <span class="keyword">char</span> a[<span class="number">8</span>];          <span class="comment">// 32-byte aligned</span></span><br><span class="line">  <span class="keyword">char</span> redzone2[<span class="number">24</span>]; </span><br><span class="line">  <span class="keyword">char</span> redzone3[<span class="number">32</span>];  <span class="comment">// 32-byte aligned</span></span><br><span class="line">  <span class="keyword">int</span>  *shadow_base = MemToShadow(redzone1);</span><br><span class="line">  shadow_base[<span class="number">0</span>] = <span class="number">0xffffffff</span>;  <span class="comment">// poison redzone1</span></span><br><span class="line">  shadow_base[<span class="number">1</span>] = <span class="number">0xffffff00</span>;  <span class="comment">// poison redzone2, unpoison 'a'</span></span><br><span class="line">  shadow_base[<span class="number">2</span>] = <span class="number">0xffffffff</span>;  <span class="comment">// poison redzone3</span></span><br><span class="line">  ...</span><br><span class="line">  shadow_base[<span class="number">0</span>] = shadow_base[<span class="number">1</span>] = shadow_base[<span class="number">2</span>] = <span class="number">0</span>; <span class="comment">// unpoison all</span></span><br><span class="line">  <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="动态运行库"><a href="#动态运行库" class="headerlink" title="动态运行库"></a>动态运行库</h3><p>在动态运行库中将malloc/free函数进行了替换。在malloc函数中额外的分配了Redzone区域的内存，将与Redzone区域对应的影子内存加锁，主要的内存区域对应的影子内存不加锁。</p>
-<p>free函数将所有分配的内存区域加锁，并放到了隔离区域的队列中(保证在一定的时间内不会再被malloc函数分配)。</p>
-<h2 id="AddressSanitizer源码分析"><a href="#AddressSanitizer源码分析" class="headerlink" title="AddressSanitizer源码分析"></a>AddressSanitizer源码分析</h2><p>AddressSanitizer主要有三种层面的变量：Stack Variable(局部变量)，Global Variable, Heap Variable。由于每种变量的生命周期（life time)不同，所以对不同种类的变量处理也是不同的。下面分别从Global Variable，Stack Variable，Heap Variable三个层次来分析AddressSanitizer源码的逻辑结构。</p>
-<h3 id="Global-Variable"><a href="#Global-Variable" class="headerlink" title="Global Variable"></a>Global Variable</h3><p>Global Variable存放在程序的数据段。在该算法的实现过程中，处理GlobalVariale的是AddressSanitizerModule类，该类继承自llvm的ModulePass，所以我们先看一下AddressSanitizerModule类的runOnModule(Module &amp;M)方法的处理过程，该过程首先进行一些初始化，然后我们可以看到对Global的插桩方法InstrumentGlobals()方法。</p>
-<p><img src="/2017/07/26/AddressSanitizer/runOnModule.png" alt="runOnMoudle"></p>
-<center> 图2： RunOnModule </center>
-
-<p>在InstrumentGlobals()方法中，主要是分成两步：首先，重新声明一个GlobalVariable，这个GlobalVariable包含以前的GlobalVariable和一个RedZone；然后，调用runtime-library将新声明的这个GlobalVariable的RedZone区域加锁。我们先来看第一步的具体实现，如图3所示。</p>
-<p><img src="/2017/07/26/AddressSanitizer/instrument_global.png" alt="instrumentGlobal"></p>
-<center> 图3： 生成包含RedZone的新的GlobalVariable </center>
-
-<p>下面，我们首先看一下一个Struct结构，该结构记录GlobalVariable存储的首地址，数据的大小，Redzone的大小，Module的名字等信息，便于在Runtime-library中使用。该结构在AddressSanitizerModule和runtime-library中都有相应的定义：</p>
-<p><img src="/2017/07/26/AddressSanitizer/posionGlobal_struct.png" alt="poisonGlobal"><br><img src="/2017/07/26/AddressSanitizer/poisonGlobal_runtimeStruct.png" alt="poisonGlobalRuntime"></p>
-<p>然后我们可以看到对GlobalVariable进行插桩来实现RedZone的Poison和整个GlobalVariable的Poison操作。</p>
-<p><img src="/2017/07/26/AddressSanitizer/instrumentGlobal_actural.png" alt="instrumentGlobal_actural"><br><img src="/2017/07/26/AddressSanitizer/register_unregisterGlobal.png" alt="register_unregisterGlobal">  </p>
-<p>具体的Poison RedZone和Poison GlobalVariable的实现在Runtime-library中：<br><img src="/2017/07/26/AddressSanitizer/Register.png" alt="RegisterGlobal"><br><img src="/2017/07/26/AddressSanitizer/unregisterGlobal.png" alt="UnRegisterGlobal"></p>
-<h3 id="Stack-Variable"><a href="#Stack-Variable" class="headerlink" title="Stack Variable"></a>Stack Variable</h3><p>Stack Variable保存在栈区，在栈中的数据我们需要控制好变量的声明周期(lifetime),当调用一个函数时，会开辟一个栈，栈中的数据会有相应的redzone和shadow memory，并将redzone的shadow memory Poison，当函数结束（正常返回，异常），栈被销毁，需要将数据和redzone清空，其相应的shadow memory也要UnPoison掉。</p>
-<p>对于Stack Variable，AddressSanitizer算法中实现了AddressSanitizer类，该类是继承了llvm的FunctionPass，该Pass能够处理每一个函数，在处理每个函数的时候，处理每一个load，store等能够访问内存的指令，在这些指令执行前进行插桩，看其访问的内存是不是被poison。</p>
-<p>下面我们主要看一下AddressSanitizer::runOnFunction(Module &amp;M)函数中主要的插桩过程。</p>
-<p><img src="/2017/07/26/AddressSanitizer/stack_instrument.png" alt="stackInstrument"></p>
-<p>在每次访问内存时，都会查看影子内存的值，看其是否是0，如果是0则表示都能访问具体的插桩在instrumentMop函数中，</p>
-<p><img src="/2017/07/26/AddressSanitizer/instrumentMop.png" alt="instrumentMop"></p>
-<p>其中具体的处理过程在instrumentAddress函数中：</p>
-<p><img src="/2017/07/26/AddressSanitizer/doInstrument.png" alt="instrumentAddress"></p>
-<h3 id="Heap-Variable"><a href="#Heap-Variable" class="headerlink" title="Heap Variable"></a>Heap Variable</h3><p>Heap Variable保存在堆区，其分配的函数是malloc函数，该部分的主要代码在runtime-library中，该库中主要是先将malloc的库函数hook住，然后自己定义malloc函数，定义分配策略。</p>
-<p><img src="/2017/07/26/AddressSanitizer/hookFunction.png" alt="hookFunction"></p>
-<p>具体的分配策略定义在compiler-rt/lib/asan/asan-allocator.cc文件中，感兴趣可以看一下。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h2 id=&quot;AddressSanitizer简介&quot;&gt;&lt;a href=&quot;#AddressSanitizer简介&quot; class=&quot;headerlink&quot; title=&quot;AddressSanitizer简介&quot;&gt;&lt;/a&gt;AddressSanitizer简介&lt;/h2&gt;&lt;p&gt;Addres
-    
-    </summary>
-    
-      <category term="LLVM" scheme="http://bin2415.github.io/categories/LLVM/"/>
-    
-    
-      <category term="LLVM" scheme="http://bin2415.github.io/tags/LLVM/"/>
-    
-      <category term="Sanitizer" scheme="http://bin2415.github.io/tags/Sanitizer/"/>
     
   </entry>
   
