@@ -148,19 +148,19 @@
 
 
 
-  <meta name="description" content="前言最近和jaguo在给南京大学软件安全课程出Buffer Overflow实验的时候，发现了出现shellcode exit normally的情况，但是并没有发现启动了新的shell。 漏洞程序1234567891011121314151617181920212223// buf2.c// gcc −z execstack −o buf buf2#include &amp;lt;stdlib.h&amp;gt">
+  <meta name="description" content="前言最近和jaguo在给南京大学软件安全课程出Buffer Overflow实验的时候，发现了出现shellcode exit normally的情况，但是并没有”发现”启动了新的shell。 漏洞程序1234567891011121314151617181920212223// buf2.c// gcc −z execstack −o buf buf2#include &amp;lt;stdlib.h&amp;">
 <meta name="keywords" content="exploit">
 <meta property="og:type" content="article">
 <meta property="og:title" content="shellcode exit normally">
 <meta property="og:url" content="http://bin2415.github.io/2019/03/22/shellcode-exit/index.html">
 <meta property="og:site_name" content="PCB博客">
-<meta property="og:description" content="前言最近和jaguo在给南京大学软件安全课程出Buffer Overflow实验的时候，发现了出现shellcode exit normally的情况，但是并没有发现启动了新的shell。 漏洞程序1234567891011121314151617181920212223// buf2.c// gcc −z execstack −o buf buf2#include &amp;lt;stdlib.h&amp;gt">
+<meta property="og:description" content="前言最近和jaguo在给南京大学软件安全课程出Buffer Overflow实验的时候，发现了出现shellcode exit normally的情况，但是并没有”发现”启动了新的shell。 漏洞程序1234567891011121314151617181920212223// buf2.c// gcc −z execstack −o buf buf2#include &amp;lt;stdlib.h&amp;">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://bin2415.github.io/2019/03/22/shellcode-exit/shell_exit.png">
-<meta property="og:updated_time" content="2019-03-22T05:40:19.897Z">
+<meta property="og:updated_time" content="2019-03-22T05:44:56.812Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="shellcode exit normally">
-<meta name="twitter:description" content="前言最近和jaguo在给南京大学软件安全课程出Buffer Overflow实验的时候，发现了出现shellcode exit normally的情况，但是并没有发现启动了新的shell。 漏洞程序1234567891011121314151617181920212223// buf2.c// gcc −z execstack −o buf buf2#include &amp;lt;stdlib.h&amp;gt">
+<meta name="twitter:description" content="前言最近和jaguo在给南京大学软件安全课程出Buffer Overflow实验的时候，发现了出现shellcode exit normally的情况，但是并没有”发现”启动了新的shell。 漏洞程序1234567891011121314151617181920212223// buf2.c// gcc −z execstack −o buf buf2#include &amp;lt;stdlib.h&amp;">
 <meta name="twitter:image" content="http://bin2415.github.io/2019/03/22/shellcode-exit/shell_exit.png">
 
 
@@ -435,7 +435,7 @@
                 
               
 
-              <time title="Created: 2019-03-22 12:46:12 / Modified: 13:40:19" itemprop="dateCreated datePublished" datetime="2019-03-22T12:46:12+08:00">2019-03-22</time>
+              <time title="Created: 2019-03-22 12:46:12 / Modified: 13:44:56" itemprop="dateCreated datePublished" datetime="2019-03-22T12:46:12+08:00">2019-03-22</time>
             
 
             
@@ -473,7 +473,7 @@
       
 
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近和<a href="http://jaguo.github.io" target="_blank" rel="noopener">jaguo</a>在给南京大学软件安全课程出Buffer Overflow实验的时候，发现了出现shellcode exit normally的情况，但是并没有发现启动了新的shell。</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近和<a href="http://jaguo.github.io" target="_blank" rel="noopener">jaguo</a>在给南京大学软件安全课程出Buffer Overflow实验的时候，发现了出现shellcode exit normally的情况，但是并没有”发现”启动了新的shell。</p>
 <h2 id="漏洞程序"><a href="#漏洞程序" class="headerlink" title="漏洞程序"></a>漏洞程序</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// buf2.c</span></span><br><span class="line"><span class="comment">// gcc −z execstack −o buf buf2</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vul</span><span class="params">(<span class="keyword">char</span> *str)</span></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> buffer[<span class="number">36</span>];</span><br><span class="line">    <span class="comment">// buffer overflow</span></span><br><span class="line">    <span class="built_in">strcpy</span>(buffer, str);</span><br><span class="line">&#125;</span><br><span class="line">buf2 . c −fno−<span class="built_in">stack</span>−protector</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span>&#123;</span><br><span class="line">    <span class="keyword">char</span> str[<span class="number">128</span>];</span><br><span class="line">    <span class="keyword">int</span> n = read(<span class="number">0</span>， str, <span class="number">128</span>);</span><br><span class="line">    <span class="keyword">if</span>(n &lt; <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Read Error\n"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    vul(str);</span><br><span class="line">    <span class="built_in">printf</span>(”Returned Properly\n”);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>我们一开始的设计是漏洞程序如上所示，由于需要注入shellcode，有些是不可见字符，所以我们一开始设计将shellcode写入到一个文件attack_input中，然后通过重定位将输入定位到attack_input文件中，可以将shellcode传给输入。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./buf2 &lt; attack_input</span><br></pre></td></tr></table></figure>
