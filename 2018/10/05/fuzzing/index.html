@@ -156,14 +156,14 @@
 <meta property="og:site_name" content="PCB博客">
 <meta property="og:description" content="Interesting Fuzzing  Coverage-based Greybox Fuzzing as Markov Chain(CCS 16) T-Fuzz: fuzzing by program transformation(oakland 18) CollAFL: Path Sensitive Fuzzing(oakland 18) Driller: Argumenting Fuzz">
 <meta property="og:locale" content="default">
-<meta property="og:image" content="https://github.com/bin2415/fuzzing_paper/blob/master/image/s1.png">
-<meta property="og:image" content="https://github.com/bin2415/fuzzing_paper/blob/master/image/afl_overview.png">
-<meta property="og:image" content="https://github.com/bin2415/fuzzing_paper/blob/master/image/hawkeye_overview.png">
-<meta property="og:updated_time" content="2019-06-18T22:32:36.508Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/bin2415/fuzzing_paper/master/image/s1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/bin2415/fuzzing_paper/master/image/afl_overview.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/bin2415/fuzzing_paper/master/image/hawkeye_overview.png">
+<meta property="og:updated_time" content="2019-06-18T22:35:21.885Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="fuzzing related work">
 <meta name="twitter:description" content="Interesting Fuzzing  Coverage-based Greybox Fuzzing as Markov Chain(CCS 16) T-Fuzz: fuzzing by program transformation(oakland 18) CollAFL: Path Sensitive Fuzzing(oakland 18) Driller: Argumenting Fuzz">
-<meta name="twitter:image" content="https://github.com/bin2415/fuzzing_paper/blob/master/image/s1.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/bin2415/fuzzing_paper/master/image/s1.png">
 
 
 
@@ -454,7 +454,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-06-18 18:32:36" itemprop="dateModified" datetime="2019-06-18T18:32:36-04:00">2019-06-18</time>
+                <time title="Modified: 2019-06-18 18:35:21" itemprop="dateModified" datetime="2019-06-18T18:35:21-04:00">2019-06-18</time>
               
             
           </span>
@@ -604,7 +604,7 @@
 <p>其中上面的prev_location右移一位主要是为了区分路径A-&gt;B和B-&gt;A。由于每个basic block的id是随机分配的，所以这种hash方法很容易产生collision，特别当程序比较大的时候，collision rate也越大。</p>
 <h3 id="CollAFL’s-Solution-to-Hash-Collision"><a href="#CollAFL’s-Solution-to-Hash-Collision" class="headerlink" title="CollAFL’s Solution to Hash Collision"></a>CollAFL’s Solution to Hash Collision</h3><p>CollAFL通过三种方式来解决hash collision:</p>
 <ol>
-<li><img src="https://github.com/bin2415/fuzzing_paper/blob/master/image/s1.png" alt="公式1"><br>通过贪心算法，为每个basic block分配x和y的值，保证每条edge计算的hash值都是不同的。</li>
+<li><img src="https://raw.githubusercontent.com/bin2415/fuzzing_paper/master/image/s1.png" alt="公式1"><br>通过贪心算法，为每个basic block分配x和y的值，保证每条edge计算的hash值都是不同的。</li>
 <li>如果每个basic block只有一个前继basic block，即只有一条边到达该basic block，所以只需要将该basic block的id来表示该edge即可。</li>
 <li>如果前面两种方法无法解决，则动态的时候为每条边分配不同的id。</li>
 </ol>
@@ -635,7 +635,7 @@
 <li><a href="https://github.com/bin2415/fuzzing_paper/blob/master/paper/ccs17_prefFuzz.pdf" target="_blank" rel="noopener">paper</a></li>
 <li><a href="https://github.com/sslab-gatech/perf-fuzz" target="_blank" rel="noopener">source code</a></li>
 </ul>
-<h3 id="AFL-Overview"><a href="#AFL-Overview" class="headerlink" title="AFL Overview"></a>AFL Overview</h3><p><img src="https://github.com/bin2415/fuzzing_paper/blob/master/image/afl_overview.png" alt="afl-overview"></p>
+<h3 id="AFL-Overview"><a href="#AFL-Overview" class="headerlink" title="AFL Overview"></a>AFL Overview</h3><p><img src="https://raw.githubusercontent.com/bin2415/fuzzing_paper/master/image/afl_overview.png" alt="afl-overview"></p>
 <ul>
 <li>Mutating inputs(1). AFL uses an evolutionary coverage-based mutation technique to generate test cases for discovering new execution paths of the target application. In AFL, an execution path is represented as a sequence of taken branches(i.e., a coverage bitmap) in the target instance for a given input. To track whether a branch is taken, AFL instruments every conditional branch and function entry of the target application at the time of compilation.</li>
 <li>Launching the target application(2). Traditional fuzzers call <em>fork()</em> followed by <em>execve()</em> to launch an instance of the target application. This process occurs in every fuzzing loop to deliver a new input to the target application. It is not only time consuming, but also a non-scalable operation. Previous research shows that the majority of fuzzing execution explores only the shallow part of the code and terminates quickly(e.g., because of invalid input format), which results in frequent executions for the input cases. Thus, the cost of fork() and execve() dominates the cost of fuzzing. To mitigate this cost, AFL introduced a fork server, which is similar to a Zygote process in Android that eliminates the heavyweight execve() system call. After instantiating a target application, the fork server waits for a starting signal sent over the pip from the AFL instance. Upon receiving the request, it first clones the already-loaded program using fork() and the child process continues the execution of the original target code immediately from the entry point(i.e., main) with a given input generated for the current fuzzing loop. The parent process waits for the termination of its child, and then informs the AFL process. The AFL process collects the branch coverage of the past execution, and maintains the test input if it is interesting.</li>
@@ -720,7 +720,7 @@
 <li>For P3, a moderation to the current power scheduling is required. The distance-guided seed prioritization is also needed.</li>
 <li>For P4, the DGF needs an adaptive mutation strategy, which optimally applies the fine-grained abd ciarse-graubed nytatuibs wgeb tge dustabce between the seed to the targets is different.</li>
 </ul>
-<h3 id="Hawkeye’s-Design"><a href="#Hawkeye’s-Design" class="headerlink" title="Hawkeye’s Design"></a>Hawkeye’s Design</h3><p><img src="https://github.com/bin2415/fuzzing_paper/blob/master/image/hawkeye_overview.png" alt="overview"></p>
+<h3 id="Hawkeye’s-Design"><a href="#Hawkeye’s-Design" class="headerlink" title="Hawkeye’s Design"></a>Hawkeye’s Design</h3><p><img src="https://raw.githubusercontent.com/bin2415/fuzzing_paper/master/image/hawkeye_overview.png" alt="overview"></p>
 <p>During fuzzing, the fuzzer selects a seed from a priority seed queue. The fuzzer applies a power scheduling against the seed with the goal of giving those seeds that are considered to be “closer” to the target sites more mutation chances, i.e, energy. Specifically, this is achieved through a power function, which is a combination of the <em>covered function similarity</em> and the <em>basic block trace distance</em>. For each newly generated test seed during mutation, after capturing its execution trace, the fuzzer will calculate the covered function similarity and the basic block trace distance based on the utilities. For each input execution trace, its basic block trace distance is calculated as the accumulated basic block level distances divided by the total number of executed basic blocks; and its covered function similarity is calculated based on the overlapping of current executed functions and the target function trace closure, as well as the function level distance.</p>
 <p>After the energy is determined, the fuzzer adaptively allocates mutation budgets on two different categories of mutations according to mutators’ granularities on the seed(coarse-grained mutations and fine-grained mutations). Afterwards, the fuzzer evaluates the newly generated seeds to prioritize those that have more energy or that have reached the target functions.</p>
 <h1 id="Fuzzing-Machine-Learning-Model"><a href="#Fuzzing-Machine-Learning-Model" class="headerlink" title="Fuzzing Machine Learning Model"></a>Fuzzing Machine Learning Model</h1><h2 id="TensorFuzz-Debugging-Neural-Networks-with-Coverage-Guided-Fuzzing-18"><a href="#TensorFuzz-Debugging-Neural-Networks-with-Coverage-Guided-Fuzzing-18" class="headerlink" title="TensorFuzz: Debugging Neural Networks with Coverage-Guided Fuzzing(18)"></a>TensorFuzz: Debugging Neural Networks with Coverage-Guided Fuzzing(18)</h2><ul>
