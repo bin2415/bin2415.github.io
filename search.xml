@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[git subtree]]></title>
+    <url>%2F2019%2F06%2F18%2Fgit-subtree%2F</url>
+    <content type="text"><![CDATA[Add a remote repo1git remote add -f repo-name git@github.com:repo.git Merge the repo into the local git project1git merge -s ours --no-commit --allow-unrelated-histories repo-name/master Create a new directory named pro-name and copy the git history of remote repo project into it.1git read-tree --prefix=pro-name/ -u spoon-knife/master Commit the changes to keep them safe1git commit -m &quot;subtree merged&quot; Synchronizing with remote repo1git pull -s subtree repo-name branchname However, I met overlaps with problem. And need add -Xsubtree to specify the directory where the sub-project should pull. 1git pull -s subtree -Xsubtree=pro-name repo-name branchname Reference About Git subtree merges Resolving Git Subtree Merge - Entry Overlaps Error - Cannot Bind]]></content>
+      <tags>
+        <tag>tool</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[Compile Kernel using llvm/clang]]></title>
     <url>%2F2019%2F04%2F16%2Fllvm-kernel%2F</url>
     <content type="text"><![CDATA[Reference clang-kernel-build ClangBuiltLinux Tutorial Start with an empty dir 123git clone https://github.com/ramosian-glider/clang-kernel-build.gitcd clang-kernel-buildexport WORLD=`pwd` Install Clang from Chromium: 1234567cd $WORLD# Instruction taken from http://llvm.org/docs/LibFuzzer.htmlmkdir TMP_CLANGcd TMP_CLANGgit clone https://chromium.googlesource.com/chromium/src/tools/clangcd ..TMP_CLANG/clang/scripts/update.py (To update Clang later on, do (cd TMP_CLANG/clang ; git pull) and run update.py again.) Clone the linux source tree 1234cd $WORLDgit clone git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.gitcd linux-stablegit reset --hard v4.16 (Note that kernel version v4.16 or older is fine, otherwise the latest clang lacks asm-goto support(llvm already support))ref1 and ref2。 Configure and build the kernel 123456cd $WORLDexport CLANG_PATH=`pwd`/third_party/llvm-build/Release+Asserts/bin/cd linux-stablemake CC=$CLANG_PATH/clang defconfigmake CC=$CLANG_PATH/clang kvmconfigmake CC=$CLANG_PATH/clang -j64 2&gt;&amp;1 | tee build.log Set up the VM 1234cd $WORLDwget https://raw.githubusercontent.com/google/sanitizers/master/address-sanitizer/kernel_buildbot/create_os_image.sh# create_os_image.sh requires sudosh create_os_image.sh Run the VM 1234cd $WORLD./run_qemu.sh# in a separate console:ssh -i ssh/id_rsa -p 10023 root@localhost Compile with KASAN Edit .config file and add 1CONFIG_KASAN=y Regenerage config file: 1make oldconfig Problemsunable reference to bcmpSolutions: reference Add ‘-fno-builtin-bcmp’ to CLANG_FLAGS in Makefile. booting problem when compiling kernel with clang kasan.Solutions: reference]]></content>
@@ -92,8 +100,8 @@
         <category>fuzzing</category>
       </categories>
       <tags>
-        <tag>afl</tag>
         <tag>fuzzing</tag>
+        <tag>afl</tag>
       </tags>
   </entry>
   <entry>

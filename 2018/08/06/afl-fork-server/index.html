@@ -149,7 +149,7 @@
 
 
   <meta name="description" content="前言fuzz解析数据的库函数的方法一般是找一个简单的二进制来测试库函数的功能，通过生成不同的输入来不断地运行该二进制程序。一般是通过fork和execve来生成子进程运行目标二进制程序，fuzz程序通过waitpid()函数来等待子进程退出，如果子进程发出SIGSEGV或SIGABORT等信号，则证明子进程崩溃了，此时可能会发生了memory corruption bugs。然而没有一个输入，就调">
-<meta name="keywords" content="afl,fuzzing">
+<meta name="keywords" content="fuzzing,afl">
 <meta property="og:type" content="article">
 <meta property="og:title" content="afl fork server">
 <meta property="og:url" content="http://bin2415.github.io/2018/08/06/afl-fork-server/index.html">
@@ -535,9 +535,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/afl/" rel="tag"># afl</a>
-          
             <a href="/tags/fuzzing/" rel="tag"># fuzzing</a>
+          
+            <a href="/tags/afl/" rel="tag"># afl</a>
           
         </div>
       
@@ -634,7 +634,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">36</span>
+                    <span class="site-state-item-count">37</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -752,7 +752,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">30</span>
+                      
+                    
+                    <span class="site-state-item-count">31</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
