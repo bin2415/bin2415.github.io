@@ -51,7 +51,7 @@
     <link href="http://bin2415.github.io/2019/04/16/llvm-kernel/"/>
     <id>http://bin2415.github.io/2019/04/16/llvm-kernel/</id>
     <published>2019-04-16T20:20:07.000Z</published>
-    <updated>2019-04-16T20:47:19.798Z</updated>
+    <updated>2019-06-18T22:41:16.539Z</updated>
     
     <content type="html"><![CDATA[<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://github.com/ramosian-glider/clang-kernel-build" target="_blank" rel="noopener">clang-kernel-build</a></li>
@@ -91,9 +91,27 @@
   <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make oldconfig</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
-<h2 id="Problems"><a href="#Problems" class="headerlink" title="Problems"></a>Problems</h2><h3 id="unable-reference-to-bcmp"><a href="#unable-reference-to-bcmp" class="headerlink" title="unable reference to bcmp"></a>unable reference to bcmp</h3><p>Solutions: <a href="https://patchwork.kernel.org/patch/10850043/" target="_blank" rel="noopener">reference</a></p>
-<p>Add ‘-fno-builtin-bcmp’ to CLANG_FLAGS in Makefile.</p>
-<h3 id="booting-problem-when-compiling-kernel-with-clang-kasan"><a href="#booting-problem-when-compiling-kernel-with-clang-kasan" class="headerlink" title="booting problem when compiling kernel with clang kasan."></a>booting problem when compiling kernel with clang kasan.</h3><p>Solutions: <a href="https://lore.kernel.org/lkml/4ad725cc903f8534f8c8a60f0daade5e3d674f8d.1523554166.git.andreyknvl@google.com/" target="_blank" rel="noopener">reference</a></p>
+<h2 id="Problems"><a href="#Problems" class="headerlink" title="Problems"></a>Problems</h2><h3 id="unable-reference-to-bcmp"><a href="#unable-reference-to-bcmp" class="headerlink" title="unable reference to bcmp"></a>unable reference to <code>bcmp</code></h3><p>Solutions: <a href="https://patchwork.kernel.org/patch/10850043/" target="_blank" rel="noopener">reference</a></p>
+<p>Add ‘-fno-builtin-bcmp’ to CLANG_FLAGS</p>
+<h3 id="compiler-lacks-asm-goto-support"><a href="#compiler-lacks-asm-goto-support" class="headerlink" title="compiler lacks asm-goto support"></a>compiler lacks asm-goto support</h3><p>reference: <a href="http://lists.llvm.org/pipermail/llvm-dev/2018-October/127239.html" target="_blank" rel="noopener">ref1</a>, <a href="http://clang-developers.42468.n3.nabble.com/Building-linux-kernel-with-clang-td4064258.html#a4064259" target="_blank" rel="noopener">ref2</a>, <a href="https://www.phoronix.com/scan.php?page=news_item&amp;px=LLVM-Asm-Goto-Merged" target="_blank" rel="noopener">ref3</a></p>
+<p>While the LLVM has supported asm-goto already, it seems that clang doesn’t support asm-goto.</p>
+<p>kernel v4.16及之前版本不会有asm-goto的问题</p>
+<h3 id="booting-problem-when-compiling-kernel-with-clang-kasan"><a href="#booting-problem-when-compiling-kernel-with-clang-kasan" class="headerlink" title="booting problem when compiling kernel with clang kasan."></a>booting problem when compiling kernel with clang kasan.</h3><p>Solutions: <a href="https://lore.kernel.org/lkml/4ad725cc903f8534f8c8a60f0daade5e3d674f8d.1523554166.git.andreyknvl@google.com/" target="_blank" rel="noopener">ref</a></p>
+<h3 id="some-configuration-may-cause-clang-build-error"><a href="#some-configuration-may-cause-clang-build-error" class="headerlink" title="some configuration may cause clang build error"></a>some configuration may cause clang build error</h3><ul>
+<li>Add CONFIG_KALLSYMS_ALL=y cause boot Failed to start raise network interfaces.</li>
+<li>Add CONFIG_KASAN_INLINE=y cause boot Failed to start raise network interfaces.</li>
+<li><p>Add CONFIG_DEBUG_VM, the boot will hang at</p>
+  <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[    0.000000] Booting paravirtualized kernel on KVM</span><br><span class="line">[    0.000000] clocksource: refined-jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 1910969940391419 ns</span><br><span class="line">[    0.000000] setup_percpu: NR_CPUS:64 nr_cpumask_bits:64 nr_cpu_ids:4 nr_node_ids:1</span><br><span class="line">[    0.000000] percpu: Embedded 53 pages/cpu @        (ptrval) s178760 r8192 d30136 u524288</span><br><span class="line">[    0.000000] KVM setup async PF for cpu 0</span><br><span class="line">[    0.000000] kvm-stealtime: cpu 0, msr 3641e3c0</span><br><span class="line">[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 257895</span><br><span class="line">[    0.000000] Policy zone: DMA32</span><br><span class="line">[    0.000000] Kernel command line: console=ttyS0 root=/dev/sda earlyprintk=serial</span><br><span class="line">[    0.000000] Memory: 825300K/1048052K available (26636K kernel code, 1382K rwdata, 4256K rodata, 1804K init, 21016K bss, 222752K reserved, 0K cma-reserved)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="clang-error-unkown-argument-‘–mpreferred-stack-boundary-4’"><a href="#clang-error-unkown-argument-‘–mpreferred-stack-boundary-4’" class="headerlink" title="clang error: unkown argument: ‘–mpreferred-stack-boundary=4’"></a>clang error: unkown argument: ‘–mpreferred-stack-boundary=4’</h3><p><a href="https://lkml.org/lkml/2017/6/12/965" target="_blank" rel="noopener">link</a></p>
+<p>in drivers/gpu/drm/amd/display/dc/cals/Makefile and drivers/gpu/drm/amd/display/dc/dml/Makefile file, they specify CFLAGS with mpreferred-stack-boundary, which is not supported by clang. Clang has the flag -mstack-alignment=4 that equals. So replace them<br>with -mstack-alignment=4 in these two files. </p>
+<h3 id="clang-does-not-support-vlais"><a href="#clang-does-not-support-vlais" class="headerlink" title="clang does not support vlais"></a>clang does not support vlais</h3><p>comment out CONFIG_EXOFS_FS</p>
+<p><a href="https://lkml.org/lkml/2017/11/22/943" target="_blank" rel="noopener">link</a></p>
+<h3 id="Undefined-reference-in-amdgpu-ko"><a href="#Undefined-reference-in-amdgpu-ko" class="headerlink" title="Undefined reference in amdgpu.ko"></a>Undefined reference in amdgpu.ko</h3><ul>
+<li><a href="https://github.com/ClangBuiltLinux/linux/issues/327" target="_blank" rel="noopener">link</a></li>
+<li><a href="https://cgit.freedesktop.org/~agd5f/linux/commit/?id=10117450735c7a7c0858095fb46a860e7037cb9a" target="_blank" rel="noopener">patch</a></li>
+</ul>
 ]]></content>
     
     <summary type="html">
