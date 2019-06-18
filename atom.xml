@@ -299,7 +299,7 @@
     <link href="http://bin2415.github.io/2018/10/05/fuzzing/"/>
     <id>http://bin2415.github.io/2018/10/05/fuzzing/</id>
     <published>2018-10-05T19:09:11.000Z</published>
-    <updated>2019-03-19T08:30:44.195Z</updated>
+    <updated>2019-06-18T22:32:36.508Z</updated>
     
     <content type="html"><![CDATA[<ul>
 <li><p><a href="#interesting-fuzzing">Interesting Fuzzing</a></p>
@@ -311,7 +311,7 @@
 <li><a href="#vuzzer-application-aware-evolutionary-fuzzingndss-17">VUzzer: Application-aware Evolutionary Fuzzing(ndss 17)</a></li>
 <li><a href="#angora-efficient-fuzzing-by-principled-searchoakland-18">Angora: Efficient Fuzzing by Principled Search(oakland 18)</a>)</li>
 <li><a href="#designing-new-operating-primitives-to-improve-fuzzing-performanceccs-17">Designing New Operating Primitives to Improve Fuzzing Performance(CCS 17)</a></li>
-<li><a href="#qsym-a-practical-concolic-execution-engine-tailored-for-hybrid-fuzzingusenix-18">QSYM: A Practical Concolic Execution Engine Tailored for Hybrid Fuzzing(Usenix 18)</a></li>
+<li><a href="#qsym-a-practical-concolic-execution-engine-tailored-for-hybrid-fuzzingusenix-18">QSYM: A Practical Concolic Execution Engine Tailored for Hybrid Fuzzing(Usenix Security 18)</a></li>
 <li><a href="#fairfuzz-a-targeted-mutation-strategy-for-increasing-greybox-fuzz-testing-coveragease-18">FairFuzz: A Targeted Mutation Strategy for Increasing Greybox Fuzz Testing Coverage(ASE 18)</a></li>
 <li><a href="#full-speed-fuzzing-reducing-fuzzing-overhead-through-coverage-guided-tracingoakland-19">Full-speed Fuzzing: Reducing Fuzzing Overhead through Coverage-guided Tracing(oakland 19)</a></li>
 <li><a href="#profuzzer-on-the-fly-input-type-probing-for-better-zero-day-vulnerability-discoveryoakland-19">ProFuzzer: On-the-fly Input Type Probing for Better Zero-day Vulnerability Discovery(oakland 19)</a></li>
@@ -319,6 +319,9 @@
 <li><a href="#redqueen-fuzzing-with-input-to-state-correspondencendss-19">REDQUEEN: Fuzzing with Input-to-State Correspondence(NDSS 19)</a></li>
 <li><a href="#nautilus-fishing-for-deep-bugs-with-grammarsndss-19">NAUTILUS: Fishing for Deep Bugs with Grammars(NDSS 19)</a> </li>
 <li><a href="#send-hardest-problems-my-way-probabilistic-path-prioritization-for-hybrid-fuzzingndss-19">Send Hardest Problems My Way: Probabilistic Path Prioritization for Hybrid Fuzzing(NDSS 19)</a>   </li>
+<li><a href="#enfuzz-ensemble-fuzzing-with-seed-synchronization-among-diverse-fuzzersusenix-security-19">EnFuzz: Ensemble Fuzzing with Seed Synchronization among Diverse Fuzzers(Usenix Security 19)</a></li>
+<li><a href="#mopt-optimize-mutation-scheduling-for-fuzzersusenix-security-19">MOPT: Optimize Mutation Scheduling for Fuzzers(Usenix Security 19)</a></li>
+<li><a href="#grimoire-synthesizing-structure-while-fuzzingusenix-security-19">GRIMOIRE: Synthesizing Structure while Fuzzing(Usenix Security 19)</a></li>
 </ul>
 </li>
 <li><p><a href="#directed-fuzzing">Directed Fuzzing</a></p>
@@ -339,6 +342,18 @@
 <li><a href="#kafl-hardware-assisted-feedback-fuzzing-for-os-kernelsusenix-security-17">kAFL: Hardware-Assisted Feedback Fuzzing for OS Kernels(Usenix Security 17)</a></li>
 <li><a href="#fuzzing-file-systems-via-two-dimensional-input-space-explorationoakland-19">Fuzzing File Systems via Two-Dimensional Input Space Exploration(oakland 19)</a></li>
 <li><a href="#periscope-an-effective-probing-and-fuzzing-framework-for-the-hardware-os-boundaryndss-19">PeriScope: An Effective Probing and Fuzzing Framework for the Hardware-OS Boundary(NDSS 19)</a></li>
+</ul>
+</li>
+<li><p><a href="#anti-fuzzing">Anti-Fuzzing</a></p>
+<ul>
+<li><a href="#fuzzification-anti-fuzzing-techniquesusenix-19">FUZZIFICATION: Anti-Fuzzing Techniques(Usenix Security 19)</a></li>
+<li><a href="#antifuzz-impeding-fuzzing-audits-of-binary-executablesusenix-19">ANTIFUZZ: Impeding Fuzzing Audits of Binary Executables(Usenix Security 19)</a></li>
+</ul>
+</li>
+<li><p><a href="#iot-fuzzing">IoT Fuzzing</a></p>
+<ul>
+<li><a href="#iotfuzzer-discovering-memory-corruptions-in-iot-through-app-based-fuzzingndss-18">IoTFuzzer: Discovering Memory Corruptions in IoT Through App-based Fuzzing(NDSS 18)</a></li>
+<li><a href="#firm-afl-high-throughput-greybox-fuzzing-of-iot-firmware-via-augmented-process-emulationusenix-security-19">FIRM-AFL: High-Throughput Greybox Fuzzing of IoT Firmware via Augmented Process Emulation(Usenix Security 19)</a></li>
 </ul>
 </li>
 <li><p><a href="#evaluate-fuzzing">Evaluate Fuzzing</a></p>
@@ -385,7 +400,7 @@
 <p>其中上面的prev_location右移一位主要是为了区分路径A-&gt;B和B-&gt;A。由于每个basic block的id是随机分配的，所以这种hash方法很容易产生collision，特别当程序比较大的时候，collision rate也越大。</p>
 <h3 id="CollAFL’s-Solution-to-Hash-Collision"><a href="#CollAFL’s-Solution-to-Hash-Collision" class="headerlink" title="CollAFL’s Solution to Hash Collision"></a>CollAFL’s Solution to Hash Collision</h3><p>CollAFL通过三种方式来解决hash collision:</p>
 <ol>
-<li><img src="/2018/10/05/fuzzing/./image/s1.png" alt="公式1"><br>通过贪心算法，为每个basic block分配x和y的值，保证每条edge计算的hash值都是不同的。</li>
+<li><img src="https://github.com/bin2415/fuzzing_paper/blob/master/image/s1.png" alt="公式1"><br>通过贪心算法，为每个basic block分配x和y的值，保证每条edge计算的hash值都是不同的。</li>
 <li>如果每个basic block只有一个前继basic block，即只有一条边到达该basic block，所以只需要将该basic block的id来表示该edge即可。</li>
 <li>如果前面两种方法无法解决，则动态的时候为每条边分配不同的id。</li>
 </ol>
@@ -461,9 +476,21 @@
 <h2 id="Send-Hardest-Problems-My-Way-Probabilistic-Path-Prioritization-for-Hybrid-Fuzzing-NDSS-19"><a href="#Send-Hardest-Problems-My-Way-Probabilistic-Path-Prioritization-for-Hybrid-Fuzzing-NDSS-19" class="headerlink" title="Send Hardest Problems My Way: Probabilistic Path Prioritization for Hybrid Fuzzing(NDSS 19)"></a>Send Hardest Problems My Way: Probabilistic Path Prioritization for Hybrid Fuzzing(NDSS 19)</h2><ul>
 <li><a href="https://www.ndss-symposium.org/wp-content/uploads/2019/02/ndss2019_04A-5_Zhao_paper.pdf" target="_blank" rel="noopener">paper</a></li>
 </ul>
+<h2 id="EnFuzz-Ensemble-Fuzzing-with-Seed-Synchronization-among-Diverse-Fuzzers-Usenix-Security-19"><a href="#EnFuzz-Ensemble-Fuzzing-with-Seed-Synchronization-among-Diverse-Fuzzers-Usenix-Security-19" class="headerlink" title="EnFuzz: Ensemble Fuzzing with Seed Synchronization among Diverse Fuzzers(Usenix Security 19)"></a>EnFuzz: Ensemble Fuzzing with Seed Synchronization among Diverse Fuzzers(Usenix Security 19)</h2><ul>
+<li><a href="https://github.com/bin2415/fuzzing_paper/tree/master/paper/usenix19_enfuzz.pdf" target="_blank" rel="noopener">paper</a></li>
+<li><a href="https://github.com/enfuzz/enfuzz" target="_blank" rel="noopener">code</a></li>
+</ul>
+<h2 id="MOPT-Optimize-Mutation-Scheduling-for-Fuzzers-Usenix-Security-19"><a href="#MOPT-Optimize-Mutation-Scheduling-for-Fuzzers-Usenix-Security-19" class="headerlink" title="MOPT: Optimize Mutation Scheduling for Fuzzers(Usenix Security 19)"></a>MOPT: Optimize Mutation Scheduling for Fuzzers(Usenix Security 19)</h2><ul>
+<li><a href="https://github.com/bin2415/fuzzing_paper/tree/master/paper/usenix19_mopt.pdf" target="_blank" rel="noopener">paper</a></li>
+<li><a href="https://github.com/puppet-meteor/MOpt-AFL" target="_blank" rel="noopener">code</a></li>
+</ul>
+<h2 id="GRIMOIRE-Synthesizing-Structure-while-Fuzzing-Usenix-Security-19"><a href="#GRIMOIRE-Synthesizing-Structure-while-Fuzzing-Usenix-Security-19" class="headerlink" title="GRIMOIRE: Synthesizing Structure while Fuzzing(Usenix Security 19)"></a>GRIMOIRE: Synthesizing Structure while Fuzzing(Usenix Security 19)</h2><ul>
+<li><a href="https://github.com/bin2415/fuzzing_paper/tree/master/paper/usenix19_grimoire.pdf" target="_blank" rel="noopener">paper</a></li>
+<li><a href="https://github.com/RUB-SysSec/grimoire" target="_blank" rel="noopener">code</a></li>
+</ul>
 <h1 id="Directed-Fuzzing"><a href="#Directed-Fuzzing" class="headerlink" title="Directed Fuzzing"></a>Directed Fuzzing</h1><h2 id="Directed-Greybox-Fuzzing-CCS-17"><a href="#Directed-Greybox-Fuzzing-CCS-17" class="headerlink" title="Directed Greybox Fuzzing(CCS 17)"></a>Directed Greybox Fuzzing(CCS 17)</h2><ul>
 <li><a href="https://github.com/bin2415/fuzzing_paper/tree/master/paper/CCS17_aflgo.pdf" target="_blank" rel="noopener">paper</a></li>
-<li><a href="https://github.com/aflgo/aflgo" target="_blank" rel="noopener">source code</a></li>
+<li><a href="https://github.com/aflgo/aflgo" target="_blank" rel="noopener">code</a></li>
 </ul>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">Input: Seed Input S</span><br><span class="line"></span><br><span class="line">repeat</span><br><span class="line">    s = CHOOSENEXT(S)</span><br><span class="line">    p = ASSIGNENERGY(s)    <span class="comment">//This paper focus</span></span><br><span class="line">    <span class="keyword">for</span> i from <span class="number">1</span> to p <span class="keyword">do</span></span><br><span class="line">        s' = MUTATE_INPUT(s)</span><br><span class="line">        <span class="keyword">if</span> t' crashes then</span><br><span class="line">            add s' to Sx</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> ISINTERESTING(s') then</span><br><span class="line">            add s' to S</span><br><span class="line">        end <span class="keyword">if</span></span><br><span class="line">    end <span class="keyword">for</span></span><br><span class="line">until timeout reached <span class="keyword">or</span> <span class="built_in">abort</span>-signal</span><br><span class="line"></span><br><span class="line">Output: Crashing Inputs Sx</span><br></pre></td></tr></table></figure>
 <p>类AFL的fuzzing一般步骤如上所示，该paper主要关注于ASSIGNENERGY(s)这一操作，他们通过对不同的seed s赋予不同的energy，即如果一个seed s’产生的trace距离目标基本块targetB较近，则其energy(p)就较大，基于种子s’进行的变异操作就会变多。所以该paper主要有两个contributation: 设计一套算法计算seed s’产生的trace与targetB的距离；通过模拟退火算法来为每个seed s分配energy。</p>
@@ -513,6 +540,21 @@
 <h2 id="PeriScope-An-Effective-Probing-and-Fuzzing-Framework-for-the-Hardware-OS-Boundary-NDSS-19"><a href="#PeriScope-An-Effective-Probing-and-Fuzzing-Framework-for-the-Hardware-OS-Boundary-NDSS-19" class="headerlink" title="PeriScope: An Effective Probing and Fuzzing Framework for the Hardware-OS Boundary(NDSS 19)"></a>PeriScope: An Effective Probing and Fuzzing Framework for the Hardware-OS Boundary(NDSS 19)</h2><ul>
 <li><a href="https://people.cs.kuleuven.be/~stijn.volckaert/papers/2019_NDSS_PeriScope.pdf" target="_blank" rel="noopener">paper</a></li>
 <li><a href="https://github.com/securesystemslab/periscope" target="_blank" rel="noopener">source code</a></li>
+</ul>
+<h1 id="Anti-Fuzzing"><a href="#Anti-Fuzzing" class="headerlink" title="Anti-Fuzzing"></a>Anti-Fuzzing</h1><h2 id="FUZZIFICATION-Anti-Fuzzing-Techniques-Usenix-19"><a href="#FUZZIFICATION-Anti-Fuzzing-Techniques-Usenix-19" class="headerlink" title="FUZZIFICATION: Anti-Fuzzing Techniques(Usenix 19)"></a>FUZZIFICATION: Anti-Fuzzing Techniques(Usenix 19)</h2><ul>
+<li><a href="https://github.com/bin2415/fuzzing_paper/blob/master/paper/usenix19_antifuzzing.pdf" target="_blank" rel="noopener">paper</a></li>
+<li><a href="https://github.com/sslab-gatech/fuzzification" target="_blank" rel="noopener">source code</a></li>
+</ul>
+<h2 id="ANTIFUZZ-Impeding-Fuzzing-Audits-of-Binary-Executables-Usenix-19"><a href="#ANTIFUZZ-Impeding-Fuzzing-Audits-of-Binary-Executables-Usenix-19" class="headerlink" title="ANTIFUZZ: Impeding Fuzzing Audits of Binary Executables(Usenix 19)"></a>ANTIFUZZ: Impeding Fuzzing Audits of Binary Executables(Usenix 19)</h2><ul>
+<li><a href="https://github.com/bin2415/fuzzing_paper/blob/master/paper/usenix19_antifuzz.pdf" target="_blank" rel="noopener">paper</a></li>
+<li><a href="https://github.com/RUB-SysSec/antifuzz" target="_blank" rel="noopener">data</a></li>
+</ul>
+<h1 id="IoT-Fuzzing"><a href="#IoT-Fuzzing" class="headerlink" title="IoT Fuzzing"></a>IoT Fuzzing</h1><h2 id="IOTFUZZER-Discovering-Memory-Corruptions-in-IoT-Through-App-based-Fuzzing-NDSS-18"><a href="#IOTFUZZER-Discovering-Memory-Corruptions-in-IoT-Through-App-based-Fuzzing-NDSS-18" class="headerlink" title="IOTFUZZER: Discovering Memory Corruptions in IoT Through App-based Fuzzing(NDSS 18)"></a>IOTFUZZER: Discovering Memory Corruptions in IoT Through App-based Fuzzing(NDSS 18)</h2><ul>
+<li><a href="https://github.com/bin2415/fuzzing_paper/blob/master/paper/ndss18_iotfuzzer.pdf" target="_blank" rel="noopener">paper</a></li>
+</ul>
+<h2 id="FIRM-AFL-High-Throughput-Greybox-Fuzzing-of-IoT-Firmware-via-Augmented-Process-Emulation-Usenix-Security-19"><a href="#FIRM-AFL-High-Throughput-Greybox-Fuzzing-of-IoT-Firmware-via-Augmented-Process-Emulation-Usenix-Security-19" class="headerlink" title="FIRM-AFL: High-Throughput Greybox Fuzzing of IoT Firmware via Augmented Process Emulation(Usenix Security 19)"></a>FIRM-AFL: High-Throughput Greybox Fuzzing of IoT Firmware via Augmented Process Emulation(Usenix Security 19)</h2><ul>
+<li><a href="https://github.com/bin2415/fuzzing_paper/blob/master/paper/usenix19_FirmAFL.pdf" target="_blank" rel="noopener">paper</a></li>
+<li><a href="https://github.com/zyw-200/FirmAFL" target="_blank" rel="noopener">code</a></li>
 </ul>
 <h1 id="Evaluate-Fuzzing"><a href="#Evaluate-Fuzzing" class="headerlink" title="Evaluate Fuzzing"></a>Evaluate Fuzzing</h1><h2 id="Evaluating-Fuzz-Testing-CCS-18"><a href="#Evaluating-Fuzz-Testing-CCS-18" class="headerlink" title="Evaluating Fuzz Testing(CCS 18)"></a>Evaluating Fuzz Testing(CCS 18)</h2><ul>
 <li><a href="https://github.com/bin2415/fuzzing_paper/blob/master/paper/ccs18_Evaluating%20Fuzz%20Testing.pdf" target="_blank" rel="noopener">paper</a></li>
