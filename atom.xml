@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://bin2415.github.io/"/>
-  <updated>2019-07-02T14:56:03.722Z</updated>
+  <updated>2019-07-02T15:00:27.177Z</updated>
   <id>http://bin2415.github.io/</id>
   
   <author>
@@ -20,10 +20,10 @@
     <link href="http://bin2415.github.io/2019/07/02/ctr-things/"/>
     <id>http://bin2415.github.io/2019/07/02/ctr-things/</id>
     <published>2019-07-02T14:35:48.000Z</published>
-    <updated>2019-07-02T14:56:03.722Z</updated>
+    <updated>2019-07-02T15:00:27.177Z</updated>
     
     <content type="html"><![CDATA[<h2 id="What-does-the-program-do-before-main-function"><a href="#What-does-the-program-do-before-main-function" class="headerlink" title="What does the program do before main() function"></a>What does the program do before main() function</h2><p>The picture from <a href="http://dbp-consulting.com/tutorials/debugging/linuxProgramStartup.html" target="_blank" rel="noopener">Patrick Horgan</a> describes what will the c program do before main function.</p>
-<p><img src="/2019/07/02/ctr-things/./ctr-things/before_main.png" alt="before main"></p>
+<p><img src="/2019/07/02/ctr-things/before_main.png" alt="before main"></p>
 <h2 id="crt0-o-ctri-o-ctrbegin-o-ctrn-o"><a href="#crt0-o-ctri-o-ctrbegin-o-ctrn-o" class="headerlink" title="crt0.o, ctri.o, ctrbegin.o, ctrn.o"></a>crt0.o, ctri.o, ctrbegin.o, ctrn.o</h2><p>If you compile a c program, the linker will link crt0.o, ctri.o, ctrbegin.o, ctrn.o with the target object together. </p>
 <p>crt0.o contains <code>_start</code> function, it will initialize the process before call <code>main</code> function, it is defined in libc’s crt0.s file.</p>
 <p>According to <a href="https://wiki.osdev.org/Creating_a_C_Library" target="_blank" rel="noopener">osdev</a>, ctri.o defines the header of <code>_init</code> and <code>_fini</code> function, and ctrn.o defines the footer of <code>_init</code> and <code>_fini</code> function. And linker will link ctrbegin.o’s section <code>.init</code> and <code>.fini</code> between ctri.o and ctrn.o</p>
