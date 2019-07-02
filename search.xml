@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[C Programs Before main Function]]></title>
+    <url>%2F2019%2F07%2F02%2Fctr-things%2F</url>
+    <content type="text"><![CDATA[What does the program do before main() functionThe picture from Patrick Horgan describes what will the c program do before main function. crt0.o, ctri.o, ctrbegin.o, ctrn.oIf you compile a c program, the linker will link crt0.o, ctri.o, ctrbegin.o, ctrn.o with the target object together. crt0.o contains _start function, it will initialize the process before call main function, it is defined in libc’s crt0.s file. According to osdev, ctri.o defines the header of _init and _fini function, and ctrn.o defines the footer of _init and _fini function. And linker will link ctrbegin.o’s section .init and .fini between ctri.o and ctrn.o ctrbegin.o also defines some functions such as deregister_tm_clones, register_tm_clones, __do_global_dtors_aux, frame_dummy Reference Linux x86 Program Start Up or - How the heck do we get to main()? osdev: Creating a c library Why does an assembly program only work when linked with crt1.o crti.o and crtn.o?]]></content>
+  </entry>
+  <entry>
     <title><![CDATA[git subtree]]></title>
     <url>%2F2019%2F06%2F18%2Fgit-subtree%2F</url>
     <content type="text"><![CDATA[Add a remote repo1git remote add -f repo-name git@github.com:repo.git Merge the repo into the local git project1git merge -s ours --no-commit --allow-unrelated-histories repo-name/master Create a new directory named pro-name and copy the git history of remote repo project into it.1git read-tree --prefix=pro-name/ -u spoon-knife/master Commit the changes to keep them safe1git commit -m &quot;subtree merged&quot; Synchronizing with remote repo1git pull -s subtree repo-name branchname However, I met overlaps with problem. And need add -Xsubtree to specify the directory where the sub-project should pull. 1git pull -s subtree -Xsubtree=pro-name repo-name branchname Reference About Git subtree merges Resolving Git Subtree Merge - Entry Overlaps Error - Cannot Bind]]></content>
@@ -100,8 +105,8 @@
         <category>fuzzing</category>
       </categories>
       <tags>
-        <tag>fuzzing</tag>
         <tag>afl</tag>
+        <tag>fuzzing</tag>
       </tags>
   </entry>
   <entry>

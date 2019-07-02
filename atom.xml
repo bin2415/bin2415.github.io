@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://bin2415.github.io/"/>
-  <updated>2019-06-18T22:27:18.014Z</updated>
+  <updated>2019-07-02T14:56:03.722Z</updated>
   <id>http://bin2415.github.io/</id>
   
   <author>
@@ -14,6 +14,35 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>C Programs Before main Function</title>
+    <link href="http://bin2415.github.io/2019/07/02/ctr-things/"/>
+    <id>http://bin2415.github.io/2019/07/02/ctr-things/</id>
+    <published>2019-07-02T14:35:48.000Z</published>
+    <updated>2019-07-02T14:56:03.722Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="What-does-the-program-do-before-main-function"><a href="#What-does-the-program-do-before-main-function" class="headerlink" title="What does the program do before main() function"></a>What does the program do before main() function</h2><p>The picture from <a href="http://dbp-consulting.com/tutorials/debugging/linuxProgramStartup.html" target="_blank" rel="noopener">Patrick Horgan</a> describes what will the c program do before main function.</p>
+<p><img src="/2019/07/02/ctr-things/./ctr-things/before_main.png" alt="before main"></p>
+<h2 id="crt0-o-ctri-o-ctrbegin-o-ctrn-o"><a href="#crt0-o-ctri-o-ctrbegin-o-ctrn-o" class="headerlink" title="crt0.o, ctri.o, ctrbegin.o, ctrn.o"></a>crt0.o, ctri.o, ctrbegin.o, ctrn.o</h2><p>If you compile a c program, the linker will link crt0.o, ctri.o, ctrbegin.o, ctrn.o with the target object together. </p>
+<p>crt0.o contains <code>_start</code> function, it will initialize the process before call <code>main</code> function, it is defined in libc’s crt0.s file.</p>
+<p>According to <a href="https://wiki.osdev.org/Creating_a_C_Library" target="_blank" rel="noopener">osdev</a>, ctri.o defines the header of <code>_init</code> and <code>_fini</code> function, and ctrn.o defines the footer of <code>_init</code> and <code>_fini</code> function. And linker will link ctrbegin.o’s section <code>.init</code> and <code>.fini</code> between ctri.o and ctrn.o</p>
+<p>ctrbegin.o also defines some functions such as <code>deregister_tm_clones, register_tm_clones, __do_global_dtors_aux, frame_dummy</code></p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="http://dbp-consulting.com/tutorials/debugging/linuxProgramStartup.html" target="_blank" rel="noopener">Linux x86 Program Start Up or - How the heck do we get to main()?</a></li>
+<li><a href="https://wiki.osdev.org/Creating_a_C_Library" target="_blank" rel="noopener">osdev: Creating a c library</a></li>
+<li><a href="https://stackoverflow.com/questions/18091463/why-does-an-assembly-program-only-work-when-linked-with-crt1-o-crti-o-and-crtn-o" target="_blank" rel="noopener">Why does an assembly program only work when linked with crt1.o crti.o and crtn.o?</a></li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;What-does-the-program-do-before-main-function&quot;&gt;&lt;a href=&quot;#What-does-the-program-do-before-main-function&quot; class=&quot;headerlink&quot; title=&quot;Wh
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>git subtree</title>
@@ -707,9 +736,9 @@
       <category term="fuzzing" scheme="http://bin2415.github.io/categories/fuzzing/"/>
     
     
-      <category term="fuzzing" scheme="http://bin2415.github.io/tags/fuzzing/"/>
-    
       <category term="afl" scheme="http://bin2415.github.io/tags/afl/"/>
+    
+      <category term="fuzzing" scheme="http://bin2415.github.io/tags/fuzzing/"/>
     
   </entry>
   
@@ -1088,38 +1117,6 @@
     <summary type="html">
     
       &lt;h2 id=&quot;问题&quot;&gt;&lt;a href=&quot;#问题&quot; class=&quot;headerlink&quot; title=&quot;问题&quot;&gt;&lt;/a&gt;问题&lt;/h2&gt;&lt;p&gt;最近想使用llvm的pass来对每个函数进行插桩，来模拟stack guard的功能。其中碰到了一个很棘手的问题就是如何通过llvm C A
-    
-    </summary>
-    
-      <category term="llvm" scheme="http://bin2415.github.io/categories/llvm/"/>
-    
-    
-      <category term="llvm" scheme="http://bin2415.github.io/tags/llvm/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>llvm生成rdrand指令</title>
-    <link href="http://bin2415.github.io/2017/11/18/llvm-rdrand/"/>
-    <id>http://bin2415.github.io/2017/11/18/llvm-rdrand/</id>
-    <published>2017-11-18T14:27:03.000Z</published>
-    <updated>2018-12-23T05:33:53.016Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>在做一个project的时候需要使用llvm的pass对函数进行插桩，在每一个函数头之前插入一条指令rdrand %rax，在寻找llvm基本指令之后发现并没有生成随机数的指令，这时就想到了llvm中intrinsic函数中是否有关于rdrand指令的函数，在对llvm整个源码进行扫描之后，发现有x86的rdrand的intrinsic函数:</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">X86_INTRINSIC_DATA(rdrand_16, RDRAND, X86ISD::RDRAND, <span class="number">0</span>),</span><br><span class="line">X86_INTRINSIC_DATA(rdrand_32, RDRAND, X86ISD::RDRAND, <span class="number">0</span>),</span><br><span class="line">X86_INTRINSIC_DATA(rdrand_64, RDRAND, X86ISD::RDRAND, <span class="number">0</span>),</span><br></pre></td></tr></table></figure>
-<p>既然有对它们的定义，那是否有关于它们的使用呢，又经过一番查找，终于在一个测试文件中(/test/CodeGen/X86/rdrand.ll)找到相应的使用:</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">declare &#123;i16, i32&#125; @llvm.x86.rdrand<span class="number">.16</span>()</span><br><span class="line">declare &#123;i32, i32&#125; @llvm.x86.rdrand<span class="number">.32</span>()</span><br><span class="line">declare &#123;i64, i32&#125; @llvm.x86.rdrand<span class="number">.64</span>()</span><br><span class="line"></span><br><span class="line">define i32 @_rdrand16_step(i16* %random_val) &#123;</span><br><span class="line">  %call = call &#123;i16, i32&#125; @llvm.x86.rdrand<span class="number">.16</span>()</span><br><span class="line">  %randval = extractvalue &#123;i16, i32&#125; %call, <span class="number">0</span></span><br><span class="line">  store i16 %randval, i16* %random_val</span><br><span class="line">  %isvalid = extractvalue &#123;i16, i32&#125; %call, <span class="number">1</span></span><br><span class="line">  ret i32 %isvalid</span><br><span class="line">; CHECK-LABEL: _rdrand16_step:</span><br><span class="line">; CHECK: rdrandw	%ax</span><br><span class="line">; CHECK: movzwl	%ax, %ecx</span><br><span class="line">; CHECK: movl	$<span class="number">1</span>, %eax</span><br><span class="line">; CHECK: cmovael	%ecx, %eax</span><br><span class="line">; CHECK: movw	%cx, (%r[[A0:di|cx]])</span><br><span class="line">; CHECK: ret</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">define i32 @_rdrand32_step(i32* %random_val) &#123;</span><br><span class="line">  %call = call &#123;i32, i32&#125; @llvm.x86.rdrand<span class="number">.32</span>()</span><br><span class="line">  %randval = extractvalue &#123;i32, i32&#125; %call, <span class="number">0</span></span><br><span class="line">  store i32 %randval, i32* %random_val</span><br><span class="line">  %isvalid = extractvalue &#123;i32, i32&#125; %call, <span class="number">1</span></span><br><span class="line">  ret i32 %isvalid</span><br><span class="line">; CHECK-LABEL: _rdrand32_step:</span><br><span class="line">; CHECK: rdrandl	%e[[T0:[a-z]+]]</span><br><span class="line">; CHECK: movl	$<span class="number">1</span>, %eax</span><br><span class="line">; CHECK: cmovael	%e[[T0]], %eax</span><br><span class="line">; CHECK: movl	%e[[T0]], (%r[[A0]])</span><br><span class="line">; CHECK: ret</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">define i32 @_rdrand64_step(i64* %random_val) &#123;</span><br><span class="line">  %call = call &#123;i64, i32&#125; @llvm.x86.rdrand<span class="number">.64</span>()</span><br><span class="line">  %randval = extractvalue &#123;i64, i32&#125; %call, <span class="number">0</span></span><br><span class="line">  store i64 %randval, i64* %random_val</span><br><span class="line">  %isvalid = extractvalue &#123;i64, i32&#125; %call, <span class="number">1</span></span><br><span class="line">  ret i32 %isvalid</span><br><span class="line">; CHECK-LABEL: _rdrand64_step:</span><br><span class="line">; CHECK: rdrandq	%r[[T1:[a-z]+]]</span><br><span class="line">; CHECK: movl	$<span class="number">1</span>, %eax</span><br><span class="line">; CHECK: cmovael	%e[[T1]], %eax</span><br><span class="line">; CHECK: movq	%r[[T1]], (%r[[A0]])</span><br><span class="line">; CHECK: ret</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这个系列函数是对rdrandx_step(address)系列函数的包装，在这些函数中是生成随机数，并将该随机数保存到address参数中。发现在该系列函数中对@llvm.x86.rdrand.xx()系列函数的调用，可以发现，在该函数第一个语句是对@llvm.x86.rdrand.xx() intrinsic函数的调用，该函数返回一个StructType类型的结果，该结果一共有两个成员组成，第一个成员是@llvm.x86.rdrand.xx()函数产生的随机数，第二个参数表示该函数是否调用成功。第二个语句就是从结果中取出随机数。弄清了该函数的逻辑后就可以通过llvm C API产生相应的IR指令。</p>
-<h2 id="llvm-C-API"><a href="#llvm-C-API" class="headerlink" title="llvm C API"></a>llvm C API</h2><p>下面是我通过llvm的C API产生的相应的IR指令的代码:</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">AllocaInst* AI3 = B.CreateAlloca(PtrTy, <span class="literal">nullptr</span>, <span class="string">"RandomValue"</span>);</span><br><span class="line">	</span><br><span class="line"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;Type *&gt; arg_type;</span><br><span class="line">	</span><br><span class="line">Function *fun = Intrinsic::getDeclaration(F-&gt;getParent(), Intrinsic::x86_rdrand_64, arg_type);</span><br><span class="line">CallInst* result = B.CreateCall(fun, &#123;&#125;);</span><br><span class="line">	<span class="comment">//B.CreateRet(result);</span></span><br><span class="line">	<span class="comment">//result-&gt;dump();</span></span><br><span class="line"><span class="keyword">if</span> (dyn_cast&lt;StructType&gt;(result-&gt;getType())) &#123;</span><br><span class="line">		<span class="comment">//errs() &lt;&lt; "Hello\n";</span></span><br><span class="line">	Value* randomValue = B.CreateExtractValue(result, (<span class="keyword">uint64_t</span>)<span class="number">0</span>);</span><br><span class="line">	Value* randomValuePtr = B.CreateIntToPtr(randomValue, Type::getInt8PtrTy(B.getContext()));</span><br><span class="line">	B.CreateStore(randomValuePtr, AI3, <span class="literal">true</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h2><p>在生成了.ll文件后，需要用llc工具生成二进制文件，此时需要添加-mattr=rdrnd的属性:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">llc -filetype=obj input.ll -mattr=+rdrnd -o output.o</span><br></pre></td></tr></table></figure>
-<p>否则会出现LLVM ERROR: Cannot select: t74: i64,i32,ch = X86ISD::RDRAND t0错误</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h2 id=&quot;问题&quot;&gt;&lt;a href=&quot;#问题&quot; class=&quot;headerlink&quot; title=&quot;问题&quot;&gt;&lt;/a&gt;问题&lt;/h2&gt;&lt;p&gt;在做一个project的时候需要使用llvm的pass对函数进行插桩，在每一个函数头之前插入一条指令rdrand %rax，在寻找llvm基
     
     </summary>
     

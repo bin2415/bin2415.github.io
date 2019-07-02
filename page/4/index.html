@@ -386,6 +386,185 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://bin2415.github.io/2017/05/16/seed-returnToLibc/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="binpang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PCB博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2017/05/16/seed-returnToLibc/" class="post-title-link" itemprop="http://bin2415.github.io/page/4/index.html">seedLab:returnToLibc</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2017-05-16 17:01:27" itemprop="dateCreated datePublished" datetime="2017-05-16T17:01:27-04:00">2017-05-16</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2018-12-23 00:33:53" itemprop="dateModified" datetime="2018-12-23T00:33:53-05:00">2018-12-23</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope="" itemtype="http://schema.org/Thing"><a href="/categories/反汇编/" itemprop="url" rel="index"><span itemprop="name">反汇编</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <h3 id="声明"><a href="#声明" class="headerlink" title="声明"></a>声明</h3><h2 id="该教程是根据Seed-Lab-return-to-libc的实验要求所写的，该教程只是演示了一下return-to-libc的一些基本的攻击原理，由于关了编译器及系统的一些保护措施，所以并不能在实际的情况下实现攻击-′▽-〃"><a href="#该教程是根据Seed-Lab-return-to-libc的实验要求所写的，该教程只是演示了一下return-to-libc的一些基本的攻击原理，由于关了编译器及系统的一些保护措施，所以并不能在实际的情况下实现攻击-′▽-〃" class="headerlink" title="该教程是根据Seed Lab: return-to-libc的实验要求所写的，该教程只是演示了一下return-to-libc的一些基本的攻击原理，由于关了编译器及系统的一些保护措施，所以并不能在实际的情况下实现攻击(′▽`〃)"></a>该教程是根据<a href="http://www.cis.syr.edu/~wedu/seed/Labs_12.04/Software/Return_to_libc/" target="_blank" rel="noopener">Seed Lab: return-to-libc</a>的实验要求所写的，该教程只是演示了一下return-to-libc的一些基本的攻击原理，由于关了编译器及系统的一些保护措施，所以并不能在实际的情况下实现攻击(′▽`〃)</h2><h3 id="一：背景介绍"><a href="#一：背景介绍" class="headerlink" title="一：背景介绍"></a>一：背景介绍</h3><h4 id="DEP数据执行保护"><a href="#DEP数据执行保护" class="headerlink" title="DEP数据执行保护"></a>DEP数据执行保护</h4><p>  溢出攻击的根源在于现代计算机对数据和代码没有明确区分这一先天缺陷，就目前来看重新去设计计算机体系结构基本上是不可能的，我们只能靠向前兼容的修补来减少溢出带来的损害，DEP（数据执行保护，Data Execution Prevention）就是用来弥补计算机对数据和代码混淆这一天然缺陷的。DEP的基本原理是将数据所在内存页标识为不可执行，当程序溢出成功转入shellcode时，程序会尝试在数据页面上执行指令，此时CPU就会抛出异常，而不是去执行恶意指令。DEP 的主要作用是阻止数据页（如默认的堆页、各种堆栈页以及内存池页）执行代码。所以一般的将shellcode存放到栈中并将shellcode执行的方式在这种机制中是不可行的。</p>
+<p>  在Linux中，通常在编译的时候添加 -fno-stack-protector -z noexecstack 编译选项就会开启该模式，在该模式下，不能像以前的攻击将恶意代码overflow进栈中，并将return地址指向恶意代码开始处，在这种情况下应该借用系统库的调用从而达到提权等目的。<br></p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2017/05/16/seed-returnToLibc/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+         
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://bin2415.github.io/2017/05/16/open-Rebort/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
@@ -1679,7 +1858,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">37</span>
+                    <span class="site-state-item-count">38</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
