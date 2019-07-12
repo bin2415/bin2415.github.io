@@ -2,20 +2,6 @@
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
     <url>
-        <loc>http://bin2415.github.io/tags/LLVM/</loc>
-        <lastmod>2018-12-23T05:33:52.990Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
-        <loc>http://bin2415.github.io/tags/Sanitizer/</loc>
-        <lastmod>2018-12-23T05:33:52.990Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
         <loc>http://bin2415.github.io/tags/sniffer/</loc>
         <lastmod>2018-12-23T05:33:52.998Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -207,6 +193,20 @@
     <url>
         <loc>http://bin2415.github.io/tags/pwnable/</loc>
         <lastmod>2019-07-12T15:30:28.872Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>http://bin2415.github.io/tags/LLVM/</loc>
+        <lastmod>2019-07-12T15:34:06.611Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>http://bin2415.github.io/tags/Sanitizer/</loc>
+        <lastmod>2019-07-12T15:34:06.611Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>

@@ -7,6 +7,14 @@
     </url>
 
     <url>
+        <loc>http://bin2415.github.io/2017/07/26/AddressSanitizer/</loc>
+        <lastmod>2019-07-12T15:34:06.611Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>http://bin2415.github.io/2018/07/29/format-string/</loc>
         <lastmod>2019-07-12T15:30:28.872Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -305,14 +313,6 @@
     <url>
         <loc>http://bin2415.github.io/2017/04/13/Raytracing/</loc>
         <lastmod>2018-12-23T05:33:52.998Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>http://bin2415.github.io/2017/07/26/AddressSanitizer/</loc>
-        <lastmod>2018-12-23T05:33:52.990Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
