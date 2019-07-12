@@ -155,7 +155,7 @@
 <meta property="og:site_name" content="PCB博客">
 <meta property="og:description" content="Recently, I want to modify the binary program which add a instruction push $rbx in the binary program. And it will increment the stack by 8 bytes. It sounds good for the binary program. And I debug th">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-07-12T15:16:28.303Z">
+<meta property="og:updated_time" content="2019-07-12T15:18:32.303Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Be Careful When Modifing Binary Program(Abount Stack Alignment)">
 <meta name="twitter:description" content="Recently, I want to modify the binary program which add a instruction push $rbx in the binary program. And it will increment the stack by 8 bytes. It sounds good for the binary program. And I debug th">
@@ -432,7 +432,7 @@
                 
               
 
-              <time title="Created: 2019-07-12 10:53:28 / Modified: 11:16:28" itemprop="dateCreated datePublished" datetime="2019-07-12T10:53:28-04:00">2019-07-12</time>
+              <time title="Created: 2019-07-12 10:53:28 / Modified: 11:18:32" itemprop="dateCreated datePublished" datetime="2019-07-12T10:53:28-04:00">2019-07-12</time>
             
 
             
@@ -474,7 +474,7 @@
 <p>And I debug the modified binary with gdb, and find that it crashes in <code>movaps</code> instruction.</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">movaps xmmword ptr [rsp+0x50], xmm0</span><br></pre></td></tr></table></figure>
 <p>So what happend?</p>
-<p>And I found the answers from some blogs(see <a href="#reference">reference</a>). <code>movaps</code> is move aligned packed single-precision floating-point values. If the instruction’s operand is memory, the memory address must be aligned to 16 bytes. And I print the <code>$rsp+0x50</code>, its not 16 bytes alignment. That’s because I pushed <code>$rbx</code> into the stack and increment the rsp to 8 bytes, and that results in rsp is not aligned to 16 bytes. </p>
+<p>And I found the answers from some blogs(see <a href="#reference">reference</a>). <code>movaps</code> is “move aligned packed single-precision floating-point values”. If the instruction’s operand is memory, the memory address must be aligned to 16 bytes. And I print the <code>$rsp+0x50</code>, its not 16 bytes alignment. That’s because I pushed <code>$rbx</code> into the stack and increment the rsp to 8 bytes, and that results in rsp is not aligned to 16 bytes. </p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><p><a href="https://research.csiro.au/tsblog/debugging-stories-stack-alignment-matters/" target="_blank" rel="noopener">Debugging Stories: Stack alignment matters</a></p>
 </li>
