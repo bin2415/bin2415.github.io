@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://bin2415.github.io/"/>
-  <updated>2019-07-02T15:00:27.177Z</updated>
+  <updated>2019-07-12T15:16:28.303Z</updated>
   <id>http://bin2415.github.io/</id>
   
   <author>
@@ -14,6 +14,39 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Be Careful When Modifing Binary Program(Abount Stack Alignment)</title>
+    <link href="http://bin2415.github.io/2019/07/12/stack-alignment/"/>
+    <id>http://bin2415.github.io/2019/07/12/stack-alignment/</id>
+    <published>2019-07-12T14:53:28.000Z</published>
+    <updated>2019-07-12T15:16:28.303Z</updated>
+    
+    <content type="html"><![CDATA[<p>Recently, I want to modify the binary program which add a instruction <code>push $rbx</code> in the binary program. And it will increment the stack by 8 bytes. It sounds good for the binary program.</p>
+<p>And I debug the modified binary with gdb, and find that it crashes in <code>movaps</code> instruction.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">movaps xmmword ptr [rsp+0x50], xmm0</span><br></pre></td></tr></table></figure>
+<p>So what happend?</p>
+<p>And I found the answers from some blogs(see <a href="#reference">reference</a>). <code>movaps</code> is move aligned packed single-precision floating-point values. If the instruction’s operand is memory, the memory address must be aligned to 16 bytes. And I print the <code>$rsp+0x50</code>, its not 16 bytes alignment. That’s because I pushed <code>$rbx</code> into the stack and increment the rsp to 8 bytes, and that results in rsp is not aligned to 16 bytes. </p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><p><a href="https://research.csiro.au/tsblog/debugging-stories-stack-alignment-matters/" target="_blank" rel="noopener">Debugging Stories: Stack alignment matters</a></p>
+</li>
+<li><p><a href="https://pzemtsov.github.io/2016/11/06/bug-story-alignment-on-x86.html" target="_blank" rel="noopener">A bug story: data alignment on x86</a></p>
+</li>
+<li><p><a href="https://en.wikibooks.org/wiki/X86_Assembly/SSE" target="_blank" rel="noopener">X86 Assembly/SSE</a></p>
+</li>
+<li><p><a href="https://c9x.me/x86/html/file_module_x86_id_180.html" target="_blank" rel="noopener">x86 Instruction Set Reference</a></p>
+</li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Recently, I want to modify the binary program which add a instruction &lt;code&gt;push $rbx&lt;/code&gt; in the binary program. And it will increment
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>C Programs Before main Function</title>
@@ -736,9 +769,9 @@
       <category term="fuzzing" scheme="http://bin2415.github.io/categories/fuzzing/"/>
     
     
-      <category term="afl" scheme="http://bin2415.github.io/tags/afl/"/>
-    
       <category term="fuzzing" scheme="http://bin2415.github.io/tags/fuzzing/"/>
+    
+      <category term="afl" scheme="http://bin2415.github.io/tags/afl/"/>
     
   </entry>
   
@@ -895,9 +928,9 @@
       <category term="qemu" scheme="http://bin2415.github.io/categories/qemu/"/>
     
     
-      <category term="arm" scheme="http://bin2415.github.io/tags/arm/"/>
-    
       <category term="qemu" scheme="http://bin2415.github.io/tags/qemu/"/>
+    
+      <category term="arm" scheme="http://bin2415.github.io/tags/arm/"/>
     
   </entry>
   
@@ -1093,37 +1126,6 @@
     
     
       <category term="qemu" scheme="http://bin2415.github.io/tags/qemu/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>llvm存取fs段内容</title>
-    <link href="http://bin2415.github.io/2017/11/18/llvm%E5%AD%98%E5%8F%96fs%E6%AE%B5%E5%86%85%E5%AE%B9/"/>
-    <id>http://bin2415.github.io/2017/11/18/llvm存取fs段内容/</id>
-    <published>2017-11-18T15:26:29.000Z</published>
-    <updated>2018-12-23T05:33:53.017Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>最近想使用llvm的pass来对每个函数进行插桩，来模拟stack guard的功能。其中碰到了一个很棘手的问题就是如何通过llvm C API实现对fs段内容的存取。要想实现该问题，我通过查看llvm如何实现stack guard,找到了具体的解决方案。下面首先看一下llvm中stackProtector pass如何实现对fs段的存取，然后再介绍一下我自己简化版本的Stack guard。</p>
-<h2 id="stackProtector对fs段的存取"><a href="#stackProtector对fs段的存取" class="headerlink" title="stackProtector对fs段的存取"></a>stackProtector对fs段的存取</h2><p>在stackProtector中，调用getIRStackGuard(IRBuilder&lt;&gt; &amp;IRB) const函数对fs段进行存取的，其在x86下实现的具体代码如下:</p>
-<p><img src="/2017/11/18/llvm存取fs段内容/fs_fetch.png" alt="fs_fetch"></p>
-<p><img src="/2017/11/18/llvm存取fs段内容/fs_address.png" alt="fs_address"></p>
-<p>其中fs段的addressSpace为257</p>
-<h2 id="实现存取"><a href="#实现存取" class="headerlink" title="实现存取"></a>实现存取</h2><p>所以对fs段的存取代码如下:</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Address为257表示在用户模式下的fs段寄存器</span></span><br><span class="line"><span class="function"><span class="keyword">static</span> Constant* <span class="title">SegmentOffsetStack</span><span class="params">(IRBuilder&lt;&gt; &amp;IRB, <span class="keyword">unsigned</span> Offset, <span class="keyword">unsigned</span> AddressSpace)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> ConstantExpr::getIntToPtr(</span><br><span class="line">		ConstantInt::get(Type::getInt32Ty(IRB.getContext()), Offset),</span><br><span class="line">		Type::getInt8PtrTy(IRB.getContext())-&gt;getPointerTo(AddressSpace)</span><br><span class="line">	);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">static</span> Value* <span class="title">getTheStackGuardValue</span><span class="params">(IRBuilder&lt;&gt; &amp;IRB, <span class="keyword">unsigned</span> offset)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> SegmentOffsetStack(IRB, offset, <span class="number">257</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>其中offset为从fs段偏移offset处取数据。</p>
-<p>下附我对stack guard的一个简单的实现:<br><a href="https://github.com/bin2415/llvm-stack-guard" target="_blank" rel="noopener">stackguard</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h2 id=&quot;问题&quot;&gt;&lt;a href=&quot;#问题&quot; class=&quot;headerlink&quot; title=&quot;问题&quot;&gt;&lt;/a&gt;问题&lt;/h2&gt;&lt;p&gt;最近想使用llvm的pass来对每个函数进行插桩，来模拟stack guard的功能。其中碰到了一个很棘手的问题就是如何通过llvm C A
-    
-    </summary>
-    
-      <category term="llvm" scheme="http://bin2415.github.io/categories/llvm/"/>
-    
-    
-      <category term="llvm" scheme="http://bin2415.github.io/tags/llvm/"/>
     
   </entry>
   

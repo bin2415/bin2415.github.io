@@ -148,13 +148,17 @@
 
 
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="PCB博客">
-<meta property="og:url" content="http://bin2415.github.io/archives/2019/07/index.html">
+  <meta name="description" content="Recently, I want to modify the binary program which add a instruction push $rbx in the binary program. And it will increment the stack by 8 bytes. It sounds good for the binary program. And I debug th">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Be Careful When Modifing Binary Program(Abount Stack Alignment)">
+<meta property="og:url" content="http://bin2415.github.io/2019/07/12/stack-alignment/index.html">
 <meta property="og:site_name" content="PCB博客">
+<meta property="og:description" content="Recently, I want to modify the binary program which add a instruction push $rbx in the binary program. And it will increment the stack by 8 bytes. It sounds good for the binary program. And I debug th">
 <meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-07-12T15:16:28.303Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="PCB博客">
+<meta name="twitter:title" content="Be Careful When Modifing Binary Program(Abount Stack Alignment)">
+<meta name="twitter:description" content="Recently, I want to modify the binary program which add a instruction push $rbx in the binary program. And it will increment the stack by 8 bytes. It sounds good for the binary program. And I debug th">
 
 
 
@@ -163,7 +167,7 @@
 
 
 
-  <link rel="canonical" href="http://bin2415.github.io/archives/2019/07/">
+  <link rel="canonical" href="http://bin2415.github.io/2019/07/12/stack-alignment/">
 
 
 
@@ -173,7 +177,7 @@
   };
 </script>
 
-  <title>Archive | PCB博客</title>
+  <title>Be Careful When Modifing Binary Program(Abount Stack Alignment) | PCB博客</title>
   
 
 
@@ -230,7 +234,7 @@
     
   
 
-  <div class="container sidebar-position-left page-archive">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
@@ -323,7 +327,7 @@
         
         
           
-          <li class="menu-item menu-item-archives menu-item-active">
+          <li class="menu-item menu-item-archives">
 
     
     
@@ -344,25 +348,6 @@
 
   
     
-
-    
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-      
-      
-    
-    
-
-  
-
 
   
 
@@ -388,112 +373,181 @@
           <div id="content" class="content">
             
 
+  <div id="posts" class="posts-expand">
+    
+
+  
+
   
   
   
-  <div class="post-block archive">
-    <div id="posts" class="posts-collapse">
-      <span class="archive-move-on"></span>
 
-      
-      <span class="archive-page-counter">
-        
-        
-         
-        
-        OK! 39 posts in total. Keep on posting.
-      </span>
-      
+  
 
-      
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://bin2415.github.io/2019/07/12/stack-alignment/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="binpang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PCB博客">
+    </span>
+
+    
+      <header class="post-header">
 
         
         
+          <h1 class="post-title" itemprop="name headline">Be Careful When Modifing Binary Program(Abount Stack Alignment)
+
+              
+            
+          </h1>
         
 
-        
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2019-07-12 10:53:28 / Modified: 11:16:28" itemprop="dateCreated datePublished" datetime="2019-07-12T10:53:28-04:00">2019-07-12</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
           
-          <div class="collection-title">
-            <h1 class="archive-year" id="archive-year-2019">2019</h1>
-          </div>
-        
-        
 
-        
+          
+            
+          
 
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-    <header class="post-header">
+          
+          
 
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/07/12/stack-alignment/" itemprop="url">
-              
-                <span itemprop="name">Be Careful When Modifing Binary Program(Abount Stack Alignment)</span>
-              
-            </a>
-        
-      </h2>
+          
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-07-12T10:53:28-04:00" content="2019-07-12">
-          07-12
-        </time>
-      </div>
+          
 
-    </header>
-  </article>
+          
 
+        </div>
+      </header>
+    
 
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-
-        
-        
-        
-
-        
-        
-
-        
-
-  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <h2 class="post-title">
-        
-            <a class="post-title-link" href="/2019/07/02/ctr-things/" itemprop="url">
-              
-                <span itemprop="name">C Programs Before main Function</span>
-              
-            </a>
-        
-      </h2>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated" datetime="2019-07-02T10:35:48-04:00" content="2019-07-02">
-          07-02
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
       
 
+      
+        <p>Recently, I want to modify the binary program which add a instruction <code>push $rbx</code> in the binary program. And it will increment the stack by 8 bytes. It sounds good for the binary program.</p>
+<p>And I debug the modified binary with gdb, and find that it crashes in <code>movaps</code> instruction.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">movaps xmmword ptr [rsp+0x50], xmm0</span><br></pre></td></tr></table></figure>
+<p>So what happend?</p>
+<p>And I found the answers from some blogs(see <a href="#reference">reference</a>). <code>movaps</code> is move aligned packed single-precision floating-point values. If the instruction’s operand is memory, the memory address must be aligned to 16 bytes. And I print the <code>$rsp+0x50</code>, its not 16 bytes alignment. That’s because I pushed <code>$rbx</code> into the stack and increment the rsp to 8 bytes, and that results in rsp is not aligned to 16 bytes. </p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><p><a href="https://research.csiro.au/tsblog/debugging-stories-stack-alignment-matters/" target="_blank" rel="noopener">Debugging Stories: Stack alignment matters</a></p>
+</li>
+<li><p><a href="https://pzemtsov.github.io/2016/11/06/bug-story-alignment-on-x86.html" target="_blank" rel="noopener">A bug story: data alignment on x86</a></p>
+</li>
+<li><p><a href="https://en.wikibooks.org/wiki/X86_Assembly/SSE" target="_blank" rel="noopener">X86 Assembly/SSE</a></p>
+</li>
+<li><p><a href="https://c9x.me/x86/html/file_module_x86_id_180.html" target="_blank" rel="noopener">x86 Instruction Set Reference</a></p>
+</li>
+</ul>
+
+      
     </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/02/ctr-things/" rel="next" title="C Programs Before main Function">
+                <i class="fa fa-chevron-left"></i> C Programs Before main Function
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+  </div>
 
 
           </div>
           
+
+  
+
+
 
         </div>
         
@@ -514,8 +568,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
 
-      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <div class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
             
@@ -711,6 +774,22 @@
       </div>
 
       
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">1.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
 
       
 
@@ -851,6 +930,10 @@
   
 
   
+  <script src="/js/src/scrollspy.js?v=6.6.0"></script>
+<script src="/js/src/post-details.js?v=6.6.0"></script>
+
+
 
   
 

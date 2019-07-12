@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[Be Careful When Modifing Binary Program(Abount Stack Alignment)]]></title>
+    <url>%2F2019%2F07%2F12%2Fstack-alignment%2F</url>
+    <content type="text"><![CDATA[Recently, I want to modify the binary program which add a instruction push $rbx in the binary program. And it will increment the stack by 8 bytes. It sounds good for the binary program. And I debug the modified binary with gdb, and find that it crashes in movaps instruction. 1movaps xmmword ptr [rsp+0x50], xmm0 So what happend? And I found the answers from some blogs(see reference). movaps is move aligned packed single-precision floating-point values. If the instruction’s operand is memory, the memory address must be aligned to 16 bytes. And I print the $rsp+0x50, its not 16 bytes alignment. That’s because I pushed $rbx into the stack and increment the rsp to 8 bytes, and that results in rsp is not aligned to 16 bytes. Reference Debugging Stories: Stack alignment matters A bug story: data alignment on x86 X86 Assembly/SSE x86 Instruction Set Reference]]></content>
+  </entry>
+  <entry>
     <title><![CDATA[C Programs Before main Function]]></title>
     <url>%2F2019%2F07%2F02%2Fctr-things%2F</url>
     <content type="text"><![CDATA[What does the program do before main() functionThe picture from Patrick Horgan describes what will the c program do before main function. crt0.o, ctri.o, ctrbegin.o, ctrn.oIf you compile a c program, the linker will link crt0.o, ctri.o, ctrbegin.o, ctrn.o with the target object together. crt0.o contains _start function, it will initialize the process before call main function, it is defined in libc’s crt0.s file. According to osdev, ctri.o defines the header of _init and _fini function, and ctrn.o defines the footer of _init and _fini function. And linker will link ctrbegin.o’s section .init and .fini between ctri.o and ctrn.o ctrbegin.o also defines some functions such as deregister_tm_clones, register_tm_clones, __do_global_dtors_aux, frame_dummy Reference Linux x86 Program Start Up or - How the heck do we get to main()? osdev: Creating a c library Why does an assembly program only work when linked with crt1.o crti.o and crtn.o?]]></content>
@@ -105,8 +110,8 @@
         <category>fuzzing</category>
       </categories>
       <tags>
-        <tag>afl</tag>
         <tag>fuzzing</tag>
+        <tag>afl</tag>
       </tags>
   </entry>
   <entry>
@@ -139,8 +144,8 @@
         <category>qemu</category>
       </categories>
       <tags>
-        <tag>arm</tag>
         <tag>qemu</tag>
+        <tag>arm</tag>
       </tags>
   </entry>
   <entry>
