@@ -113,7 +113,7 @@
     <link href="http://bin2415.github.io/2019/04/16/llvm-kernel/"/>
     <id>http://bin2415.github.io/2019/04/16/llvm-kernel/</id>
     <published>2019-04-16T20:20:07.000Z</published>
-    <updated>2019-06-18T22:41:16.539Z</updated>
+    <updated>2019-07-12T15:29:21.033Z</updated>
     
     <content type="html"><![CDATA[<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://github.com/ramosian-glider/clang-kernel-build" target="_blank" rel="noopener">clang-kernel-build</a></li>
@@ -182,6 +182,8 @@
 &lt;li&gt;&lt;a href=&quot;https://github.com/ramosian
     
     </summary>
+    
+      <category term="kernel" scheme="http://bin2415.github.io/categories/kernel/"/>
     
     
       <category term="kernel" scheme="http://bin2415.github.io/tags/kernel/"/>
@@ -691,7 +693,7 @@
     <link href="http://bin2415.github.io/2018/09/27/llvm-gold/"/>
     <id>http://bin2415.github.io/2018/09/27/llvm-gold/</id>
     <published>2018-09-27T23:30:17.000Z</published>
-    <updated>2018-12-23T05:33:53.016Z</updated>
+    <updated>2019-07-12T15:29:22.765Z</updated>
     
     <content type="html"><![CDATA[<h3 id="Binutils-Building"><a href="#Binutils-Building" class="headerlink" title="Binutils Building"></a>Binutils Building</h3><h4 id="Download-binutils-source-code"><a href="#Download-binutils-source-code" class="headerlink" title="Download binutils source code"></a>Download binutils source code</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone --depth 1 git://sourceware.org/git/binutils-gdb.git binutils</span><br></pre></td></tr></table></figure>
 <h4 id="Build-binutils"><a href="#Build-binutils" class="headerlink" title="Build binutils"></a>Build binutils</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir build</span><br><span class="line">cd build</span><br><span class="line">../binutils/configure --enable-gold --enable-plugins --disable-werror</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
@@ -706,6 +708,8 @@
       &lt;h3 id=&quot;Binutils-Building&quot;&gt;&lt;a href=&quot;#Binutils-Building&quot; class=&quot;headerlink&quot; title=&quot;Binutils Building&quot;&gt;&lt;/a&gt;Binutils Building&lt;/h3&gt;&lt;h4 id=&quot;Downl
     
     </summary>
+    
+      <category term="llvm" scheme="http://bin2415.github.io/categories/llvm/"/>
     
     
       <category term="llvm" scheme="http://bin2415.github.io/tags/llvm/"/>
@@ -816,7 +820,7 @@
     <link href="http://bin2415.github.io/2018/07/29/format-string/"/>
     <id>http://bin2415.github.io/2018/07/29/format-string/</id>
     <published>2018-07-29T18:50:37.000Z</published>
-    <updated>2018-12-23T05:33:53.004Z</updated>
+    <updated>2019-07-12T15:30:28.872Z</updated>
     
     <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>这两天做了一个CTF的题目，该题目的二进制<a href="./babyformat">链接</a>。该题目的逻辑非常简单，就是接受输入，并将其打印，在打印的时候利用了printf函数，很明显是个format string漏洞。但由于格式化的字符串并没有在栈中，所以利用起来有一点困难，在此记录一下自己利用的方法。</p>
 <h2 id="格式化字符串漏洞"><a href="#格式化字符串漏洞" class="headerlink" title="格式化字符串漏洞"></a>格式化字符串漏洞</h2><blockquote>
@@ -881,10 +885,10 @@
     
     </summary>
     
-      <category term="ctf" scheme="http://bin2415.github.io/categories/ctf/"/>
+      <category term="pwnable" scheme="http://bin2415.github.io/categories/pwnable/"/>
     
     
-      <category term="ctf" scheme="http://bin2415.github.io/tags/ctf/"/>
+      <category term="pwnable" scheme="http://bin2415.github.io/tags/pwnable/"/>
     
   </entry>
   
