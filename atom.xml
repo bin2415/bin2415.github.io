@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://bin2415.github.io/"/>
-  <updated>2019-07-12T15:18:32.303Z</updated>
+  <updated>2019-08-20T23:09:58.368Z</updated>
   <id>http://bin2415.github.io/</id>
   
   <author>
@@ -14,6 +14,34 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>binaryninja python path install</title>
+    <link href="http://bin2415.github.io/2019/08/20/binaryninja-python-path/"/>
+    <id>http://bin2415.github.io/2019/08/20/binaryninja-python-path/</id>
+    <published>2019-08-20T22:59:45.000Z</published>
+    <updated>2019-08-20T23:09:58.368Z</updated>
+    
+    <content type="html"><![CDATA[<p>Install binaryninja python path.</p>
+<p>Firstly, get the python default path:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">import site</span><br><span class="line">print(site.getsitepackages()[0]) # output: /usr/local/lib/python3.7/dist-packages</span><br></pre></td></tr></table></figure>
+<p>Then, create a new file <code>binaryninja.pth</code> in <code>/usr/local/lib/python3.7/dist-packages</code> and store the binaryninja python path.</p>
+<p>Suppose the binaryninja is installed in <code>/opt/binaryninja</code>, then</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ echo &quot;/opt/binaryninja/python /usr/local/lib/python3.7/dist-packages/binaryninja.pth&quot;</span><br></pre></td></tr></table></figure>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Install binaryninja python path.&lt;/p&gt;
+&lt;p&gt;Firstly, get the python default path:&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;g
+    
+    </summary>
+    
+    
+      <category term="disassembler" scheme="http://bin2415.github.io/tags/disassembler/"/>
+    
+  </entry>
   
   <entry>
     <title>Be Careful When Modifing Binary Program(Abount Stack Alignment)</title>
@@ -932,9 +960,9 @@
       <category term="qemu" scheme="http://bin2415.github.io/categories/qemu/"/>
     
     
-      <category term="qemu" scheme="http://bin2415.github.io/tags/qemu/"/>
-    
       <category term="arm" scheme="http://bin2415.github.io/tags/arm/"/>
+    
+      <category term="qemu" scheme="http://bin2415.github.io/tags/qemu/"/>
     
   </entry>
   
@@ -1088,48 +1116,6 @@
     
     
       <category term="gdb" scheme="http://bin2415.github.io/tags/gdb/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Qemu模拟Mips程序运行</title>
-    <link href="http://bin2415.github.io/2018/01/14/qemu-mips/"/>
-    <id>http://bin2415.github.io/2018/01/14/qemu-mips/</id>
-    <published>2018-01-15T01:15:22.000Z</published>
-    <updated>2018-12-23T05:33:53.027Z</updated>
-    
-    <content type="html"><![CDATA[<p>使用Qemu可以运行不同环境的程序，比方说在i386架构下运行arm和mips架构的程序。</p>
-<ul>
-<li>安装Qemu<ul>
-<li>sudo apt-get install qemu</li>
-<li>sudo apt-get install qemu-user-static</li>
-</ul>
-</li>
-<li>将qemu-mips-static文件拷贝到当前文件<ul>
-<li>cp /usr/bin/qemu-mips-static ./</li>
-</ul>
-</li>
-<li>运行mips程序(其中./bin/busybox为要执行的busybox)<ul>
-<li>sudo chroot . ./qemu-mips-static ./bin/busybox</li>
-</ul>
-</li>
-</ul>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;使用Qemu可以运行不同环境的程序，比方说在i386架构下运行arm和mips架构的程序。&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;安装Qemu&lt;ul&gt;
-&lt;li&gt;sudo apt-get install qemu&lt;/li&gt;
-&lt;li&gt;sudo apt-get install qemu-us
-    
-    </summary>
-    
-      <category term="qemu" scheme="http://bin2415.github.io/categories/qemu/"/>
-    
-    
-      <category term="qemu" scheme="http://bin2415.github.io/tags/qemu/"/>
     
   </entry>
   

@@ -4,6 +4,23 @@
 
     
   <url>
+    <loc>http://bin2415.github.io/2019/08/20/binaryninja-python-path/</loc>
+    <lastmod>2019-08-20T23:09:58.368Z</lastmod>
+    <data>
+        <display>
+        <title>binaryninja python path install</title>
+        <pubTime>2019-08-20T22:59:45.000Z</pubTime>
+        
+        <tag>disassembler</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://bin2415.github.io/2017/07/26/AddressSanitizer/</loc>
     <lastmod>2019-07-12T15:36:34.348Z</lastmod>
     <data>
@@ -458,9 +475,9 @@
         <title>Intel linux调试arm程序</title>
         <pubTime>2018-07-26T18:43:55.000Z</pubTime>
         
-        <tag>qemu</tag>
-         
         <tag>arm</tag>
+         
+        <tag>qemu</tag>
          
          
            

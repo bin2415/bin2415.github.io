@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[binaryninja python path install]]></title>
+    <url>%2F2019%2F08%2F20%2Fbinaryninja-python-path%2F</url>
+    <content type="text"><![CDATA[Install binaryninja python path. Firstly, get the python default path: 12import siteprint(site.getsitepackages()[0]) # output: /usr/local/lib/python3.7/dist-packages Then, create a new file binaryninja.pth in /usr/local/lib/python3.7/dist-packages and store the binaryninja python path. Suppose the binaryninja is installed in /opt/binaryninja, then 1$ echo &quot;/opt/binaryninja/python /usr/local/lib/python3.7/dist-packages/binaryninja.pth&quot;]]></content>
+      <tags>
+        <tag>disassembler</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[Be Careful When Modifing Binary Program(Abount Stack Alignment)]]></title>
     <url>%2F2019%2F07%2F12%2Fstack-alignment%2F</url>
     <content type="text"><![CDATA[Recently, I want to modify the binary program which add a instruction push $rbx in the binary program. And it will increment the stack by 8 bytes. It sounds good for the binary program. And I debug the modified binary with gdb, and find that it crashes in movaps instruction. 1movaps xmmword ptr [rsp+0x50], xmm0 So what happend? And I found the answers from some blogs(see reference). movaps is “move aligned packed single-precision floating-point values”. If the instruction’s operand is memory, the memory address must be aligned to 16 bytes. And I print the $rsp+0x50, its not 16 bytes alignment. That’s because I pushed $rbx into the stack and increment the rsp to 8 bytes, and that results in rsp is not aligned to 16 bytes. Reference Debugging Stories: Stack alignment matters A bug story: data alignment on x86 X86 Assembly/SSE x86 Instruction Set Reference]]></content>
@@ -150,8 +158,8 @@
         <category>qemu</category>
       </categories>
       <tags>
-        <tag>qemu</tag>
         <tag>arm</tag>
+        <tag>qemu</tag>
       </tags>
   </entry>
   <entry>
