@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://bin2415.github.io/"/>
-  <updated>2019-08-20T23:09:58.368Z</updated>
+  <updated>2019-08-22T14:08:45.827Z</updated>
   <id>http://bin2415.github.io/</id>
   
   <author>
@@ -14,6 +14,32 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Ghidra Python Uses Other Packages</title>
+    <link href="http://bin2415.github.io/2019/08/22/ghidra-python/"/>
+    <id>http://bin2415.github.io/2019/08/22/ghidra-python/</id>
+    <published>2019-08-22T13:49:08.000Z</published>
+    <updated>2019-08-22T14:08:45.827Z</updated>
+    
+    <content type="html"><![CDATA[<p><a href="https://www.nsa.gov/resources/everyone/ghidra/" target="_blank" rel="noopener">Ghidra</a> is a reverse engineering framework. It is similar to IDA pro and it is a open source project. Ghidra also provide java and python api to write plugin. Actually, its “python” is Jython, and its version is python2.7.<br>And its site-packages location is <code>/opt/ghidra/Ghidra/Features/Python/data/jython-2.7.1/Lib</code>. It only supports some uses of basic packages. And I want to use other packages(such as <code>protobuf</code>) in Ghidra python, I did not find a proper way to install the <code>protobuf</code> in Ghidra Jython’s site-packages location.</p>
+<p>And I find another way to solve it. Firstly, I install <code>protobuf</code> in my system’s default python2.7.</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo pip2 install protobuf</span><br></pre></td></tr></table></figure>
+<p>The <code>protobuf</code> is installed into python2.7 site-packages location. To find the site-packges location, you can open python2.7 and type below:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">In [1]: import site</span><br><span class="line">In [2]: print(site.getsitepackages())</span><br><span class="line"></span><br><span class="line">[&apos;/usr/local/lib/python2.7/dist-packages&apos;, &apos;/usr/lib/python2.7/dist-packages&apos;]</span><br></pre></td></tr></table></figure>
+<p>You can find that there are two folders. Add these folders into Ghidra python’s <code>sys.path</code>.</p>
+<p>In Ghidra python file, add belows at the start of the file:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">import sys</span><br><span class="line">sys.path.append(&apos;/usr/local/lib/python2.7/dist-packages&apos;)</span><br><span class="line">sys.path.append(&apos;/usr/lib/python2.7/dist-packages&apos;)</span><br></pre></td></tr></table></figure>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;a href=&quot;https://www.nsa.gov/resources/everyone/ghidra/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Ghidra&lt;/a&gt; is a reverse engineering framework. It
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>binaryninja python path install</title>
@@ -1088,34 +1114,6 @@
     
     
       <category term="pwnable" scheme="http://bin2415.github.io/tags/pwnable/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>gdb无法找到main</title>
-    <link href="http://bin2415.github.io/2018/01/22/gdb%E6%97%A0%E6%B3%95%E5%AE%9A%E4%BD%8Dmain/"/>
-    <id>http://bin2415.github.io/2018/01/22/gdb无法定位main/</id>
-    <published>2018-01-23T00:01:10.000Z</published>
-    <updated>2018-12-23T05:33:53.011Z</updated>
-    
-    <content type="html"><![CDATA[<p>最近在用gdb调试一个程序的时候，由于程序经过了strip处理，没有debug信息，所以当b main的时候会出现”Function main not defined”错误信息，也就是无法定位main函数。而当b <strong>libc_start_main函数时是可以定位到的，而</strong>libc_start_main函数的第一个参数就是main函数的地址，因此可以通过定位__libc_start_main函数，然后获得第一个参数的内容，此时就是main函数的地址。具体操作如下：</p>
-<h2 id="传进-libc-start-main函数的参数"><a href="#传进-libc-start-main函数的参数" class="headerlink" title="传进__libc_start_main函数的参数"></a>传进__libc_start_main函数的参数</h2><p>查看汇编可以看到将__libc_start_main的第一个参数传进了$RDI寄存器中（64位机器）：</p>
-<p><img src="/2018/01/22/gdb无法定位main/main_address.png" alt="first_param"></p>
-<p>因此在gdb中先在<strong>libc_start_main函数下断点: ```b </strong>libc_start_main```</p>
-<h2 id="在-RDI指向的内容处下断点"><a href="#在-RDI指向的内容处下断点" class="headerlink" title="在$RDI指向的内容处下断点"></a>在$RDI指向的内容处下断点</h2><p>在 <strong>libc_start_main处下了断点后，run一下会在</strong>libc_start_main入口处停下，此时$rdi寄存器存储的是main函数的地址，<code>b *$rdi</code>则会在main处下断点</p>
-<p><img src="/2018/01/22/gdb无法定位main/rdi.png" alt="rdi"></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;最近在用gdb调试一个程序的时候，由于程序经过了strip处理，没有debug信息，所以当b main的时候会出现”Function main not defined”错误信息，也就是无法定位main函数。而当b &lt;strong&gt;libc_start_main函数时是可以定
-    
-    </summary>
-    
-      <category term="gdb" scheme="http://bin2415.github.io/categories/gdb/"/>
-    
-    
-      <category term="gdb" scheme="http://bin2415.github.io/tags/gdb/"/>
     
   </entry>
   
