@@ -42,11 +42,11 @@
   </entry>
   
   <entry>
-    <title>binaryninja python path install</title>
+    <title>Binaryninja Python Path Install</title>
     <link href="http://bin2415.github.io/2019/08/20/binaryninja-python-path/"/>
     <id>http://bin2415.github.io/2019/08/20/binaryninja-python-path/</id>
     <published>2019-08-20T22:59:45.000Z</published>
-    <updated>2019-08-20T23:09:58.368Z</updated>
+    <updated>2019-08-22T14:11:11.809Z</updated>
     
     <content type="html"><![CDATA[<p>Install binaryninja python path.</p>
 <p>Firstly, get the python default path:</p>
