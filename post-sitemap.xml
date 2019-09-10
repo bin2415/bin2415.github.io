@@ -7,6 +7,22 @@
     </url>
 
     <url>
+        <loc>http://bin2415.github.io/2019/08/20/binaryninja-python-path/</loc>
+        <lastmod>2019-08-22T14:11:11.809Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>http://bin2415.github.io/2019/08/22/ghidra-python/</loc>
+        <lastmod>2019-08-22T14:10:54.908Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>http://bin2415.github.io/2017/07/26/AddressSanitizer/</loc>
         <lastmod>2019-07-12T15:36:34.348Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -279,7 +295,7 @@
     </url>
 
     <url>
-        <loc>http://bin2415.github.io/2018/07/31/afl-asan/</loc>
+        <loc>http://bin2415.github.io/2018/08/06/afl-fork-server/</loc>
         <lastmod>2018-12-23T05:33:53.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
@@ -287,7 +303,7 @@
     </url>
 
     <url>
-        <loc>http://bin2415.github.io/2018/08/06/afl-fork-server/</loc>
+        <loc>http://bin2415.github.io/2018/07/31/afl-asan/</loc>
         <lastmod>2018-12-23T05:33:53.000Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>

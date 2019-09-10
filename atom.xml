@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://bin2415.github.io/"/>
-  <updated>2019-08-22T14:08:45.827Z</updated>
+  <updated>2019-08-22T14:10:54.908Z</updated>
   <id>http://bin2415.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://bin2415.github.io/2019/08/22/ghidra-python/"/>
     <id>http://bin2415.github.io/2019/08/22/ghidra-python/</id>
     <published>2019-08-22T13:49:08.000Z</published>
-    <updated>2019-08-22T14:08:45.827Z</updated>
+    <updated>2019-08-22T14:10:54.908Z</updated>
     
     <content type="html"><![CDATA[<p><a href="https://www.nsa.gov/resources/everyone/ghidra/" target="_blank" rel="noopener">Ghidra</a> is a reverse engineering framework. It is similar to IDA pro and it is a open source project. Ghidra also provide java and python api to write plugin. Actually, its “python” is Jython, and its version is python2.7.<br>And its site-packages location is <code>/opt/ghidra/Ghidra/Features/Python/data/jython-2.7.1/Lib</code>. It only supports some uses of basic packages. And I want to use other packages(such as <code>protobuf</code>) in Ghidra python, I did not find a proper way to install the <code>protobuf</code> in Ghidra Jython’s site-packages location.</p>
 <p>And I find another way to solve it. Firstly, I install <code>protobuf</code> in my system’s default python2.7.</p>
@@ -827,9 +827,9 @@
       <category term="fuzzing" scheme="http://bin2415.github.io/categories/fuzzing/"/>
     
     
-      <category term="fuzzing" scheme="http://bin2415.github.io/tags/fuzzing/"/>
-    
       <category term="afl" scheme="http://bin2415.github.io/tags/afl/"/>
+    
+      <category term="fuzzing" scheme="http://bin2415.github.io/tags/fuzzing/"/>
     
   </entry>
   
