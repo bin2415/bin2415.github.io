@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://bin2415.github.io/"/>
-  <updated>2019-09-10T02:24:24.799Z</updated>
+  <updated>2019-09-10T13:15:33.562Z</updated>
   <id>http://bin2415.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://bin2415.github.io/2019/09/09/linux-path/"/>
     <id>http://bin2415.github.io/2019/09/09/linux-path/</id>
     <published>2019-09-10T00:40:10.000Z</published>
-    <updated>2019-09-10T02:24:24.799Z</updated>
+    <updated>2019-09-10T13:15:33.562Z</updated>
     
     <content type="html"><![CDATA[<p>There are many “path” in linux. Such as executable search <code>PATH</code>, compiler include path, linker path, dynamic library search path <code>LD_LIBRARY_PATH</code>.</p>
 <h3 id="PATH"><a href="#PATH" class="headerlink" title="PATH"></a>PATH</h3><p><code>PATH</code> is an environment variable. It defines the executable search path. When you run executable file without path(absolute or relative path), it will search the executable file from directories that defined by <code>PATH</code>.</p>
@@ -38,7 +38,7 @@
 <p>We can specify the linker search path to gcc by adding <code>-L/path/to/be/added</code>.</p>
 <p>We can use <code>-B/path/to/library</code> of gcc to specify the linker search path too. It will insert the path in the head of the searh path list.<br>For example, we add <code>-B/usr/test/</code> path to gcc:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -B/usr/test/ -print-search-dirs | sed &apos;/^lib/b 1;d;:1;s,/[^/.][^/]*/\.\./,/,;t 1;s,:[^=]*=,:;,;s,;,;  ,g&apos; | tr \; \\012</span><br><span class="line"></span><br><span class="line">libraries:</span><br><span class="line">  /usr/test/x86_64-linux-gnu/7/:/usr/test/x86_64-linux-gnu/:/usr/test/:/usr/lib/gcc/x86_64-linux-gnu/7/:/usr/x86_64-linux-gnu/lib/x86_64-linux-gnu/7/:/usr/x86_64-linux-gnu/lib/x86_64-linux-gnu/:/usr/x86_64-linux-gnu/lib/:/usr/lib/x86_64-linux-gnu/7/:/usr/lib/x86_64-linux-gnu/:/usr/lib/:/lib/x86_64-linux-gnu/7/:/lib/x86_64-linux-gnu/:/lib/:/usr/lib/x86_64-linux-gnu/7/:/usr/lib/x86_64-linux-gnu/:/usr/lib/:/usr/x86_64-linux-gnu/lib/:/usr/lib/:/lib/:/usr/lib/</span><br></pre></td></tr></table></figure>
-<h2 id="LD-LIBRARY-PATH"><a href="#LD-LIBRARY-PATH" class="headerlink" title="LD_LIBRARY_PATH"></a>LD_LIBRARY_PATH</h2><p>LD_LIBRARY_PATH is an environment variable you set to give the run-time shared library loader (ld.so) an extra set of directories to look for when searching for shared libraries[2].</p>
+<h3 id="LD-LIBRARY-PATH"><a href="#LD-LIBRARY-PATH" class="headerlink" title="LD_LIBRARY_PATH"></a>LD_LIBRARY_PATH</h3><p>LD_LIBRARY_PATH is an environment variable you set to give the run-time shared library loader (ld.so) an extra set of directories to look for when searching for shared libraries[2].</p>
 <h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
 <li>Gcc Search Path: <a href="https://gcc.gnu.org/onlinedocs/gcc-4.8.0/cpp/Search-Path.html" target="_blank" rel="noopener">https://gcc.gnu.org/onlinedocs/gcc-4.8.0/cpp/Search-Path.html</a></li>
 <li>Why LD_LIBRARY_PATH is bad: <a href="http://xahlee.info/UnixResource_dir/_/ldpath.html" target="_blank" rel="noopener">http://xahlee.info/UnixResource_dir/_/ldpath.html</a></li>

@@ -156,7 +156,7 @@
 <meta property="og:site_name" content="PCB Blog">
 <meta property="og:description" content="There are many “path” in linux. Such as executable search PATH, compiler include path, linker path, dynamic library search path LD_LIBRARY_PATH. PATHPATH is an environment variable. It defines the exe">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-09-10T02:24:24.799Z">
+<meta property="og:updated_time" content="2019-09-10T13:15:33.562Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="paths in linux">
 <meta name="twitter:description" content="There are many “path” in linux. Such as executable search PATH, compiler include path, linker path, dynamic library search path LD_LIBRARY_PATH. PATHPATH is an environment variable. It defines the exe">
@@ -433,12 +433,24 @@
                 
               
 
-              <time title="Created: 2019-09-09 20:40:10 / Modified: 22:24:24" itemprop="dateCreated datePublished" datetime="2019-09-09T20:40:10-04:00">2019-09-09</time>
+              <time title="Created: 2019-09-09 20:40:10" itemprop="dateCreated datePublished" datetime="2019-09-09T20:40:10-04:00">2019-09-09</time>
             
 
             
               
 
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">Edited on</span>
+                
+                <time title="Modified: 2019-09-10 09:15:33" itemprop="dateModified" datetime="2019-09-10T09:15:33-04:00">2019-09-10</time>
               
             
           </span>
@@ -487,7 +499,7 @@
 <p>We can specify the linker search path to gcc by adding <code>-L/path/to/be/added</code>.</p>
 <p>We can use <code>-B/path/to/library</code> of gcc to specify the linker search path too. It will insert the path in the head of the searh path list.<br>For example, we add <code>-B/usr/test/</code> path to gcc:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -B/usr/test/ -print-search-dirs | sed &apos;/^lib/b 1;d;:1;s,/[^/.][^/]*/\.\./,/,;t 1;s,:[^=]*=,:;,;s,;,;  ,g&apos; | tr \; \\012</span><br><span class="line"></span><br><span class="line">libraries:</span><br><span class="line">  /usr/test/x86_64-linux-gnu/7/:/usr/test/x86_64-linux-gnu/:/usr/test/:/usr/lib/gcc/x86_64-linux-gnu/7/:/usr/x86_64-linux-gnu/lib/x86_64-linux-gnu/7/:/usr/x86_64-linux-gnu/lib/x86_64-linux-gnu/:/usr/x86_64-linux-gnu/lib/:/usr/lib/x86_64-linux-gnu/7/:/usr/lib/x86_64-linux-gnu/:/usr/lib/:/lib/x86_64-linux-gnu/7/:/lib/x86_64-linux-gnu/:/lib/:/usr/lib/x86_64-linux-gnu/7/:/usr/lib/x86_64-linux-gnu/:/usr/lib/:/usr/x86_64-linux-gnu/lib/:/usr/lib/:/lib/:/usr/lib/</span><br></pre></td></tr></table></figure>
-<h2 id="LD-LIBRARY-PATH"><a href="#LD-LIBRARY-PATH" class="headerlink" title="LD_LIBRARY_PATH"></a>LD_LIBRARY_PATH</h2><p>LD_LIBRARY_PATH is an environment variable you set to give the run-time shared library loader (ld.so) an extra set of directories to look for when searching for shared libraries[2].</p>
+<h3 id="LD-LIBRARY-PATH"><a href="#LD-LIBRARY-PATH" class="headerlink" title="LD_LIBRARY_PATH"></a>LD_LIBRARY_PATH</h3><p>LD_LIBRARY_PATH is an environment variable you set to give the run-time shared library loader (ld.so) an extra set of directories to look for when searching for shared libraries[2].</p>
 <h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
 <li>Gcc Search Path: <a href="https://gcc.gnu.org/onlinedocs/gcc-4.8.0/cpp/Search-Path.html" target="_blank" rel="noopener">https://gcc.gnu.org/onlinedocs/gcc-4.8.0/cpp/Search-Path.html</a></li>
 <li>Why LD_LIBRARY_PATH is bad: <a href="http://xahlee.info/UnixResource_dir/_/ldpath.html" target="_blank" rel="noopener">http://xahlee.info/UnixResource_dir/_/ldpath.html</a></li>
@@ -792,7 +804,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#PATH"><span class="nav-number">1.</span> <span class="nav-text">PATH</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Include-Path"><span class="nav-number">2.</span> <span class="nav-text">Include Path</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linker-Search-Path"><span class="nav-number">3.</span> <span class="nav-text">Linker Search Path</span></a></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#LD-LIBRARY-PATH"><span class="nav-number"></span> <span class="nav-text">LD_LIBRARY_PATH</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">1.</span> <span class="nav-text">Reference</span></a></li></ol></li></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#PATH"><span class="nav-number">1.</span> <span class="nav-text">PATH</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Include-Path"><span class="nav-number">2.</span> <span class="nav-text">Include Path</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linker-Search-Path"><span class="nav-number">3.</span> <span class="nav-text">Linker Search Path</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LD-LIBRARY-PATH"><span class="nav-number">4.</span> <span class="nav-text">LD_LIBRARY_PATH</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">5.</span> <span class="nav-text">Reference</span></a></li></ol></div>
             
 
           </div>
