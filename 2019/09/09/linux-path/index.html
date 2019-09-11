@@ -156,7 +156,7 @@
 <meta property="og:site_name" content="PCB Blog">
 <meta property="og:description" content="There are many “path” in linux. Such as executable search PATH, compiler include path, linker path, dynamic library search path LD_LIBRARY_PATH. PATHPATH is an environment variable. It defines the exe">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-09-10T13:15:33.562Z">
+<meta property="og:updated_time" content="2019-09-11T19:23:44.177Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="paths in linux">
 <meta name="twitter:description" content="There are many “path” in linux. Such as executable search PATH, compiler include path, linker path, dynamic library search path LD_LIBRARY_PATH. PATHPATH is an environment variable. It defines the exe">
@@ -450,7 +450,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2019-09-10 09:15:33" itemprop="dateModified" datetime="2019-09-10T09:15:33-04:00">2019-09-10</time>
+                <time title="Modified: 2019-09-11 15:23:44" itemprop="dateModified" datetime="2019-09-11T15:23:44-04:00">2019-09-11</time>
               
             
           </span>
@@ -497,7 +497,7 @@
 <p>We can use <code>gcc -print-search-dirs | sed &#39;/^lib/b 1;d;:1;s,/[^/.][^/]*/\.\./,/,;t 1;s,:[^=]*=,:;,;s,;,;  ,g&#39; | tr \; \\012</code><br>to print default linker search path:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -print-search-dirs | sed &apos;/^lib/b 1;d;:1;s,/[^/.][^/]*/\.\./,/,;t 1;s,:[^=]*=,:;,;s,;,;  ,g&apos; | tr \; \\012</span><br><span class="line"></span><br><span class="line">libraries:</span><br><span class="line"> /usr/lib/gcc/x86_64-linux-gnu/7/:/usr/x86_64-linux-gnu/lib/x86_64-linux-gnu/7/:/usr/x86_64-linux-gnu/lib/x86_64-linux-gnu/:/usr/x86_64-linux-gnu/lib/:/usr/lib/x86_64-linux-gnu/7/:/usr/lib/x86_64-linux-gnu/:/usr/lib/:/lib/x86_64-linux-gnu/7/:/lib/x86_64-linux-gnu/:/lib/:/usr/lib/x86_64-linux-gnu/7/:/usr/lib/x86_64-linux-gnu/:/usr/lib/:/usr/x86_64-linux-gnu/lib/:/usr/lib/:/lib/:/usr/lib/</span><br></pre></td></tr></table></figure>
 <p>We can specify the linker search path to gcc by adding <code>-L/path/to/be/added</code>.</p>
-<p>We can use <code>-B/path/to/library</code> of gcc to specify the linker search path too. It will insert the path in the head of the searh path list.<br>For example, we add <code>-B/usr/test/</code> path to gcc:</p>
+<p>We can use <code>-B/path/to/directory</code> of gcc to specify the gcc search path. It will insert the path in the head of the searh path list.<br>For example, we add <code>-B/usr/test/</code> path to gcc:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -B/usr/test/ -print-search-dirs | sed &apos;/^lib/b 1;d;:1;s,/[^/.][^/]*/\.\./,/,;t 1;s,:[^=]*=,:;,;s,;,;  ,g&apos; | tr \; \\012</span><br><span class="line"></span><br><span class="line">libraries:</span><br><span class="line">  /usr/test/x86_64-linux-gnu/7/:/usr/test/x86_64-linux-gnu/:/usr/test/:/usr/lib/gcc/x86_64-linux-gnu/7/:/usr/x86_64-linux-gnu/lib/x86_64-linux-gnu/7/:/usr/x86_64-linux-gnu/lib/x86_64-linux-gnu/:/usr/x86_64-linux-gnu/lib/:/usr/lib/x86_64-linux-gnu/7/:/usr/lib/x86_64-linux-gnu/:/usr/lib/:/lib/x86_64-linux-gnu/7/:/lib/x86_64-linux-gnu/:/lib/:/usr/lib/x86_64-linux-gnu/7/:/usr/lib/x86_64-linux-gnu/:/usr/lib/:/usr/x86_64-linux-gnu/lib/:/usr/lib/:/lib/:/usr/lib/</span><br></pre></td></tr></table></figure>
 <h3 id="LD-LIBRARY-PATH"><a href="#LD-LIBRARY-PATH" class="headerlink" title="LD_LIBRARY_PATH"></a>LD_LIBRARY_PATH</h3><p>LD_LIBRARY_PATH is an environment variable you set to give the run-time shared library loader (ld.so) an extra set of directories to look for when searching for shared libraries[2].</p>
 <h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><ol>
