@@ -16,7 +16,7 @@
   <entry>
     <title><![CDATA[Binaryninja Python Path Install]]></title>
     <url>%2F2019%2F08%2F20%2Fbinaryninja-python-path%2F</url>
-    <content type="text"><![CDATA[Install binaryninja python path. Firstly, get the python default path: 12import siteprint(site.getsitepackages()[0]) # output: /usr/local/lib/python3.7/dist-packages Then, create a new file binaryninja.pth in /usr/local/lib/python3.7/dist-packages and store the binaryninja python path. Suppose the binaryninja is installed in /opt/binaryninja, then 1$ echo &quot;/opt/binaryninja/python /usr/local/lib/python3.7/dist-packages/binaryninja.pth&quot;]]></content>
+    <content type="text"><![CDATA[Install binaryninja python path. Firstly, get the python default path: 12import siteprint(site.getsitepackages()[0]) # output: /usr/local/lib/python3.7/dist-packages Then, create a new file binaryninja.pth in /usr/local/lib/python3.7/dist-packages and store the binaryninja python path. Suppose the binaryninja is installed in /opt/binaryninja, then 1$ echo &quot;/opt/binaryninja/python &gt; /usr/local/lib/python3.7/dist-packages/binaryninja.pth&quot;]]></content>
       <tags>
         <tag>disassembler</tag>
       </tags>
